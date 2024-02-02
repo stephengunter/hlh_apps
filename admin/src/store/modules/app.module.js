@@ -5,7 +5,7 @@ import { GET_MENUS } from '@/store/actions.type'
 import { SET_BREAD_ITEMS, SET_LOADING, SET_ERRORS, CLEAR_ERRORS, 
    SET_DRAWER, TOGGLE_DRAWER, SET_ROUTE, SET_MENUS
 } from '@/store/mutations.type'
-import { isMainMenuItem, hasParent } from '@/utils'
+import { isMainMenuItem, hasParent, deepClone } from '@/utils'
 
 const initialState = {
    breadItems: [],
@@ -19,7 +19,7 @@ const initialState = {
    menus: []
 }
 
-export const state = { ...initialState }
+const state = deepClone(initialState)
 
 
 const getters = {

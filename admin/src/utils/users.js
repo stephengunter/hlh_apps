@@ -29,10 +29,6 @@ export const isDev = (user) => {
    return false
 }
 
-export const isSubscriber = (user) => {
-   if(user.roles && user.roles.length) return user.roles.includes(ROLE_TYPES.SUBSCRIBER)
-   return false
-}
 
 export const isAdmin = (user) => {
    if(isDev(user)) return true
@@ -40,7 +36,7 @@ export const isAdmin = (user) => {
 }
 
 export const getRoleColor = (role) => {
-   if(role === BOSS || role === DEV) return 'red'
-   else if(role === SUBSCRIBER) return 'green'
+   if(role === ROLE_TYPES.BOSS || ROLE_TYPES.role === DEV) return 'red'
+   else if(role === ROLE_TYPES.CLERK) return 'green'
    else return ''
 }

@@ -4,7 +4,7 @@ import { useStore } from 'vuex'
 import { SET_PASSWORD, CHANGE_PASSWORD } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { DIALOG_MAX_WIDTH } from '@/config'
-import { resolveErrorData, onErrors, onSuccess } from '@/utils'
+import { resolveErrorData, onErrors, deepClone } from '@/utils'
 
 const name = 'PasswordView'
 const props = defineProps({
@@ -24,9 +24,7 @@ const initialState = {
 	},
 	dialog: false
 }
-const state = reactive({
-   ...initialState,
-})
+const state = reactive(deepClone(initialState))
 
 function onAction(key) {
 	store.commit(CLEAR_ERRORS)

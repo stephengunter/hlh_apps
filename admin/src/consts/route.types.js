@@ -5,6 +5,7 @@ export const ROUTE_TYPES = {
    ADMIN_ONLY: 'adminOnly'   
 }
 export const ROUTE_NAMES = {
+   DASHBOARD: 'dashboard',
    LOGIN: 'login',
    DEPARTMENTS: 'departments',
    ARTICLE_INDEX: 'articles',

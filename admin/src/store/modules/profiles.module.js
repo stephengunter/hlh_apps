@@ -2,12 +2,13 @@ import ProfilesService from '@/services/profiles.service'
 
 import { GET_PROFILES, UPDATE_PROFILES } from '@/store/actions.type'
 import { SET_LOADING } from '@/store/mutations.type'
+import { deepClone } from '@/utils'
 
 const initialState = {
    
 }
 
-export const state = { ...initialState }
+const state = deepClone(initialState)
  
 const getters = {
    

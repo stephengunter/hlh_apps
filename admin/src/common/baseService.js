@@ -8,22 +8,14 @@ const setHeader = (token) => {
 
 const fetch = (url, params) => new Promise((resolve, reject) => {
 	axios.get(buildQuery(url, params))
-	.then(response => {
-		resolve(response.data)
-	})
-	.catch(error => {
-		reject(error.response)
-	})
+	.then(response => resolve(response.data))
+	.catch(error => reject(error.response))
 })
 
 const submit = (requestType, url, data) => new Promise((resolve, reject) => {
 	axios[requestType](url, data)
-	.then(response => {
-		resolve(response.data)
-	})
-	.catch(error => {
-		reject(error.response)
-	})
+	.then(response => resolve(response.data))
+	.catch(error => reject(error.response))
 })
 
 const post = (url, data) => submit('post', url, data)

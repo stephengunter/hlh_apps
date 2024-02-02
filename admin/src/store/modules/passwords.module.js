@@ -2,12 +2,13 @@ import PasswordsService from '@/services/passwords.service'
 
 import { SET_PASSWORD, CHANGE_PASSWORD } from '@/store/actions.type'
 import { SET_LOADING } from '@/store/mutations.type'
+import { deepClone } from '@/utils'
 
 const initialState = {
    
 }
 
-export const state = { ...initialState }
+const state = deepClone(initialState)
  
 const getters = {
    

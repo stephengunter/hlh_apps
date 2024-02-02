@@ -1,6 +1,7 @@
 <script setup>
 import { ref, reactive, computed, watch, onBeforeMount } from 'vue'
 import { WIDTH, VALIDATE_MESSAGES, ACTION_TITLES } from '@/consts'
+import { deepClone } from '@/utils'
 
 const name = 'PickerPhotoes'
 const props = defineProps({
@@ -26,9 +27,7 @@ const emit = defineEmits(['submit', 'cancel'])
 const initialState = {
    selected: []
 }
-const state = reactive({
-   ...initialState
-})
+const state = reactive(deepClone(initialState))
 
 
 onBeforeMount(() => {

@@ -3,7 +3,7 @@ import { computed, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { LOGOUT } from '@/store/actions.type'
-import { shortName } from '@/utils'
+import { deepClone, shortName } from '@/utils'
 import { ROUTE_NAMES } from '@/consts'
 
 const name = 'MenuUser'
@@ -31,9 +31,7 @@ const noPicture = computed(() => {
    return false
 })
 
-const state = reactive({
-   ...initialState,
-})
+const state = reactive(deepClone(initialState))
 
 function onSelected(name) {
    if(name === LOGOUT) logout()

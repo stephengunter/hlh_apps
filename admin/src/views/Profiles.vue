@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { GET_PROFILES, UPDATE_PROFILES, SHOW_CONFIRM, HIDE_CONFIRM, LOGOUT } from '@/store/actions.type'
 import { SET_ERRORS } from '@/store/mutations.type'
-import { setValues, resolveErrorData, onErrors, onSuccess } from '@/utils'
+import { setValues, resolveErrorData, onErrors, onSuccess, deepClone } from '@/utils'
 import { DIALOG_MAX_WIDTH } from '@/config'
 import { ROUTE_NAMES } from '@/consts'
 
@@ -19,9 +19,7 @@ const initialState = {
       active: false
    }
 }
-const state = reactive({
-   ...initialState,
-})
+const state = reactive(deepClone(initialState))
 const form = ref({})
 
 onMounted(init)

@@ -1,8 +1,10 @@
 import pluralize from 'pluralize'
 
-export const upperFirstLetter = (val) => val ? '' : val.charAt(0).toUpperCase() + val.slice(1)
+export const isNullOrEmpty = (val) =>  (!val || val == undefined || val == "")
 
-export const pluralization = (val) => pluralize(val)
+export const upperFirstLetter = (val) => isNullOrEmpty(val) ? '' : val.charAt(0).toUpperCase() + val.slice(1)
+
+export const pluralization = (val) => isNullOrEmpty(val) ? '' : pluralize(val)
 
 
 export const removeHtmlTags = (str) => {

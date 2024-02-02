@@ -5,7 +5,7 @@ import { useVuelidate } from '@vuelidate/core'
 import { required, numeric, helpers } from '@vuelidate/validators'
 import { VALIDATE_MESSAGES } from '@/consts'
 import { CLEAR_ERRORS } from '@/store/mutations.type' 
-import { setValues } from '@/utils'
+import { setValues, deepClone } from '@/utils'
 
 const name = 'ProfileForm'
 const props = defineProps({
@@ -30,9 +30,7 @@ const initialState = {
       phoneNumber: ''
    }
 }
-const state = reactive({
-   ...initialState
-})
+const state = reactive(deepClone(initialState))
 
 const labels = {
    'email':'Email',

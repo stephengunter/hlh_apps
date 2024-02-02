@@ -1,79 +1,81 @@
-<template>
-   <v-table>
-      <thead>
-         <tr>
-            <th v-for="header in headers" :width="header.width">
-            {{ header.text }}
-            </th>
-         </tr>
-      </thead>
-      <tbody>
-         <tr v-for="user in list" :key="user.id" >
-            <td>{{ user.id }}</td>
-            <td>{{ user.userName }}</td>
-            <td>
-               <v-chip v-for="(role, index) in roles(user)" :key="index" small
-               :color="roleColor(role)" text-color="white"
-               :class="{ 'ml-1' : index > 0 }"
-               >
-               {{ role }}
-               </v-chip>
-            </td>
-            <td>{{ user.createdAtText }}</td>
-         </tr>
-      </tbody>
-   </v-table>
-</template>
+<script setup>
+import { ref, reactive, computed, watch, onBeforeMount, onMounted } from 'vue'
+import { isEmptyObject, pageOptionsChanged } from '@/utils'
+import { PAGER_OPTIONS, PER_PAGE_TEXT } from '@/consts'
 
-<script >
-import { getRoleColor } from '@/utils'
-
-export default {
-   name: 'UserTable',
-   props: {
-      list: {
-         type: Array,
-         default: () => []
-      },
-      can_remove: {
-         type: Boolean,
-         default: false
-      },
-      can_edit: {
-         type: Boolean,
-         default: true
-      }
+const name = 'UserTable'
+const props = defineProps({
+   model: {
+		type: Object,
+		default: null
 	},
-   data: () => ({
-      headers: [{
-         sortable: false,
-         text: 'Id',
-         value: 'id',
-         width: '180px'
-      },{
-         sortable: false,
-         text: 'UserName',
-         value: 'userName',
-         width: '120px'
-      },{
-         sortable: false,
-         text: '角色',
-         value: 'roles',
-         width: '90px'
-      },{
-         sortable: false,
-         text: '加入日期',
-         value: 'createdAtText',
-         width: '120px'
-      }]
-   }),
-   methods: {
-      roles(user) {
-         return user.roles ? user.roles.split(',') : []
-      },
-      roleColor(role) {
-         return getRoleColor(role);
-      }
+   loading: {
+		type: Boolean,
+		default: false
+	},
+   can_remove: {
+      type: Boolean,
+      default: false
+   },
+   can_edit: {
+      type: Boolean,
+      default: true
    }
+})
+
+const emit = defineEmits(['select', 'options_changed'])
+
+const headers = [{
+   title: 'Id',
+   align: 'start',
+   width: '15%',
+   sortable: false,
+   key: 'id',
+},{
+   title: 'UserName',
+   align: 'start',
+   width: '25%',
+   sortable: false,
+   key: 'userName',
+},{
+   title: '角色',
+   align: 'start',
+   width: '20%',
+   sortable: false,
+   key: 'roles',
+}]
+
+const pager_options = PAGER_OPTIONS()
+const list = computed(() => isEmptyObject(props.model) ? [] : props.model.viewList)
+
+function onOptionChanged(options) {
+   if(pageOptionsChanged(options, props.model)) emit('options_changed', options)
 }
+function select(id) {
+   emit('select', id)
+}
+
 </script>
+
+
+<template>
+   <v-data-table-server
+   v-model:items-per-page="model.pageSize"
+   :headers="headers"
+   :items-length="model.totalItems"
+   :loading="props.loading"
+   :items-per-page-text="PER_PAGE_TEXT"
+   :items-per-page-options="pager_options"
+   :items="list"
+
+   @update:options="onOptionChanged"
+   >
+      <template v-slot:item.userName="{ item }">
+         <a href="#" @click.prevent="select(item.id)">{{ item.userName }}</a>
+      </template>
+      <template v-slot:item.roles="{ item }">
+         roles
+      </template>
+      
+   </v-data-table-server>
+</template>

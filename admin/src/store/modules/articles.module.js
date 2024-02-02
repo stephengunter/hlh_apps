@@ -1,5 +1,5 @@
 import ArticlesService from '@/services/articles.service'
-import { resolveErrorData } from '@/utils'
+import { resolveErrorData, deepClone } from '@/utils'
 
 import {
    FETCH_ARTICLES, CREATE_ARTICLE, STORE_ARTICLE, 
@@ -14,7 +14,7 @@ const initialState = {
    pagedList: null
 }
 
-export const state = { ...initialState }
+const state = deepClone(initialState)
  
 const getters = {
    

@@ -7,7 +7,7 @@ import Image from '@tiptap/extension-image'
 import TextAlign from '@tiptap/extension-text-align'
 import Underline from '@tiptap/extension-underline'
 import { DIALOG_MAX_WIDTH } from '@/config'
-import { photoCustomTag, emojiCustomTag } from '@/utils'
+import { photoCustomTag, emojiCustomTag, deepClone } from '@/utils'
 
 const name = 'EditorTiptap'
 const props = defineProps({
@@ -34,9 +34,7 @@ const initialState = {
 		active: false
 	}
 }
-const state = reactive({
-   ...initialState,
-})
+const state = reactive(deepClone(initialState))
 
 const bubble = ref(null)
 

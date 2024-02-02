@@ -1,9 +1,9 @@
 import UsersService from '@/services/users.service'
-import { resolveErrorData } from '@/utils'
+import { resolveErrorData, deepClone } from '@/utils'
 
 import { FETCH_USERS, USER_DETAILS, ADD_USER_PASSWORD } from '@/store/actions.type'
-
 import { SET_USERS, SET_ROLE_OPTIONS, SET_LOADING } from '@/store/mutations.type'
+import { ROLES } from '@/consts'
 
 
 
@@ -12,7 +12,7 @@ const initialState = {
    roleOptions: []
 }
 
-export const state = { ...initialState }
+const state = deepClone(initialState)
  
 const getters = {
    
@@ -26,7 +26,11 @@ const actions = {
          UsersService.fetch(params)
             .then(model => {
                context.commit(SET_USERS, model.pagedList)
-               if(model.rolesOptions.length) context.commit(SET_ROLE_OPTIONS, model.rolesOptions)
+               if(model.rolesOptions.length) {
+                  context.commit(SET_ROLE_OPTIONS, model.rolesOptions.map(item => ({
+                     value: item.value, title: ROLES[item.value].title
+                  })))
+               } 
                resolve(model)
             })
             .catch(error => {
@@ -75,6 +79,7 @@ const mutations = {
       state.pagedList = model
    },
    [SET_ROLE_OPTIONS](state, options) {
+      console.log('options', options)
       state.roleOptions = options
    }
 }

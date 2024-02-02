@@ -6,7 +6,7 @@ import { required, numeric, helpers } from '@vuelidate/validators'
 import { VALIDATE_MESSAGES } from '@/consts'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { WIDTH, HEIGHT, ACTION_TITLES } from '@/consts'
-import { setValues, statusText, matchPhotoes, resolveImageModel, isEmptyObject } from '@/utils'
+import { deepClone, setValues, statusText, matchPhotoes, resolveImageModel, isEmptyObject } from '@/utils'
 
 const name = 'ArticleEdit'
 const props = defineProps({
@@ -40,9 +40,7 @@ const initialState = {
 		cover: {}
 	}
 }
-const state = reactive({
-   ...initialState
-})
+const state = reactive(deepClone(initialState))
 
 const tiptap = ref(null)
 

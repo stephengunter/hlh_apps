@@ -6,6 +6,7 @@ import { required, minLength, sameAs, not, helpers } from '@vuelidate/validators
 import { SET_PASSWORD, CHANGE_PASSWORD } from '@/store/actions.type'
 import { CLEAR_ERRORS } from '@/store/mutations.type'
 import { VALIDATE_MESSAGES } from '@/consts'
+import { deepClone } from '@/utils'
 
 const name = 'PasswordForm'
 const props = defineProps({
@@ -34,9 +35,7 @@ const initialState = {
       visible: false
    }
 }
-const state = reactive({
-   ...initialState,
-})
+const state = reactive(deepClone(initialState))
 
 const token = computed(() => state.form.token)
 const rules = computed(() => {

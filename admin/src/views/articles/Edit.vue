@@ -8,7 +8,7 @@ import {
    EDIT_ARTICLE, UPDATE_ARTICLE, OFF_ARTICLE, DELETE_ARTICLE
 } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
-import { isEmptyObject, setValues, resolveErrorData, onErrors, onSuccess } from '@/utils'
+import { isEmptyObject, setValues, resolveErrorData, deepClone, onErrors, onSuccess } from '@/utils'
 import { ROUTE_NAMES } from '@/consts'
 
 const name = 'ArticlesEditView'
@@ -20,9 +20,7 @@ const initialState = {
 	model: {}
 	
 }
-const state = reactive({
-   ...initialState,
-})
+const state = reactive(deepClone(initialState))
 const title = computed(() => {
 	if(isEmptyObject(state.model)) return '新增文章'
 	return state.model.id ? '編輯文章' : '新增文章'

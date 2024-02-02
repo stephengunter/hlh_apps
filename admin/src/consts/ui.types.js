@@ -5,6 +5,7 @@ export const APP_UI = {
    CLOSED: APP_CLOSED
 }
 export const WIDTH = {
+   XS: 320,
    S: 480,
    M: 960,
    L: 1200

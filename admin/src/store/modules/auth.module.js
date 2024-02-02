@@ -3,14 +3,16 @@ import BaseService from '@/common/baseService'
 import AuthService from '@/services/auth.service'
 import OAuthService from '@/services/oAuth.service'
 import JwtService from '@/services/jwt.service'
-import { resolveUserFromClaims, isAdmin, isEmptyObject } from '@/utils'
+import { resolveUserFromClaims, isAdmin, isEmptyObject, deepClone } from '@/utils'
 
 import { CHECK_AUTH, LOGIN, LOGIN_BY_GOOGLE, LOGOUT, REFRESH_TOKEN } from '@/store/actions.type'
 import { SET_AUTH, PURGE_AUTH, SET_USER, SET_LOADING } from '@/store/mutations.type'
 
-const state = {
+const initialState = {
    user: {}
 }
+
+const state = deepClone(initialState)
 
 const getters = {
    currentUser(state) {

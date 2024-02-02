@@ -5,7 +5,7 @@ const source =`${API_URL}/admin/departments`
 
 const fetch = (params) => BaseService.fetch(source, params)
 
-const create = () => BaseService.fetch(`${source}/create`)
+const create = (parentId) => BaseService.fetch(`${source}/create/${parentId}`)
 
 const store = (model) => BaseService.post(source, model)
 
@@ -17,4 +17,6 @@ const off = (model) => BaseService.post(`${source}/off`, model)
 
 const remove = (id) => BaseService.remove(`${source}/${id}`)
 
-export default { fetch, create, store, edit, update, off, remove }
+const orders = (model) => BaseService.put(`${source}`, model)
+
+export default { fetch, create, store, edit, update, off, remove, orders }

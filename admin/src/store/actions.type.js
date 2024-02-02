@@ -16,6 +16,16 @@ export const REFRESH_TOKEN = 'refreshToken'
 export const FETCH_EXCEPTIONS = 'fetchExceptions'
 
 //NEW
+export const FETCH_JOBS = 'fetchJobs'
+export const CREATE_JOB = 'createJob'
+export const STORE_JOB = 'storeJob'
+export const EDIT_JOB = 'editJob'
+export const UPDATE_JOB = 'updateJob'
+export const OFF_JOB = 'offJob'
+export const REMOVE_JOB = 'removeJob'
+
+
+//Departments
 export const FETCH_DEPARTMENTS = 'fetchDepartments'
 export const CREATE_DEPARTMENT = 'createDepartment'
 export const STORE_DEPARTMENT = 'storeDepartment'
@@ -23,6 +33,7 @@ export const EDIT_DEPARTMENT = 'editDepartment'
 export const UPDATE_DEPARTMENT = 'updateDepartment'
 export const OFF_DEPARTMENT = 'offDepartment'
 export const REMOVE_DEPARTMENT = 'removeDepartment'
+export const ORDERS_DEPARTMENT = 'ordersDepartment'
 
 //Articles
 export const FETCH_ARTICLES = 'fetchArticles'

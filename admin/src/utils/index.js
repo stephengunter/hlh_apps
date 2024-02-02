@@ -1,17 +1,30 @@
-import { ERRORS, WARNING, SUCCESS } from '@/consts'
-
+import { ERRORS, WARNING, SUCCESS, BAD_REQUEST, DIALOG_TITLE, DIALOG_MESSAGE } from '@/consts'
+import { SHOW_CONFIRM, HIDE_CONFIRM } from '@/store/actions.type'
 export const resolveErrorData = (error) => {
-   if(error) {
-      if(error.status && error.status === 400) return error.data
-   }
-   return null
+   if(!error) return null
+   if(!error.hasOwnProperty('status')) return null
+   if(error.status !== 400) return null
+   if(!error.hasOwnProperty('data')) return null
+   return error.data
 }
+export const badRequest = (title = DIALOG_TITLE[BAD_REQUEST], text = DIALOG_MESSAGE[BAD_REQUEST]) => onErrors({
+   status: 400, title, text
+})
 
-export const onErrors = (error) => Bus.emit(ERRORS, error)
+export const onErrors = (error) => {
+   const errors = resolveErrorData(error)
+   if(errors) Bus.emit(ERRORS, errors)
+   else console.log(error)
+}
 
 export const onSuccess = (msg) => Bus.emit(SUCCESS, msg)
 
 export const onWarning = (msg) => Bus.emit(WARNING, msg)
+
+export const showConfirm = (confirm) => Bus.emit(SHOW_CONFIRM, confirm)
+
+export const hideConfirm = () => Bus.emit(HIDE_CONFIRM)
+
 
 
 export const uuid = (len = 8, radix = 16) => {
@@ -47,13 +60,16 @@ export const uuid = (len = 8, radix = 16) => {
 
 
 export * from './arrays'
+export * from './categories'
 export * from './cn'
 export * from './emoji'
 export * from './helpers'
 export * from './html'
 export * from './inputs'
 export * from './objects'
+export * from './pager'
 export * from './query'
+export * from './sorting'
 export * from './ui'
 export * from './users'
 export * from './validators'

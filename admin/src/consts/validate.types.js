@@ -5,6 +5,7 @@ export const VALIDATE_MESSAGES = {
    SAME_AS: (source, target) => `${source}與${target}必須相同`,
    NOT_SAME_AS: (source, target) => `${source}與${target}必須不同`,
    WRONG_FORMAT_OF: (title) => `不正確的${title}格式`,
+   MUST_SELECT: (title) => `必須選擇${title}`,
    SUB: 'sub',
    ROLES: 'roles',
    NAME: 'name'

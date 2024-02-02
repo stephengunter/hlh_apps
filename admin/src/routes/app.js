@@ -1,6 +1,42 @@
-import { ROUTE_TYPES, ROUTE_NAMES, MENUS } from '@/consts'
-import { upperFirstLetter, pluralization } from '@/utils'
-import pluralize from 'pluralize'
+import { ROUTE_TYPES, ROUTE_NAMES, MENUS, ENTITY_TYPES } from '@/consts'
+import { isNullOrEmpty, upperFirstLetter, pluralization } from '@/utils'
+
+const toLink = (name, meta, view = '', alias = '') => {
+   const temp = pluralization(name)
+   let route = {
+      name: temp,
+      path: `/${temp}`,
+      view: isNullOrEmpty(view) ?  `${upperFirstLetter(temp)}` : view,
+      meta
+   }
+   if(alias) route.alias = alias
+   return route
+}
+
+const USER = ENTITY_TYPES.USER
+const PROFILES = ENTITY_TYPES.PROFILES
+const DEPARTMENT = ENTITY_TYPES.DEPARTMENT
+const JOB = ENTITY_TYPES.JOB
+
+const groups = {
+   [ROUTE_NAMES.DASHBOARD]: toLink(ROUTE_NAMES.DASHBOARD,{
+      icon: 'mdi-view-dashboard',
+      title: '儀表版',
+      menus: [MENUS.MAIN]
+   }, '', '/'),
+   [USER.name]: toLink(USER.name, {
+      icon: 'mdi-account',      
+      title: `${USER.title}管理`,
+      menus: [MENUS.MAIN]
+   }, `${pluralization(USER.name)}/Index`
+   ),
+   [DEPARTMENT.name]: toLink(DEPARTMENT.name, {
+      icon: 'mdi-file-tree-outline',      
+      title: '組織管理',
+      menus: [MENUS.MAIN]
+   }, `${pluralization(DEPARTMENT.name)}/Index`
+   )
+}
 
 const applinks = [{
    name: 'close',
@@ -27,77 +63,53 @@ const applinks = [{
    }
 }]
 
-const adminlinks = [{
-   name: 'dashboard',
-   path: '/',
-   view: 'Dashboard',      
-   meta: {
-      icon: 'mdi-view-dashboard',
-      title: 'Dashboard',
-      menus: [MENUS.MAIN]
-   } 
+const adminlinks = [
+{ 
+   ...groups[ROUTE_NAMES.DASHBOARD]
 },
-{
-   name: ROUTE_NAMES.DEPARTMENTS,
-   path: `/${ROUTE_NAMES.DEPARTMENTS}`,
-   view: pluralization(upperFirstLetter(ROUTE_NAMES.DEPARTMENTS)), 
-   view: `Departments`,   
-   meta: {
-      icon: 'mdi-file-tree-outline',
-      title: '組織管理',
-      menus: [MENUS.MAIN]
-   }
+{ 
+   ...groups[USER.name]
 },
-{
-   name: ROUTE_NAMES.ARTICLE_INDEX,
-   path: '/articles',
-   view: 'articles/Index',      
-   meta: {
-      icon: 'mdi-post-outline',
-      title: '文章管理',
-      menus: [MENUS.MAIN]
-   }
+{ 
+   ...groups[DEPARTMENT.name]
 },
-{
-   name: ROUTE_NAMES.ARTICLE_EDIT,
-   path: '/articles/edit/:id?',
-   view: 'articles/Edit',
-   meta: {
-      title: '文章管理 - 編輯',
-      parent: ROUTE_NAMES.ARTICLE_INDEX,
-   }
-},
-{
-   name: 'tags',
-   path: '/tags',
-   view: 'Tags',
-   meta: {
-      icon: 'mdi-tag-outline',
-      parent: ROUTE_NAMES.ARTICLE_INDEX,
-      title: '標籤管理',
-      menus: [MENUS.MAIN]
-   }
-},
-{
-   name: 'profiles',
-   path: '/profiles',
-   view: 'Profiles',
-   meta: {
-      icon: 'mdi-account',
-      title: 'Profiles',
-      menus: [MENUS.USER]
-   }
-}]
+toLink(JOB.name, {
+   icon: 'mdi-briefcase-outline',
+   parent: groups[DEPARTMENT.name].name,
+   title: JOB.title,
+   menus: [MENUS.MAIN]
+},`${pluralization(DEPARTMENT.name)}/Jobs`
+),
+toLink(PROFILES.name, {
+   icon: 'mdi-account',
+   title: pluralization(PROFILES.name),
+   menus: [MENUS.USER]
+})
+// {
+//    name: ROUTE_NAMES.ARTICLE_INDEX,
+//    path: '/articles',
+//    view: 'articles/Index',      
+//    meta: {
+//       icon: 'mdi-post-outline',
+//       title: '文章管理',
+//       menus: [MENUS.MAIN]
+//    }
+// },
+// {
+//    name: ROUTE_NAMES.ARTICLE_EDIT,
+//    path: '/articles/edit/:id?',
+//    view: 'articles/Edit',
+//    meta: {
+//       title: '文章管理 - 編輯',
+//       parent: ROUTE_NAMES.ARTICLE_INDEX,
+//    }
+// },
+]
 
-const guestLinks = [{
-   name: ROUTE_NAMES.LOGIN,
-   path: '/login',
-   view: 'Login',
-   meta: {
-      icon: 'mdi-login-variant',
-      title: 'Login'
-   } 
-}]
+const guestLinks = [toLink('login', {
+   title: 'Login',
+   menus: []
+})]
 
 applinks.forEach(page => {
    page.meta.type = ROUTE_TYPES.FOR_ALL

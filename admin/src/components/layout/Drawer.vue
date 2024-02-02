@@ -4,18 +4,17 @@ import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { APP_UI } from '@/consts'
 import { SET_DRAWER } from '@/store/mutations.type'
+import { deepClone } from '@/utils'
 
 const name = 'LayoutDrawer'
 const store = useStore()
 const location = useRoute()
+const router = useRouter()
 
 const initialState = {
    open: []
 }
-const state = reactive({
-   ...initialState
-})
-
+const state = reactive(deepClone(initialState))
 
 const menus = computed(() => store.state.app.menus)
 
@@ -28,13 +27,11 @@ const drawer = computed({
 	}
 })
 
-function isActive(item) {
-   if(location) {
-      if(location.name === item.name) return true
-      if(item.meta.hasOwnProperty('subs') && item.meta.subs.includes(location.name)) return true
-   }
-   return false
-}
+const current = computed(() => store.state.app.route.to)
+
+function onSelected(item) {
+   router.push({ path: item.path })
+}  
 
 </script>
 
@@ -55,13 +52,11 @@ function isActive(item) {
       </v-list>
 
       <v-divider class="mb-2" />
-
-      <v-list v-model:opened="state.open">
+      <v-list density="compact">
          <MenuDrawer  v-for="item in menus" :key="item.name" 
-         :item="item" :active="isActive(item)"
+         :item="item" :current="current"
+         @select="onSelected"
          />
-      </v-list>   
-      
-
+      </v-list>
    </v-navigation-drawer>
 </template>

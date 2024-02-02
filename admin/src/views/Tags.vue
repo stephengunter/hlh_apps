@@ -5,7 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { FETCH_ARTICLES } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
-import { isEmptyObject, copyFromQuery , activeOptions, resolveErrorData, onErrors } from '@/utils'
+import { isEmptyObject, copyFromQuery , activeOptions, deepClone, resolveErrorData, onErrors } from '@/utils'
 import { ROUTE_NAMES, ACTION_TITLES } from '@/consts'
 import { nextTick } from 'vue'
 
@@ -22,9 +22,7 @@ const initialState = {
 		pageSize: 10
 	}
 }
-const state = reactive({
-   ...initialState,
-})
+const state = reactive(deepClone(initialState))
 const active_options = activeOptions
 
 const pagedList = computed(() => store.state.articles.pagedList)

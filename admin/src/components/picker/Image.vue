@@ -4,6 +4,7 @@ import { useVuelidate } from '@vuelidate/core'
 import { url, required, helpers } from '@vuelidate/validators'
 import { DIALOG_MAX_WIDTH } from '@/config'
 import { WIDTH, VALIDATE_MESSAGES, ACTION_TITLES } from '@/consts'
+import { deepClone } from '@/utils'
 
 const name = 'PickerImage'
 const emit = defineEmits(['selected', 'cancel'])
@@ -24,9 +25,7 @@ const initialState = {
       text: ''
 	}
 }
-const state = reactive({
-   ...initialState,
-})
+const state = reactive(deepClone(initialState))
 
 const rules = {
 	url: { 

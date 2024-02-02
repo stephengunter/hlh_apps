@@ -1,4 +1,6 @@
-export const deepClone = (obj) => JSON.parse(JSON.stringify(obj))
+import { cloneDeep } from 'lodash'
+
+export const deepClone = (obj) => cloneDeep(obj)// JSON.parse(JSON.stringify(obj))
 
 export const setValues = (source, dest) => {
    for(const [key, value] of Object.entries(source)) {

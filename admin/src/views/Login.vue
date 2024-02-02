@@ -8,7 +8,7 @@ import { LOGIN, LOGIN_BY_GOOGLE } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'   
 import { DIALOG_MAX_WIDTH } from '@/config'
 import { VALIDATE_MESSAGES } from '@/consts'
-import { resolveErrorData, onErrors, onSuccess, setValues } from '@/utils'
+import { resolveErrorData, onErrors, onSuccess, setValues, deepClone } from '@/utils'
 
 const name = 'LoginView'
 const store = useStore()
@@ -26,9 +26,7 @@ const initialState = {
       visible: false
    }
 }
-const state = reactive({
-   ...initialState,
-})
+const state = reactive(deepClone(initialState))
 const labels = {
 	'username':'Email',
 	'password':'密碼'
