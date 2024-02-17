@@ -1,40 +1,46 @@
+
+<script setup>
+import { reactive, onBeforeMount } from 'vue'
+import { deepClone } from '@/utils'
+const name = 'Search'
+const props = defineProps({
+   label: {
+      type: String,
+      default: ''
+   },
+   keyword: {
+      type: String,
+      default: ''
+   }
+})
+const emit = defineEmits(['search'])
+const initialState = {
+   val: ''
+}
+const state = reactive(deepClone(initialState))
+
+onBeforeMount(init)
+
+function init() {
+   state.val = props.keyword
+}
+function clear() {
+   state.val = ''
+   search()
+}
+function search() {
+   emit('search', state.val)
+}
+</script>
+
 <template>
    <form @submit.prevent="search">
       <v-text-field :label="label"
-      prepend-icon="mdi-magnify"
-      clearable
-      v-model="val" 
+      prepend-inner-icon="mdi-magnify"
+      density="compact" :clearable="true"
+      variant="solo" 
+      v-model="state.val" 
       @click:clear="clear"
       />
    </form>
 </template>
-<script>
-export default {
-   name: 'Search',
-	props: {
-      label: {
-         type: String,
-         default: '搜尋'
-      },
-      keyword: {
-         type: String,
-         default: ''
-      }
-	},
-   data: () => ({
-      val: ''      
-   }),
-   beforeMount() {
-      this.val = this.keyword
-   },
-   methods: {
-      clear() {
-         this.val = ''
-         this.search()
-      },
-      search() {
-         this.$emit('search', this.val)
-      }
-	}
-}
-</script>

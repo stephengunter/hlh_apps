@@ -18,24 +18,20 @@ const props = defineProps({
       default: false
    }
 })
-defineExpose({
-	init
-})
 const emit = defineEmits(['submit'])
 
 const store = useStore()
 const initialState = {
    form: {
       name: '',
-      phoneNumber: ''
+      ps: ''
    }
 }
 const state = reactive(deepClone(initialState))
 
 const labels = {
-   'email':'Email',
-	'name':'名稱',
-	'phoneNumber':'手機號碼'
+	'name':'姓名',
+	'ps':'備註'
 }
 
 const rules = computed(() => {
@@ -70,30 +66,22 @@ function onInputChanged(){
    <form v-if="props.model" @submit.prevent="onSubmit" @input="onInputChanged">
 		<v-row>
 			<v-col cols="12">
-				<v-text-field :label="labels['email']"
-				readonly :model-value="props.model.email"
-				/>
 				<v-text-field :label="labels['name']"                
 				v-model="state.form.name"
 				:error-messages="v$.name.$errors.map(e => e.$message)"                     
 				@input="v$.name.$touch"
 				@blur="v$.name.$touch"
 				/>
-				<v-text-field :label="labels['phoneNumber']"                   
-				v-model="state.form.phoneNumber"
-				:error-messages="v$.phoneNumber.$errors.map(e => e.$message)"                     
-				@input="v$.phoneNumber.$touch"
-				@blur="v$.phoneNumber.$touch"
+				<v-text-field :label="labels['ps']"                   
+				v-model="state.form.ps"
 				/>
+				<CoreErrorList v-if="props.active" />
 			</v-col>
 			<v-col cols="12">
 				<v-btn type="submit" color="success" class="float-right">
 				存檔
 				</v-btn>
-			</v-col> 
-			<v-col v-show="props.active" cols="12">
-				<CoreErrorList />
-			</v-col>  
+			</v-col>
 		</v-row>
 	</form>
 </template>

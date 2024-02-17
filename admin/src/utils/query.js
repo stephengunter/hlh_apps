@@ -14,13 +14,4 @@ export const copyFromQuery = (params, query) => {
 	}
 }
 
-export const buildQuery = (url, params) => {
-   return queryString.stringifyUrl({ url, query: params }, { skipEmptyString: true })
-   // if(!params || isEmptyObject(params)) return url
-   // url += '?'
-   // for (let field in params) {
-   //    let value = params[field]
-   //    url += `${field}=${value}&`
-   // }
-   // return url.substr(0, url.length - 1)
-}
+export const buildQuery = (url, params) => queryString.stringifyUrl({ url, query: params }, { skipEmptyString: true })

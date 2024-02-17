@@ -5,7 +5,7 @@ export const ENTITY_TYPES = {
    },
    PROFILES: {
       name: 'profiles',
-      title: 'Profiles'
+      title: '個人資料'
    },
    DEPARTMENT: {
       name: 'department',

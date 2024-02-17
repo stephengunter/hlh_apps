@@ -53,6 +53,7 @@ function onError(error) {
 		errorHandler(error, confirm)
 	}else {
 		// no error state
+		console.log('// no error state')
 		showConfirm(confirm)
 	}
 }
@@ -87,7 +88,7 @@ function errorHandler(error, confirm) {
 			cancel: ''
 		})
 	}else if(error.status === 500) {
-		confirm.text = DIALOG_MESSAGE[SERVER_ERROR]
+		confirm.text = DIALOG_MESSAGE[ERRORS]
 		showConfirm(confirm)
 	}else {
 		showConfirm(confirm)

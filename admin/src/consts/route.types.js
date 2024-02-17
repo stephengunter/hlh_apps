@@ -8,6 +8,8 @@ export const ROUTE_NAMES = {
    DASHBOARD: 'dashboard',
    LOGIN: 'login',
    DEPARTMENTS: 'departments',
+   USER_DETAILS: 'user-details',
    ARTICLE_INDEX: 'articles',
-   ARTICLE_EDIT: 'article-edit'
+   ARTICLE_EDIT: 'article-edit',
+   NOT_FOUND: '404'
 }

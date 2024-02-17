@@ -47,7 +47,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
 	if(APP_CLOSED && to.name !== 'close') return redirect(next, { name: 'close' })
 	
-	store.commit(SET_ROUTE, to, from)
+	store.commit(SET_ROUTE, { to, from })
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(CHECK_AUTH).then(auth => {
 		if(to.meta.type === ROUTE_TYPES.FOR_ALL) return authDone(next, to, auth)

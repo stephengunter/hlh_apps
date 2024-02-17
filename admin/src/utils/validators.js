@@ -20,6 +20,16 @@ export const clearErrors = (errors, keys = []) => {
 	return errors;
 }
 
+export const isValidUserName = (input) => {
+   var pattern = /^[a-zA-Z0-9_.@]*$/    
+   // Using test method of RegExp object to check if input matches the pattern
+   return pattern.test(input)
+}
+
+export const isValidPhoneNumber = (input) => {
+   var regex = /^0\d{9}$/;
+   return regex.test(input);
+}
 
 export const isValidURL = (str) => {
    const pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol

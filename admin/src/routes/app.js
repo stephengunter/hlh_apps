@@ -47,7 +47,7 @@ const applinks = [{
    } 
 },
 {
-   name: '404',
+   name: ROUTE_NAMES.NOT_FOUND,
    path: '/:pathMatch(.*)*',
    view: '404',      
    meta: {
@@ -72,6 +72,15 @@ const adminlinks = [
 },
 { 
    ...groups[DEPARTMENT.name]
+},
+{
+   name: ROUTE_NAMES.USER_DETAILS,
+   path: '/users/:id',
+   view: 'users/Details',
+   meta: {
+      title: `${USER.title}管理`,
+      parent: groups[USER.name].name
+   }
 },
 toLink(JOB.name, {
    icon: 'mdi-briefcase-outline',
@@ -105,11 +114,15 @@ toLink(PROFILES.name, {
 //    }
 // },
 ]
-
-const guestLinks = [toLink('login', {
-   title: 'Login',
-   menus: []
-})]
+const guestLinks = [{
+   name: 'login',
+   path: '/login',
+   view: 'Login',
+   meta: {
+      title: 'Login',
+      menus: []
+   }
+}]
 
 applinks.forEach(page => {
    page.meta.type = ROUTE_TYPES.FOR_ALL

@@ -38,7 +38,7 @@ export const SET_EXCEPTION_PERIOD = 'setExceptionPeriod'
 
 //Users
 export const SET_USERS = 'setUsers'
-export const SET_ROLE_OPTIONS = 'setRoleOptions'
+export const SET_ROLES = 'setRoles'
 
 
 

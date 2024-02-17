@@ -1,11 +1,12 @@
 import Errors from '@/common/errors'
 import appRoutes from '@/routes/app'
 import { MENUS } from '@/consts'
-import { GET_MENUS } from '@/store/actions.type'
+import { GET_MENUS, PAGE_NOT_FOUND } from '@/store/actions.type'
 import { SET_BREAD_ITEMS, SET_LOADING, SET_ERRORS, CLEAR_ERRORS, 
    SET_DRAWER, TOGGLE_DRAWER, SET_ROUTE, SET_MENUS
 } from '@/store/mutations.type'
 import { isMainMenuItem, hasParent, deepClone } from '@/utils'
+import { ROUTE_NAMES } from '@/consts'
 
 const initialState = {
    breadItems: [],
@@ -46,6 +47,10 @@ const actions = {
          context.commit(SET_MENUS, mainMenus)
       } 
       else context.commit(SET_MENUS, [])
+   },
+   [PAGE_NOT_FOUND](context, { router, returnUrl }) {
+      if(!returnUrl) returnUrl = state.route.from.fullPath
+      router.push({ name: ROUTE_NAMES.NOT_FOUND, query: { returnUrl } })
    }
 }
 
@@ -68,7 +73,7 @@ const mutations = {
    [CLEAR_ERRORS](state) {
       state.errors.clear()   
    },
-   [SET_ROUTE](state, to, from) {
+   [SET_ROUTE](state, { to, from }) {
       state.route.to = { ...to }
       state.route.from = { ...from }
    },

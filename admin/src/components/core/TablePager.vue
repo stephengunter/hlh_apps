@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive, computed, watch, onBeforeMount } from 'vue'
-import _ from 'lodash'
+import { setValues, statusText, deepClone, isEmptyObject } from '@/utils'
 
 const name = 'TablePager'
 const props = defineProps({
@@ -19,20 +19,21 @@ const props = defineProps({
    row_options: {
       type: Array,
       default: () => [10,25,50]
-   },
-   responsive: {
-      type: Boolean,
-      default: false
    }
 })
 const emit = defineEmits(['page_changed', 'size_changed'])
-
-const data = reactive({
+const initialState = {
    page: 1,
    size: 10
+}
+const state = reactive(deepClone(initialState))
+
+watch(() => props.model, (currentValue, oldValue) => {
+   init()
+},{
+   deep:true
 })
 
-watch(() => _.cloneDeep(props.model), (currentValue, oldValue) => init)
 
 onBeforeMount(init)
 
@@ -46,11 +47,11 @@ const first = computed(() => {
 const last = computed(() => {
    return isEmpty.value ? 0 : (first.value + props.model[props.list_key].length - 1)
 })
-const summary = computed(() => `${first.value} - ${last.value} of ${props.model.totalItems}`)
+const summary = computed(() => `${first.value} - ${last.value} , Total ${props.model.totalItems}`)
 
 function init() {
-   data.page = props.model.pageNumber
-   data.size = props.model.pageSize
+   state.page = props.model.pageNumber
+   state.size = props.model.pageSize
 }
 function onPageChanged(page) {
    emit('page_changed', page)
@@ -62,20 +63,20 @@ function onPageSizeChanged(size) {
 
 <template>
    <v-row dense v-if="can_page">
-      <v-col cols="5">
+      <v-col cols="2">
          <v-select class="float-right mt-1" style="width: 100px;"  density="compact"
          label="Rows"
          :items="row_options"
-         v-model="data.size"   
+         v-model="state.size"   
          @update:modelValue="onPageSizeChanged"
          />
       </v-col>
       <v-col cols="2"> 
-         <p v-text="summary" class="mt-4 text-center"></p>
+         <p v-text="summary" class="mt-1 text-center text-h6"></p>
       </v-col>
-      <v-col cols="5">
-         <v-pagination  class="float-left"
-         v-model="data.page"
+      <v-col cols="8">
+         <v-pagination  class="float-left" density="comfortable"
+         v-model="state.page" total-visible="7"
          :length="model.totalPages"
          @update:modelValue="onPageChanged"
          />

@@ -36,7 +36,7 @@ export const isAdmin = (user) => {
 }
 
 export const getRoleColor = (role) => {
-   if(role === ROLE_TYPES.BOSS || ROLE_TYPES.role === DEV) return 'red'
-   else if(role === ROLE_TYPES.CLERK) return 'green'
+   if(role.name === ROLE_TYPES.BOSS || role.name === ROLE_TYPES.DEV) return 'red'
+   else if(role.name === ROLE_TYPES.CLERK) return 'green'
    else return ''
 }

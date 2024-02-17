@@ -1,6 +1,7 @@
-export const SHOW_PHOTO = 'showPhoto'
+export const PAGE_NOT_FOUND = '404'
 export const SHOW_CONFIRM = 'showConfirm'
 export const HIDE_CONFIRM = 'hideConfirm'
+export const SHOW_PHOTO = 'showPhoto'
 
 export const GET_MENUS = 'getMenus'
 
@@ -16,6 +17,9 @@ export const REFRESH_TOKEN = 'refreshToken'
 export const FETCH_EXCEPTIONS = 'fetchExceptions'
 
 //NEW
+
+
+//Jobs
 export const FETCH_JOBS = 'fetchJobs'
 export const CREATE_JOB = 'createJob'
 export const STORE_JOB = 'storeJob'
@@ -46,11 +50,18 @@ export const REMOVE_ARTICLE = 'removeArticle'
 
 //Users
 export const FETCH_USERS = 'fetchUsers'
+export const CREATE_USER = 'createUser'
+export const STORE_USER = 'storeUser'
+export const FETCH_ROLES = 'fetchRoles'
+export const IMPORT_USERS = 'importUsers'
 export const USER_DETAILS = 'userDetails'
+export const EDIT_USER = 'editUser'
+export const UPDATE_USER = 'updateUser'
 export const ADD_USER_PASSWORD = 'addUserPassword'
 
 //Profiles
 export const GET_PROFILES = 'getProfiles'
+export const CREATE_PROFILES = 'createProfiles'
 export const UPDATE_PROFILES = 'updateProfiles'
 
 //Passwords

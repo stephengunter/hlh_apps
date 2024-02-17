@@ -136,7 +136,7 @@ function onInputChanged(){
                   </v-col> 
                   <v-col cols="12">
                      <CoreErrorList />
-                  </v-col>  
+                  </v-col>
                </v-row>
             </form>
             <v-row>
