@@ -5,9 +5,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useVuelidate } from '@vuelidate/core'
 import { email, required, helpers } from '@vuelidate/validators'
 import { LOGIN, LOGIN_BY_GOOGLE } from '@/store/actions.type'
-import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'   
-import { DIALOG_MAX_WIDTH } from '@/config'
-import { VALIDATE_MESSAGES } from '@/consts'
+import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'  
+import { VALIDATE_MESSAGES, WIDTH } from '@/consts'
 import { resolveErrorData, onErrors, onSuccess, setValues, deepClone } from '@/utils'
 
 const name = 'LoginView'
@@ -100,7 +99,7 @@ function onInputChanged(){
 
 
 <template>
-   <v-card :max-width="DIALOG_MAX_WIDTH">
+   <v-card :max-width="WIDTH.S">
       <v-card-title class="font-weight-black">
          <h2 class="ma-2">登入</h2>            
       </v-card-title>
@@ -135,7 +134,7 @@ function onInputChanged(){
                      </v-btn>
                   </v-col> 
                   <v-col cols="12">
-                     <CoreErrorList />
+                     <ErrorsList />
                   </v-col>
                </v-row>
             </form>

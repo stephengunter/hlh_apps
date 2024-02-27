@@ -26,10 +26,19 @@ class Category {
    }
 
    getFullText(list, key = 'parentIds') {
-      if(!this[key].length) return this.title
-      let parentNames = this.parentIds.map(id => list.find(c => c.id === id))
+      if(list) {
+         if(!this[key].length) return this.title
+         let parentNames = this.parentIds.map(id => list.find(c => c.id === id))
                                           .map(item => item.title)
-      return parentNames.concat([this.title]).join(' > ')
+         return parentNames.concat([this.title]).join(' > ')
+      }
+      let titles = [this.title]
+      let parent = this.parent
+      while(parent) {
+         titles.splice(0, 0, parent.title)
+         parent = parent.parent
+      }
+      return titles.join(' > ')
    }
 
    hasParent(id, key = 'parentIds') {

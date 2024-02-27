@@ -17,12 +17,22 @@ export const REFRESH_TOKEN = 'refreshToken'
 export const FETCH_EXCEPTIONS = 'fetchExceptions'
 
 //NEW
+export const FETCH_JOB_USER_PROFILES_BY_JOB = 'fetchJobUserProfilesByJob'
+export const FETCH_JOB_USER_PROFILES_BY_USER = 'fetchJobUserProfilesByUser'
+export const CREATE_JOB_USER_PROFILES = 'createJobUserProfiles'
+export const STORE_JOB_USER_PROFILES = 'storeJobUserProfiles'
+export const EDIT_JOB_USER_PROFILES = 'editJobUserProfiles'
+export const UPDATE_JOB_USER_PROFILES = 'updateJobUserProfiles'
+export const OFF_JOB_USER_PROFILES = 'offJobUserProfiles'
+export const REMOVE_JOB_USER_PROFILES = 'removeJobUserProfiles'
+
 
 
 //Jobs
 export const FETCH_JOBS = 'fetchJobs'
 export const CREATE_JOB = 'createJob'
 export const STORE_JOB = 'storeJob'
+export const JOB_DETAILS = 'jobDetails'
 export const EDIT_JOB = 'editJob'
 export const UPDATE_JOB = 'updateJob'
 export const OFF_JOB = 'offJob'
@@ -38,6 +48,7 @@ export const UPDATE_DEPARTMENT = 'updateDepartment'
 export const OFF_DEPARTMENT = 'offDepartment'
 export const REMOVE_DEPARTMENT = 'removeDepartment'
 export const ORDERS_DEPARTMENT = 'ordersDepartment'
+export const EXPORT_DEPARTMENT = 'exportDepartment'
 
 //Articles
 export const FETCH_ARTICLES = 'fetchArticles'
@@ -60,9 +71,13 @@ export const UPDATE_USER = 'updateUser'
 export const ADD_USER_PASSWORD = 'addUserPassword'
 
 //Profiles
+export const FETCH_ALL_PROFILES = 'fetchAllProfiles'
 export const GET_PROFILES = 'getProfiles'
 export const CREATE_PROFILES = 'createProfiles'
+export const STORE_PROFILES = 'storeProfiles'
+export const EDIT_PROFILES = 'editProfiles'
 export const UPDATE_PROFILES = 'updateProfiles'
+export const DELETE_PROFILES = 'deleteProfiles'
 
 //Passwords
 export const SET_PASSWORD = 'setPassword'

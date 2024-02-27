@@ -8,8 +8,12 @@ const name = 'App'
 		<LayoutToolbar />
 
 		<LayoutDrawer />
-
-		<LayoutView />
+		
+		<v-container fluid>
+			<v-main id="layout-view">
+				<router-view />
+			</v-main>
+		</v-container>
 
 		<LayoutFeedback />
 		

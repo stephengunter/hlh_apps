@@ -10,7 +10,11 @@ const props = defineProps({
    root: {
       type: Object,
       default: null
-   }
+   },
+   allow_edit: {
+		type: Boolean,
+		default: false
+	}
 })
 
 
@@ -20,7 +24,7 @@ const initialState = {
 }
 const state = reactive(deepClone(initialState))
 
-const emit = defineEmits(['select', 'add', 'edit'])
+const emit = defineEmits(['select', 'add', 'edit', 'details'])
 defineExpose({
    init
 })
@@ -35,10 +39,11 @@ function init() {
    state.version += 1
 }
 function getJobs(depId) {
-   const items = jobs.value ? jobs.value.filter(item => item.departmentId === depId) : []
+   if(!jobs.value) return []
+   const items = jobs.value.filter(item => item.departmentId === depId)
    return items.sort((a, b) => {
-         return b.role - a.role
-      })
+      return b.role - a.role
+   })
 }
 function select(id) {
    emit('select', id)
@@ -58,6 +63,9 @@ function saveOrder(ids) {
    emit('orders', ids)
 }
 
+function details(id) {
+   emit('details', id)
+}
 </script>
 <template>
    <TreeItem v-if="props.root" :model="root"
@@ -80,8 +88,8 @@ function saveOrder(ids) {
       <template v-slot:bottom="{ model }" >
          <div style="margin-left : 25px">
             <v-card flat max-width="400">
-               <JobTable :list="getJobs(model.id)" 
-               :on_edit="edit"
+               <JobTable :list="getJobs(model.id)" :allow_edit="allow_edit"
+               @details="details"
                />
             </v-card>
             

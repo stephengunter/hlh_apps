@@ -82,7 +82,7 @@ function onPageSizeChanged(size) {
          />
       </template>
       <template v-slot:bottom="{ item }">
-         <CoreTablePager  :model="model"
+         <CommonTablePager  :model="model"
          @page_changed="onPageChanged" @size_changed="onPageSizeChanged"
          />
       </template>

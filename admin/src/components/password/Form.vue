@@ -139,7 +139,7 @@ function onInputChanged() {
 				</v-btn>
 			</v-col> 
 			<v-col cols="12">
-				<CoreErrorList />
+				<ErrorsList />
 			</v-col>  
 		</v-row>
 	</form>

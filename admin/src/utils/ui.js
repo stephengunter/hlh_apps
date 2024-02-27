@@ -18,11 +18,3 @@ export const activeOptions = [{
 }]
 
 export const statusText = (active) => active ? '上架中' : '已下架'
-
-
-export const isMainMenuItem = (item) => item.meta.hasOwnProperty('menus') && item.meta.menus.includes(MENUS.MAIN)
-
-export const hasParent = (item) => item.meta.hasOwnProperty('parent') 
-
-export const getSubitems = (item) => item.meta.hasOwnProperty('subs') ? item.meta.subs : []
-

@@ -9,3 +9,11 @@ export const arrayEqual = (arrA, arrB) => {
    }
    return true;
 }
+export const resort = (arr, name, key) => {
+   let newArr = arr.slice()
+   const index = newArr.findIndex(item => item[key] === name)
+   if(index < 0) return arr
+   newArr.splice(index, 1) // Remove the element from its current position
+   newArr.unshift(arr[index]) // Add the element to the beginning of the array
+   return newArr
+}

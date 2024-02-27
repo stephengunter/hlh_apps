@@ -18,10 +18,16 @@ const submit = (requestType, url, data) => new Promise((resolve, reject) => {
 	.catch(error => reject(error.response))
 })
 
+const blob = (requestType, url, data) => new Promise((resolve, reject) => {
+	axios[requestType](url, data, { responseType: 'blob' })
+	.then(response => resolve(response.data))
+	.catch(error => reject(error.response))
+})
+
 const post = (url, data) => submit('post', url, data)
 
 const put = (url, data) => submit('put', url, data)
 
 const remove = (url, data) => submit('delete', url, data)
 
-export default { setHeader, fetch, submit, post, put, remove }
+export default { setHeader, fetch, submit, post, put, remove, blob }

@@ -4,8 +4,7 @@ import { useStore } from 'vuex'
 import { useRoute, useRouter } from 'vue-router'
 import { CHECK_AUTH, REFRESH_TOKEN } from '@/store/actions.type'
 import { LOGIN, RE_LOGIN, SHOW_CONFIRM, HIDE_CONFIRM } from '@/store/actions.type'
-import { DIALOG_MAX_WIDTH } from '@/config'
-import { ERRORS, WARNING, SUCCESS, ICONS, DIALOG_TITLE, DIALOG_MESSAGE } from '@/consts'
+import { WIDTH, ERRORS, WARNING, SUCCESS, ICONS, DIALOG_TITLE, DIALOG_MESSAGE } from '@/consts'
 import { deepClone, resolveErrorData } from '@/utils'
 
 const name = 'LayoutFeedBack'
@@ -26,7 +25,7 @@ const initialState = {
 		title: '',
 		text: '',
 		active: false,
-		max_width: DIALOG_MAX_WIDTH,
+		max_width: WIDTH.S,
 		ok_text: '確定',
 		cancel_text: '',
 		on_ok: null,
@@ -128,13 +127,12 @@ function onWarning(msg){
 	state.success.show = true
 }
 
-function showConfirm({type, title, text, ok ='確定', cancel = '', on_ok = null, on_cancel = null, max_width = 0 }) {
-	
+function showConfirm({type, title, text, ok ='確定', cancel = '', on_ok = null, on_cancel = null, max_width = 0 }) {	
 	state.confirm = {
 		type,
 		title,
 		text,
-		max_width: max_width ? max_width : DIALOG_MAX_WIDTH,
+		max_width: max_width ? max_width : WIDTH.S,
 		ok_text: ok,
 		cancel_text: cancel,
 		active: true,
@@ -171,7 +169,7 @@ Bus.on(RE_LOGIN, reLogin)
 		</v-snackbar>
 
 		<v-dialog v-model="state.confirm.active" :max-width="state.confirm.max_width" :persistent="!confirmNoAction">
-			<CoreConfirmation :type="state.confirm.type"
+			<CommonDialogConfirmation :type="state.confirm.type"
 			:title="state.confirm.title" :text="state.confirm.text"
 			:ok_text="state.confirm.ok_text"  :cancel_text="state.confirm.cancel_text"
 			:on_cancel="state.confirm.on_cancel"  :on_ok="state.confirm.on_ok"

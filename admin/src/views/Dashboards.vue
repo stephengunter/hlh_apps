@@ -1,9 +1,10 @@
 <script setup>
 import { ref, reactive, computed, watch, onMounted } from 'vue'
-import { deepClone, photoCustomTag, onSuccess, orderByDesc } from '@/utils'
+import { deepClone, photoCustomTag, onSuccess, dateToText, textToDate } from '@/utils'
 
 
 const initialState = {
+	date: '',
 	page: 1,
    dialog: false,
 	text: '<p>Example Text</p><p>I will display &#x1f60e;</p>',
@@ -28,23 +29,26 @@ function save() {
 const tiptap = ref(null)
 
 onMounted(() => {
-
+	
 })
 function onDragEnd ({ oldIndex, newIndex }) {
    console.log('onDragEnd', oldIndex, newIndex )
+}
+function test(val) {
+	console.log(val)
+	//console.log(dateToText(val))
 }
 </script>
 
 <template>
 	<div>
 	<v-row>
-		<v-col cols="12">
-			<v-pagination
-      v-model="state.page"
-      :length="4"
-      rounded="circle"
-    ></v-pagination>
+		<v-col cols="6">
+			<CommonButtonEdit class_name="float-right" tooltip="8585"
+         />
 
+		</v-col>
+		<v-col cols="6">
 		</v-col>
 		<v-col cols="12">
 			<p>

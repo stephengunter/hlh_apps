@@ -3,7 +3,7 @@ import { resolveErrorData, loadParent, loadSubItems, deepClone, getFullText, get
 import Category from '@/models/category'
 import {
    FETCH_DEPARTMENTS, CREATE_DEPARTMENT, STORE_DEPARTMENT, ORDERS_DEPARTMENT,
-   EDIT_DEPARTMENT, UPDATE_DEPARTMENT, OFF_DEPARTMENT, REMOVE_DEPARTMENT
+   EDIT_DEPARTMENT, UPDATE_DEPARTMENT, OFF_DEPARTMENT, REMOVE_DEPARTMENT, EXPORT_DEPARTMENT
 } from '@/store/actions.type'
 
 import { SET_DEPARTMENTS, SET_DEPARTMENT_KEYS, SET_LOADING, CLEAR_DEPARTMENT_KEYS } from '@/store/mutations.type'
@@ -106,9 +106,16 @@ const actions = {
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })
+   },
+   [EXPORT_DEPARTMENT](context, model) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         DepartmentsService.exporting(model)
+         .then(data => resolve(data))
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })
    }
-   
-   
 }
 
 

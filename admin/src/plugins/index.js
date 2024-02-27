@@ -1,10 +1,3 @@
-/**
- * plugins/index.js
- *
- * Automatically included in `./src/main.js`
- */
-
-// Plugins
 import vuetify from './vuetify'
 import vue3GoogleLogin from 'vue3-google-login'
 import { Vue3Mq } from 'vue3-mq'

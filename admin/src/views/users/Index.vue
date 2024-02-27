@@ -145,13 +145,13 @@ function onSubmit(form) {
             />
 			</v-col>
 			<v-col cols="3">
-				<CoreSearch 
+				<CommonInputSearch 
 				:keyword="state.params.keyword"
 				@search="search"
 				/>
 			</v-col>
 			<v-col cols="3">
-				<CoreUpload ref="uploadInput"
+				<CommonInputUpload ref="uploadInput"
 				:multiple="false" :is_media="false" :allow_types="['.txt']"
 				@file-added="onFileAdded"
 				/>
@@ -162,10 +162,10 @@ function onSubmit(form) {
 					</template>
 					<v-list min-width="160"  max-width="300">   
 						<v-list-item title="手動新增" prepend-icon="mdi-pencil"
-						@click.prepend="onAdd"
+						@click.prevent="onAdd"
 						/>
 						<v-list-item title="匯入" prepend-icon="mdi-import"
-						@click.prepend="onImport"
+						@click.prevent="onImport"
 						/>
 					</v-list> 
 				</v-menu>
@@ -180,21 +180,16 @@ function onSubmit(form) {
 				/>
 			</v-col>
 		</v-row>
-		<v-dialog persistent v-model="state.form.active" :width="WIDTH.S + 50">
-			<v-card :max-width="WIDTH.S">
-				<CoreCloseButton 
-				@close="onCancel"
+		<v-dialog persistent v-model="state.form.active" :width="WIDTH.M + 50">
+			<v-card :max-width="WIDTH.M">
+				<CommonCardTitle :title="state.form.title" 
+				@cancel="onCancel"
 				/>
-				<v-card-title class="font-weight-black">
-					<h2 class="ma-2">{{ state.form.title }}</h2>              
-				</v-card-title>
 				<v-card-text>
-					<v-container>
-						<UserForm v-if="state.form.active"
-						:model="state.form.model"
-						@submit="onSubmit"
-						/>
-					</v-container>
+					<UserForm v-if="state.form.active"
+					:model="state.form.model"
+					@submit="onSubmit"
+					/>
 				</v-card-text>
       	</v-card>
 		</v-dialog>

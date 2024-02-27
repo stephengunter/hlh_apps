@@ -19,4 +19,6 @@ const remove = (id) => BaseService.remove(`${source}/${id}`)
 
 const orders = (model) => BaseService.put(`${source}`, model)
 
-export default { fetch, create, store, edit, update, off, remove, orders }
+const exporting = (model) => BaseService.blob('post', `${source}/export`, model)
+
+export default { fetch, create, store, edit, update, off, remove, orders, exporting }

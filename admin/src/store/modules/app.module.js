@@ -5,7 +5,7 @@ import { GET_MENUS, PAGE_NOT_FOUND } from '@/store/actions.type'
 import { SET_BREAD_ITEMS, SET_LOADING, SET_ERRORS, CLEAR_ERRORS, 
    SET_DRAWER, TOGGLE_DRAWER, SET_ROUTE, SET_MENUS
 } from '@/store/mutations.type'
-import { isMainMenuItem, hasParent, deepClone } from '@/utils'
+import { deepClone } from '@/utils'
 import { ROUTE_NAMES } from '@/consts'
 
 const initialState = {
@@ -41,11 +41,7 @@ const getters = {
 
 const actions = {
    [GET_MENUS](context, auth) {
-      if(auth) {
-         let mainMenus = appRoutes.filter(item => isMainMenuItem(item))
-                                 .filter(item => !hasParent(item))
-         context.commit(SET_MENUS, mainMenus)
-      } 
+      if(auth) context.commit(SET_MENUS, appRoutes.filter(item => item.isMainMenuItem()).filter(item => item.isRoot()))
       else context.commit(SET_MENUS, [])
    },
    [PAGE_NOT_FOUND](context, { router, returnUrl }) {
@@ -74,8 +70,8 @@ const mutations = {
       state.errors.clear()   
    },
    [SET_ROUTE](state, { to, from }) {
-      state.route.to = { ...to }
-      state.route.from = { ...from }
+      state.route.to = deepClone(to)
+      state.route.from = deepClone(from)
    },
    [SET_MENUS](state, menus) {
       state.menus = menus

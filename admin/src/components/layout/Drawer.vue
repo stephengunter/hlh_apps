@@ -2,13 +2,12 @@
 import { reactive, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { APP_UI } from '@/consts'
 import { SET_DRAWER } from '@/store/mutations.type'
-import { deepClone } from '@/utils'
+import { SITE_TITLE } from '@/config'
+import { deepClone, isEmptyObject } from '@/utils'
 
 const name = 'LayoutDrawer'
 const store = useStore()
-const location = useRoute()
 const router = useRouter()
 
 const initialState = {
@@ -47,7 +46,8 @@ function onSelected(item) {
                   <v-img src="@/assets/logo.png"></v-img>
                </v-avatar>
             </template>
-            <v-list-item-title class="text-h6" style="line-height: 1.5rem;"  v-text="APP_UI.TITLE"></v-list-item-title>
+            <v-list-item-title class="text-h6" style="line-height: 1.5rem;"  
+            v-text="SITE_TITLE" />
          </v-list-item>
       </v-list>
 

@@ -4,11 +4,11 @@ import { ref, reactive, computed, watch, onBeforeMount, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { FETCH_DEPARTMENTS, CREATE_DEPARTMENT, STORE_DEPARTMENT, EDIT_DEPARTMENT, 
-	UPDATE_DEPARTMENT, REMOVE_DEPARTMENT, ORDERS_DEPARTMENT 
+	UPDATE_DEPARTMENT, REMOVE_DEPARTMENT, ORDERS_DEPARTMENT, EXPORT_DEPARTMENT 
 } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { isEmptyObject, deepClone , activeOptions, copyFromQuery,
-	resolveErrorData, onErrors, onSuccess, setValues, badRequest
+	resolveErrorData, onErrors, onSuccess, setValues, badRequest, is400
 } from '@/utils'
 import { WIDTH, ROOT_DEPARTMENT_KEYS } from '@/consts'
 
@@ -22,8 +22,10 @@ const initialState = {
 		root: ''
 	},
 	form: {
+		title: '',
 		active: false,
-		model: {}
+		model: {},
+		action: ''
 	}
 }
 
@@ -31,6 +33,7 @@ const initialState = {
 const state = reactive(deepClone(initialState))
 
 const tree = ref(null)
+const uploadInput = ref(null)
 
 const keys  = computed(() => store.state.departments.keys)
 const selectedKey = computed(() => {
@@ -100,6 +103,8 @@ function edit(id) {
 	.then(model => {
 		state.form.model = deepClone(model)
 		state.form.active = true
+		state.form.title = '編輯部門'
+		state.form.action = UPDATE_DEPARTMENT
 	})
 	.catch(error => onErrors(error))
 }
@@ -109,6 +114,8 @@ function onAdd(parentId) {
 	.then(model => {
 		state.form.model = deepClone(model)
 		state.form.active = true
+		state.form.title = '新增部門'
+		state.form.action = STORE_DEPARTMENT
 	})
 	.catch(error => onErrors(error))
 }
@@ -117,18 +124,30 @@ function onCancel() {
 }
 function onSubmit(form) {
 	setValues(form, state.form.model)
-	const action = form.id ? UPDATE_DEPARTMENT : STORE_DEPARTMENT
-	store.dispatch(action, state.form.model)
-	.then(() => {
+	store.dispatch(state.form.action, state.form.model)
+	.then(data => {
+		
+		if(state.form.action === EXPORT_DEPARTMENT) {
+			 // Create a URL for the Blob
+			 
+			const url = window.URL.createObjectURL(new Blob([data]));
+			// Create a link element to trigger the download
+			const a = document.createElement('a');
+    a.href = url;
+    a.download = 'departments.json';
+    
+    // Append the link to the document body and trigger the click event
+    document.body.appendChild(a);
+    a.click();
+    
+    // Cleanup
+    window.URL.revokeObjectURL(url);
+		}
 		fetchData()
-		onCancel()
 		onSuccess()
+		onCancel()
 	})
-	.catch(error => {
-		let errors = resolveErrorData(error)
-		if(errors) store.commit(SET_ERRORS, Object.values(errors))
-		else onErrors(error)
-	})
+	.catch(error => handleSubmitError(error))
 }
 function onRemove() {
 	const id = state.form.model.id
@@ -157,11 +176,58 @@ function onOrders(ids) {
 		else onErrors(error)
 	})
 }
+
+function handleSubmitError(error) {
+	if(is400(error)) {
+		let errors = resolveErrorData(error)
+		if(errors) store.commit(SET_ERRORS, Object.values(errors))
+		else onErrors(error)
+	}else onErrors(error)
+}
+
+function onExport() {
+	//state.form.model = { key: '', cmd: '', token: '', data: '' }
+	state.form.model = { key: '' }
+	state.form.active = true
+	state.form.title = '匯出部門資料'
+	state.form.action = EXPORT_DEPARTMENT
+}
+function onImport() {
+	uploadInput.value.launch()
+}
+function onFileAdded(files) {
+	console.log(files)
+	// store.dispatch(IMPORT_USERS, files)
+	// .then(() => {
+		
+	// })
+	// .catch(error => onErrors(error))
+}
 </script>
 
 <template>
 	<div>
-		<v-row>
+		<v-row dense>
+			<v-col cols="12">
+				<v-menu>
+					<template v-slot:activator="{ props }">
+						<v-btn class="float-right" icon="mdi-content-save" v-bind="props" size="small" color="info"
+						/>
+					</template>
+					<v-list min-width="160"  max-width="300">   
+						<v-list-item title="匯出" prepend-icon="mdi-export"
+						@click.prevent="onExport"
+						/>
+						<v-list-item title="匯入" prepend-icon="mdi-import"
+						@click.prevent="onImport"
+						/>
+					</v-list> 
+				</v-menu>
+				<CommonInputUpload ref="uploadInput"
+				:multiple="false" :is_media="false" :allow_types="['.json']"
+				@file-added="onFileAdded"
+				/>
+			</v-col>
 			<v-col cols="12">
 				<DepartmentTree ref="tree"
 				:root="root"
@@ -170,11 +236,22 @@ function onOrders(ids) {
 			</v-col>
 		</v-row>
 		<v-dialog persistent v-model="state.form.active" :width="WIDTH.S + 50">
-			<DepartmentForm v-if="state.form.active"
-			:model="state.form.model" :parent_options="parent_options"
-			@submit="onSubmit" @cancel="onCancel"
-			@remove="onRemove"
-			/>
+			<v-card v-if="state.form.active" :max-width="WIDTH.S">
+				<CommonCardTitle :title="state.form.title" 
+				@cancel="onCancel"  
+				/>
+				<v-card-text>
+
+					<AdminForm v-if="state.form.action === EXPORT_DEPARTMENT"
+					:model="state.form.model"
+					@submit="onSubmit"
+					/>
+					<DepartmentForm v-else
+					:model="state.form.model" :parent_options="parent_options"
+					@submit="onSubmit"  @remove="onRemove"
+					/>
+				</v-card-text>
+			</v-card>
 		</v-dialog>
 	</div>
 </template>

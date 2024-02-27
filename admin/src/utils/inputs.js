@@ -1,6 +1,6 @@
 import pluralize from 'pluralize'
 
-export const isNullOrEmpty = (val) =>  (!val || val == undefined || val == "")
+export const isNullOrEmpty = (val) =>  (!val || val == undefined || val == '')
 
 export const upperFirstLetter = (val) => isNullOrEmpty(val) ? '' : val.charAt(0).toUpperCase() + val.slice(1)
 

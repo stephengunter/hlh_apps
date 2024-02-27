@@ -86,7 +86,7 @@ function onSelect(id) {
 				</v-tooltip>
 			</v-col>
 			<v-col cols="12">
-				<CoreErrorList />
+				<ErrorsList />
 			</v-col>
 		</v-row>
 		<v-row dense>

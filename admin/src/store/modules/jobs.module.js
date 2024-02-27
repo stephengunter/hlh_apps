@@ -2,7 +2,7 @@ import JobsService from '@/services/jobs.service'
 import { resolveErrorData, deepClone } from '@/utils'
 
 import {
-   FETCH_JOBS, CREATE_JOB, STORE_JOB, 
+   FETCH_JOBS, CREATE_JOB, STORE_JOB, JOB_DETAILS,
    EDIT_JOB, UPDATE_JOB, OFF_JOB, REMOVE_JOB
 } from '@/store/actions.type'
 
@@ -58,6 +58,15 @@ const actions = {
       return new Promise((resolve, reject) => {
          JobsService.store(model)
          .then(job => resolve(job))
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
+   [JOB_DETAILS](context, id) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         JobsService.details(id)
+         .then(model => resolve(model))
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })

@@ -82,6 +82,7 @@ export const uuid = (len = 8, radix = 16) => {
 export * from './arrays'
 export * from './categories'
 export * from './cn'
+export * from './datetime'
 export * from './emoji'
 export * from './helpers'
 export * from './html'

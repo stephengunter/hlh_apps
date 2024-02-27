@@ -19,6 +19,7 @@ export const SET_ERRORS = 'setErrors'
 export const CLEAR_ERRORS = 'clearErrors'
 
 //NEW
+
 export const SET_JOBS = 'setJobs'
 
 
@@ -40,6 +41,8 @@ export const SET_EXCEPTION_PERIOD = 'setExceptionPeriod'
 export const SET_USERS = 'setUsers'
 export const SET_ROLES = 'setRoles'
 
+//Profiles
+export const SET_ALL_PROFILES = 'setAllProfiles'
 
 
 //Attachments

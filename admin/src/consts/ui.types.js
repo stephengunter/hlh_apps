@@ -1,13 +1,8 @@
-
-import { SITE_TITLE, APP_CLOSED } from '@/config'
-export const APP_UI = {
-   TITLE: SITE_TITLE,
-   CLOSED: APP_CLOSED
-}
 export const WIDTH = {
    XS: 320,
    S: 480,
-   M: 960,
+   M: 600,
+   XM: 960,
    L: 1200
 }
 export const HEIGHT = {

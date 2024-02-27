@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, computed, onBeforeMount, watch } from 'vue'
-import { isEmptyObject, getSubitems, isMainMenuItem } from '@/utils'
+import { isEmptyObject } from '@/utils'
 import { deepClone } from '@/utils'
 
 const name = 'MenuDrawer'
@@ -24,10 +24,7 @@ const initialState = {
 }
 const state = reactive(deepClone(initialState))
 
-const subMenuItems  = computed(() => {
-   let subs = getSubitems(props.item)
-   return subs.filter(item => isMainMenuItem(item)) 
-})
+const subMenuItems  = computed(() => props.item.getSubitems().filter(item => item.isMainMenuItem()))
 
 watch(() => props.current, init ,{
    deep: true
@@ -37,13 +34,31 @@ onBeforeMount(init)
 
 function init() {
    if(isEmptyObject(props.current)) return
-   let subitem = subMenuItems.value.find(item => item.name === props.current.name)
-   if(subitem) {
-      state.expand = true
+   currentMain()
+   if(subMenuItems.value.length) {
+      subMenuItems.value.forEach(sub => {
+         if(sub.name === props.current.name) {
+            state.expand = true
+            state.parent_active = true
+            state.sub_active_name = sub.name
+         }else {
+            if(props.current.hasParent(sub.name)) {
+               state.expand = true
+               state.parent_active = true
+               state.sub_active_name = sub.name
+            }
+         }
+      })
+   }
+}
+function currentMain() {
+   if(props.item.name === props.current.name) {
       state.parent_active = true
-      state.sub_active_name = subitem.name
-   } else {
-      state.parent_active = (props.item.name === props.current.name)
+      state.expand = true
+      state.sub_active_name = ''
+   }else {
+      state.parent_active = false
+      state.expand = false
       state.sub_active_name = ''
    }
 }
@@ -57,7 +72,9 @@ function select() {
 <template>
    <v-list-item :prepend-icon="item.meta.icon" :active="state.parent_active" >
       <template v-slot:title>
-         <a href="#" @click.prevent="select" style="color: white;" class="text-decoration-none"> {{ item.meta.title }} </a>
+         <a href="#" @click.prevent="select" style="color: white;" class="text-decoration-none">
+         {{ item.meta.title }}
+         </a>
       </template>
       <template v-if="subMenuItems.length" v-slot:append>
          <v-btn variant="text" :icon="state.expand ? 'mdi-menu-down' : 'mdi-menu-right'" 

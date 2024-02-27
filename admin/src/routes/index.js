@@ -3,7 +3,7 @@ import appRoutes from './app'
 import store from '@/store'
 
 import JwtService from '@/services/jwt.service'
-import { ROUTE_TYPES } from '@/consts'
+import { ROUTE_TYPES, ROUTE_NAMES } from '@/consts'
 import { APP_CLOSED } from '@/config'
 import { CHECK_AUTH, REFRESH_TOKEN, GET_MENUS } from '@/store/actions.type'
 import { SET_ROUTE, CLEAR_ERRORS } from '@/store/mutations.type'
@@ -45,9 +45,9 @@ const router = createRouter({
 
 
 router.beforeEach((to, from, next) => {
-	if(APP_CLOSED && to.name !== 'close') return redirect(next, { name: 'close' })
+	if(APP_CLOSED && to.name !== ROUTE_NAMES.CLOSE) return redirect(next, { name: ROUTE_NAMES.CLOSE })
 	
-	store.commit(SET_ROUTE, { to, from })
+	store.commit(SET_ROUTE, { to: appRoutes.find(page => page.name === to.name), from: appRoutes.find(page => page.name === from.name) })
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(CHECK_AUTH).then(auth => {
 		if(to.meta.type === ROUTE_TYPES.FOR_ALL) return authDone(next, to, auth)

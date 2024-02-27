@@ -3,8 +3,8 @@ import { computed, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { LOGOUT } from '@/store/actions.type'
-import { deepClone, shortName } from '@/utils'
-import { ROUTE_NAMES } from '@/consts'
+import { deepClone, shortName, pluralization } from '@/utils'
+import { ROUTE_NAMES, ENTITY_TYPES } from '@/consts'
 
 const name = 'MenuUser'
 const props = defineProps({
@@ -21,7 +21,7 @@ const initialState = {
    items: [{
       title: '登出', name: LOGOUT, icon: 'mdi-logout-variant'
    },{
-      title: 'Profiles', name: 'profiles', icon: 'mdi-account'
+      title: ENTITY_TYPES.PROFILES.title, name: ENTITY_TYPES.PROFILES.name, icon: 'mdi-account'
    }] 
 }
 
@@ -35,14 +35,15 @@ const state = reactive(deepClone(initialState))
 
 function onSelected(name) {
    if(name === LOGOUT) logout()
-   else if(name === 'profiles') profiles()
+   else if(name === ENTITY_TYPES.PROFILES.name) profiles()
 }
 function logout() {
    store.dispatch(LOGOUT)
    .then(() => router.push({ name: ROUTE_NAMES.LOGIN }))   
 }
 function profiles() {
-   router.push({ name: 'profiles' })
+   const id = props.user.id
+   router.push({ name: ROUTE_NAMES.USER_DETAILS, params: { id } })
 }
 
 </script>

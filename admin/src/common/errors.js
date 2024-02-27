@@ -38,6 +38,10 @@ class Errors {
 		}
    }
 
+   set(field, data) {
+		this.errors[field] = data
+   }
+
 
    /**
     * Record the new errors.
