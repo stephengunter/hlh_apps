@@ -19,6 +19,8 @@ export const SET_ERRORS = 'setErrors'
 export const CLEAR_ERRORS = 'clearErrors'
 
 //NEW
+export const SET_LOCATIONS = 'setLocations'
+
 
 export const SET_JOBS = 'setJobs'
 
@@ -26,6 +28,7 @@ export const SET_JOBS = 'setJobs'
 export const SET_DEPARTMENTS = 'setDepartments'
 export const SET_DEPARTMENT_KEYS = 'setDepartmentKeys'
 export const CLEAR_DEPARTMENT_KEYS = 'clearDepartmentKeys'
+export const SET_JOBTITLES = 'setJobtitles'
 
 
 

@@ -64,20 +64,20 @@ const actions = {
             .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [IMPORT_USERS](context, files) {
+   [IMPORT_USERS](context, { key, files }) {
+      console.log('key', key)
+      console.log('files', files)
       context.commit(SET_LOADING, true)
       let form = new FormData()
+      form.append('key', key)
       for (let i = 0; i < files.length; i++) {
-         form.append('files', files[i]);
+         form.append('files', files[i])
       }
       return new Promise((resolve, reject) => {
          UsersService.importing(form)
-            .then(data => {
-               console.log(data)
-               resolve()
-            })
-            .catch(error => reject(error))
-            .finally(() => context.commit(SET_LOADING, false))
+         .then(data => resolve(data))
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
       })
    },
    [USER_DETAILS](context, id) {

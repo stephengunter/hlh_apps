@@ -43,6 +43,8 @@ const initialState = {
 
 const state = reactive(deepClone(initialState))
 const departments = computed(() => store.state.departments.all)
+const job_titles = computed(() => store.state.departments.job_titles)
+const roleOptions = computed(() => store.state.jobs.role_options)
 const allProfiles = computed(() => store.state.profiles.all)
 
 const currentJobUserProfiles = computed(() => {
@@ -59,7 +61,6 @@ function init() {
 		store.dispatch(PAGE_NOT_FOUND, { router })
 		return
 	}
-	
 	checkDepartments().then(() => fetchData(route.params.id))
 }
 function checkDepartments() {
@@ -120,8 +121,17 @@ function onCancel() {
 }
 function onSubmit(form) {
 	setValues(form, state.form.model)
-	if(state.form.type === ENTITY_TYPES.USER.name) updateUser()
-	else if(state.form.type === ENTITY_TYPES.JOB_USER_PROFILES.name) saveJobUser()
+	store.dispatch(state.form.action, state.form.model)
+	.then(() => {
+		fetchData(state.job.id)
+		onSuccess()
+		onCancel()
+	})
+	.catch(error => handleSubmitError(error))
+	// return
+	// if(state.form.type === ENTITY_TYPES.JOB.name) update()
+	// else if(state.form.type === ENTITY_TYPES.USER.name) updateUser()
+	// else if(state.form.type === ENTITY_TYPES.JOB_USER_PROFILES.name) saveJobUser()
 }
 function addJobUser() {
 	checkAllProfiles().then(() => {
@@ -151,15 +161,6 @@ function editJobUser(id) {
 		.catch(error => onErrors(error))
 	})
 }
-function saveJobUser() {
-	store.dispatch(state.form.action, state.form.model)
-	.then(() => {
-		fetchUserProfiles()
-		onCancel()
-		onSuccess()
-	})
-	.catch(error => handelSubmitError(error))
-}
 function removeProfiles() {
 	showConfirm({
 		type: ERRORS,
@@ -177,9 +178,9 @@ function deleteProfiles() {
 		onCancel()
 		onSuccess(`${ENTITY_TYPES.PROFILES.title}已刪除`)
 	})
-	.catch(error => handelSubmitError(error))
+	.catch(error => handleSubmitError(error))
 }
-function handelSubmitError(error) {
+function handleSubmitError(error) {
 	if(is400(error)) {
 		const data = resolveErrorData(error)
 		if(data) store.commit(SET_ERRORS, Object.values(data))
@@ -194,7 +195,7 @@ function handelSubmitError(error) {
 		<template v-if="!isEmptyObject(state.job)">
 			<v-card>
 				<CommonCardTitle :id="state.job.id" :title="ENTITY_TYPES.JOB.title"
-				:tooltip="`編輯${ENTITY_TYPES.JOB.title}資料`"
+				:tooltip="`編輯${ENTITY_TYPES.JOB.title}資料`" :can_cancel="false"
 				@edit="edit"
 				/>
 				<v-card-text>
@@ -210,7 +211,9 @@ function handelSubmitError(error) {
 				<v-window v-model="state.tab.value">
 					<v-window-item value="current">
 						<v-card :max-width="WIDTH.M">
-							<CommonCardTitle v-if="isEmptyObject(currentJobUserProfiles)"  title="查無資料" 
+							<CommonCardTitle v-if="isEmptyObject(currentJobUserProfiles)"  
+							title="查無資料" 
+							:can_cancel="false"
 							/>
 							<v-card-text v-else>
 								<JobuserView :model="currentJobUserProfiles" />
@@ -220,6 +223,7 @@ function handelSubmitError(error) {
 					<v-window-item value="records">
 						<v-card :max-width="WIDTH.M">
 							<CommonCardTitle  :title="state.userProfiles.length ? '' : '查無資料'" 
+							:can_cancel="false"
 							:tooltip="`新增${ENTITY_TYPES.JOB_USER_PROFILES.title}`" @create="addJobUser"
 							/>
 							<v-card-text >
@@ -238,6 +242,12 @@ function handelSubmitError(error) {
 				@cancel="onCancel" 
 				/>
 				<v-card-text>
+					<JobForm v-if="state.form.type === ENTITY_TYPES.JOB.name"
+					:model="state.form.model" :departments="departments"
+					:job_titles="job_titles" :role_options="roleOptions"
+					@submit="onSubmit" @cancel="onCancel"
+					@remove="onRemove"
+					/>
 					<JobuserForm v-if="state.form.type === ENTITY_TYPES.JOB_USER_PROFILES.name" :active="true"
 					:model="state.form.model" :job="state.job" 
 					:department="state.department" :profiles="allProfiles"

@@ -115,7 +115,7 @@ function checkPhone(val) {
 				v-model="state.form.active"
 				color="success" :label="status_text"
 				/>
-				<CommonErrorsList v-if="props.active" />
+				<CommonErrorsList />
 			</v-col>
 			<v-col cols="12">
 				<v-btn type="submit" color="success" class="float-right">

@@ -4,6 +4,7 @@ import { deepClone, photoCustomTag, onSuccess, dateToText, textToDate } from '@/
 
 
 const initialState = {
+	class_name: 'float-right',
 	date: '',
 	page: 1,
    dialog: false,
@@ -43,12 +44,8 @@ function test(val) {
 <template>
 	<div>
 	<v-row>
-		<v-col cols="6">
-			<CommonButtonEdit class_name="float-right" tooltip="8585"
-         />
+		<v-col cols="12">
 
-		</v-col>
-		<v-col cols="6">
 		</v-col>
 		<v-col cols="12">
 			<p>

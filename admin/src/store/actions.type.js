@@ -17,6 +17,8 @@ export const REFRESH_TOKEN = 'refreshToken'
 export const FETCH_EXCEPTIONS = 'fetchExceptions'
 
 //NEW
+
+//JobUserProfiles
 export const FETCH_JOB_USER_PROFILES_BY_JOB = 'fetchJobUserProfilesByJob'
 export const FETCH_JOB_USER_PROFILES_BY_USER = 'fetchJobUserProfilesByUser'
 export const CREATE_JOB_USER_PROFILES = 'createJobUserProfiles'
@@ -48,7 +50,21 @@ export const UPDATE_DEPARTMENT = 'updateDepartment'
 export const OFF_DEPARTMENT = 'offDepartment'
 export const REMOVE_DEPARTMENT = 'removeDepartment'
 export const ORDERS_DEPARTMENT = 'ordersDepartment'
-export const EXPORT_DEPARTMENT = 'exportDepartment'
+export const EXPORT_DEPARTMENTS = 'exportDepartments'
+export const IMPORT_DEPARTMENTS = 'importDepartments'
+
+
+//Locations
+export const FETCH_LOCATIONS = 'fetchLocations'
+export const CREATE_LOCATION = 'createLocation'
+export const STORE_LOCATION = 'storeLocation'
+export const EDIT_LOCATION = 'editLocation'
+export const UPDATE_LOCATION = 'updateLocation'
+export const OFF_LOCATION = 'offLocation'
+export const REMOVE_LOCATION = 'removeLocation'
+export const ORDERS_LOCATION = 'ordersLocation'
+export const EXPORT_LOCATION = 'exportLocation'
+export const IMPORT_LOCATION = 'importLocation'
 
 //Articles
 export const FETCH_ARTICLES = 'fetchArticles'

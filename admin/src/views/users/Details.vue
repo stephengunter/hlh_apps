@@ -168,8 +168,8 @@ function handelSubmitError(error) {
 		<template v-if="!isEmptyObject(state.user)">
 			<v-card>
 				<CommonCardTitle :id="state.user.id" :title="ENTITY_TYPES.USER.title"
-				:tooltip="`編輯${ENTITY_TYPES.USER.title}資料`"
-				@edit="edit"
+				:tooltip="`編輯${ENTITY_TYPES.USER.title}資料`" :can_cancel="false"
+				@edit="edit" 
 				/>
 				<v-card-text>
 					<UserView :model="state.user" :roles="roles" />
@@ -185,11 +185,13 @@ function handelSubmitError(error) {
 				<v-window v-model="state.tab.value">
 					<v-window-item :value="ENTITY_TYPES.PROFILES.name">
 						<v-card v-if="isEmptyObject(state.user.profiles)" :max-width="WIDTH.M">
-							<CommonCardTitle title="查無資料" :tooltip="`新增${ENTITY_TYPES.PROFILES.title}`" @create="addProfiles"
+							<CommonCardTitle title="查無資料" :can_cancel="false"
+							:tooltip="`新增${ENTITY_TYPES.PROFILES.title}`" @create="addProfiles"
 							/>
 						</v-card>
 						<v-card v-else :max-width="WIDTH.M">
 							<CommonCardTitle :id="state.user.profiles.userId" :show_id="false"
+							:can_cancel="false"
 							@edit="editProfiles" :tooltip="`編輯${ENTITY_TYPES.PROFILES.title}`"
 							/>
 							<v-card-text>
@@ -202,13 +204,13 @@ function handelSubmitError(error) {
 		</template>
 		<v-dialog persistent v-model="state.form.active" :width="WIDTH.M + 50">
 			<v-card v-if="state.form.active" :max-width="WIDTH.M">
-				<CommonButtonClose tooltip="取消" @close="onCancel" />
-				<CommonCardTitle :title="state.form.title" />
-				
+				<CommonCardTitle :title="state.form.title" 
+				@cancel="onCancel"
+				/>
 				<v-card-text>
 					<UserForm v-if="state.form.type === ENTITY_TYPES.USER.name"
 					:model="state.form.model" :active="true"
-					@submit="onSubmit"
+					@submit="onSubmit" 
 					/>
 					<ProfilesForm v-if="state.form.type === ENTITY_TYPES.PROFILES.name"
 					:model="state.form.model" :active="true" :can_remove="state.form.can_remove"

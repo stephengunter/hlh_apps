@@ -21,6 +21,7 @@ const props = defineProps({
 const emit = defineEmits(['selected'])
 
 const initialState = {
+   active: false,
 	date: {
       model: null,
       text: ''
@@ -51,11 +52,12 @@ function onSelected(val) {
       state.date.text = ''
    }
    emit('selected', state.date)
+   state.active = false
 }
 
 </script>
 <template>
-	<v-menu>
+	<v-menu :close-on-content-click="false" v-model="state.active">
       <template v-slot:activator="{ props }">
          <v-text-field :label="label" readonly v-bind="props" clearable
          :model-value="state.date.text"

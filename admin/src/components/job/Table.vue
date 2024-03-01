@@ -52,7 +52,7 @@ function remove(item) {
 					/>
 				</td>
 				<td>
-					<a href="#" @click.prevent="details(job.id)">{{ job.title }}</a>
+					<a href="#" @click.prevent="details(job.id)">{{ job.jobTitle.title }}</a>
 					
 					<span v-if="job.role" v-text="`(${job.roleText})`" class="ml-1"></span>
 					<v-tooltip v-if="!job.active" text="已下架">
@@ -65,15 +65,6 @@ function remove(item) {
 					{{ job.subTel }}
 					<span v-if="job.tel" v-text="`(${job.tel})`" class="ml-1"></span>
 				</td>
-				<!-- <td v-if="props.allow_edit" style="width: 30px;">
-					<v-tooltip text="編輯">
-						<template v-slot:activator="{ props }">
-							<v-icon class="mb-1 ml-1" v-bind="props" icon="mdi-pencil" size="x-small" color="info" 
-							@click="on_edit(job)"
-							/>
-						</template>
-					</v-tooltip>
-				</td> -->
 			</tr>
 		</tbody>
 	</v-table>

@@ -1,21 +1,19 @@
-import DepartmentsService from '@/services/departments.service'
+import LocationsService from '@/services/locations.service'
 import { resolveErrorData, loadParent, loadSubItems, deepClone, getFullText, getSubItems } from '@/utils'
 import Category from '@/models/category'
 import {
-   FETCH_DEPARTMENTS, CREATE_DEPARTMENT, STORE_DEPARTMENT, ORDERS_DEPARTMENT, 
-   EDIT_DEPARTMENT, UPDATE_DEPARTMENT, OFF_DEPARTMENT, REMOVE_DEPARTMENT, EXPORT_DEPARTMENTS, IMPORT_DEPARTMENTS
+   FETCH_LOCATIONS, CREATE_LOCATION, STORE_LOCATION, ORDERS_LOCATION, 
+   EDIT_LOCATION, UPDATE_LOCATION, OFF_LOCATION, REMOVE_LOCATION, EXPORT_LOCATION, IMPORT_LOCATION
 } from '@/store/actions.type'
 
-import { SET_DEPARTMENTS, SET_DEPARTMENT_KEYS, SET_LOADING, CLEAR_DEPARTMENT_KEYS, SET_JOBTITLES } from '@/store/mutations.type'
+import { SET_LOCATIONS, SET_LOADING, SET_JOBTITLES } from '@/store/mutations.type'
 
 
 
 const initialState = {
-   keys: {},
    all: [],
    roots: [],
-   options: [],
-   job_titles: []
+   options: []
 }
 
 const state = deepClone(initialState)
@@ -26,14 +24,12 @@ const getters = {
 
 
 const actions = {
-   [FETCH_DEPARTMENTS](context) {
+   [FETCH_LOCATIONS](context) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         DepartmentsService.fetch()
-            .then(model => {
-               context.commit(SET_DEPARTMENT_KEYS, model.keys)
-               context.commit(SET_DEPARTMENTS, model.departments)
-               context.commit(SET_JOBTITLES, model.jobTitles)
+         LocationsService.fetch()
+            .then(list => {
+               context.commit(SET_LOCATIONS, list)
                resolve()
             })
             .catch(error => {
@@ -45,80 +41,80 @@ const actions = {
             })
       })
    },
-   [CREATE_DEPARTMENT](context, parentId) {
+   [CREATE_LOCATION](context, parentId) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         DepartmentsService.create(parentId)
+         LocationsService.create(parentId)
          .then(model => resolve(model))
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [STORE_DEPARTMENT](context, model) {
+   [STORE_LOCATION](context, model) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         DepartmentsService.store(model)
-         .then(department => resolve(department))
+         LocationsService.store(model)
+         .then(location => resolve(location))
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [EDIT_DEPARTMENT](context, id) {
+   [EDIT_LOCATION](context, id) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         DepartmentsService.edit(id)
+         LocationsService.edit(id)
          .then(model => resolve(model))
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [UPDATE_DEPARTMENT](context, model) {
+   [UPDATE_LOCATION](context, model) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         DepartmentsService.update(model.id, model)
+         LocationsService.update(model.id, model)
          .then(() => resolve())
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [OFF_DEPARTMENT](context, id) {
+   [OFF_LOCATION](context, id) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         DepartmentsService.off(id)
+         LocationsService.off(id)
          .then(() => resolve())
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [REMOVE_DEPARTMENT](context, id) {
+   [REMOVE_LOCATION](context, id) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         DepartmentsService.remove(id)
+         LocationsService.remove(id)
          .then(() => resolve())
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [ORDERS_DEPARTMENT](context, ids) {
+   [ORDERS_LOCATION](context, ids) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          const model = { ids }
-         DepartmentsService.orders(model)
+         LocationsService.orders(model)
          .then(() => resolve())
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [EXPORT_DEPARTMENTS](context, model) {
+   [EXPORT_LOCATION](context, model) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         DepartmentsService.exporting(model)
+         LocationsService.exporting(model)
          .then(data => resolve(data))
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [IMPORT_DEPARTMENTS](context, { key, files }) {
+   [IMPORT_LOCATION](context, { key, files }) {
       context.commit(SET_LOADING, true)
       let form = new FormData()
       form.append('key', key)
@@ -126,7 +122,7 @@ const actions = {
          form.append('files', files[i])
       }
       return new Promise((resolve, reject) => {
-         DepartmentsService.importing(form)
+         LocationsService.importing(form)
          .then(data => resolve(data))
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
@@ -136,14 +132,8 @@ const actions = {
 
 
 const mutations = {
-   [SET_DEPARTMENT_KEYS](state, keys) {
-      state.keys = keys
-   },
-   [CLEAR_DEPARTMENT_KEYS](state) {
-      state.keys = {}
-   },
-   [SET_DEPARTMENTS](state, departments) {
-      state.all = departments.map(item => new Category(item))
+   [SET_LOCATIONS](state, list) {
+      state.all = list.map(item => new Category(item))
       state.all.forEach(c => c.loadParentIds(state.all))
       
       let roots = state.all.filter(c => c.isRootItem)
@@ -151,7 +141,7 @@ const mutations = {
 
       state.options = state.all.map(item => ({
          value: item.id,
-         text: item.getFullText(departments)
+         text: item.getFullText(list)
       }))
       
    },

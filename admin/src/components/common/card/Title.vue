@@ -42,11 +42,9 @@ function cancel() {
 }
 </script>
 <template>
-   <v-toolbar>
-      <v-card-title>
-         <span v-if="props.title" class="text-h5 font-weight-black">{{ props.title }}</span>
-         <span v-if="props.id" v-show="props.show_id" class="headline ml-3">Id : {{ props.id }} </span>
-      </v-card-title>
+   <v-card-title>
+      <span v-if="props.title" class="text-h5 font-weight-black">{{ props.title }}</span>
+      <span v-if="props.id" v-show="props.show_id" class="headline ml-3">Id : {{ props.id }} </span>
       <template v-if="props.id">
          <CommonButtonEdit v-if="props.tooltip" class_name="float-right" :tooltip="props.tooltip"
          @edit="edit"
@@ -57,6 +55,8 @@ function cancel() {
          @create="create"
          />
       </template>
-      <CommonButtonClose v-if="props.can_cancel" :tooltip="cancel_tooltip" @close="cancel" />
-   </v-toolbar>
+      <CommonButtonClose v-if="props.can_cancel" :tooltip="cancel_tooltip" 
+      @close="cancel" 
+      />
+   </v-card-title>
 </template>

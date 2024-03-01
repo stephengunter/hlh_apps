@@ -6,6 +6,7 @@ const USER = ENTITY_TYPES.USER
 const PROFILES = ENTITY_TYPES.PROFILES
 const DEPARTMENT = ENTITY_TYPES.DEPARTMENT
 const JOB = ENTITY_TYPES.JOB
+const LOCATION = ENTITY_TYPES.LOCATION
 
 const applinks = [
 new Page({
@@ -90,7 +91,16 @@ new Page({
    title: `${JOB.title}管理`,
    menus: [],
    parent: pluralization(JOB.name),
-})
+}),
+new Page({
+   name: pluralization(LOCATION.name),
+   path: `/${pluralization(LOCATION.name)}`,
+   view: `${pluralization(LOCATION.name)}/Index`,
+   icon: 'mdi-office-building',
+   title: `${LOCATION.title}管理`,
+   menus: [MENUS.MAIN],
+   parent: pluralization(DEPARTMENT.name),
+}),
 
 //Groups Departments
 // toLink(JOB.name, {

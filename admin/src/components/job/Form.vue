@@ -5,7 +5,7 @@ import { useVuelidate } from '@vuelidate/core'
 import { required, numeric, helpers } from '@vuelidate/validators'
 import { CLEAR_ERRORS } from '@/store/mutations.type'
 import { VALIDATE_MESSAGES, WIDTH, HEIGHT, ACTION_TITLES, ENTITY_TYPES } from '@/consts'
-import { setValues, statusText, deepClone, isEmptyObject } from '@/utils'
+import { setValues, randomItem, statusText, deepClone, isEmptyObject } from '@/utils'
 
 const name = 'JobForm'
 const props = defineProps({
@@ -14,6 +14,10 @@ const props = defineProps({
 		default: null
 	},
 	departments: {
+		type: Array,
+		default: () => []
+	},
+	job_titles: {
 		type: Array,
 		default: () => []
 	},
@@ -28,23 +32,25 @@ const store = useStore()
 const initialState = {
    form: {
 		id: 0,
-		title: '',
+		jobTitleId: 0,
 		departmentId: null,
 		role: 0,
 		tel: '',
 		subTel: '',
 		ps: '',
       active: true
-   }
+   },
+	errors: {
+		'title': false
+	}
 }
 const state = reactive(deepClone(initialState))
 const departmentOptions = computed(() => props.departments.map(item => ({ value: item.id, text: item.title })))
+const titleOptions = computed(() => props.job_titles.map(item => ({ value: item.id, text: item.title })))
 const title = computed(() => props.model.id ? `${ACTION_TITLES.EDIT}${entity.title}` : `${ACTION_TITLES.CREATE}${entity.title}`)
 const rules = computed(() => {
 	return {
-		title: { 
-			required: helpers.withMessage(VALIDATE_MESSAGES.REQUIRED(labels['title']), required)
-		}
+		
 	}
 })
 
@@ -72,6 +78,9 @@ onBeforeMount(init)
 
 function init() {
 	setValues(props.model, state.form)
+	if(!state.form.jobTitleId) {
+		state.form.jobTitleId = randomItem(props.job_titles).id
+	}
 }
 function onSubmit() {
 	v$.value.$validate().then(valid => {
@@ -103,11 +112,10 @@ function onInputChanged(){
 			</v-col>
 			
 			<v-col cols="6">
-				<v-text-field :label="labels['title']"           
-				v-model="state.form.title"
-				:error-messages="v$.title.$errors.map(e => e.$message)"                     
-				@input="v$.title.$touch"
-				@blur="v$.title.$touch"
+				<span v-if="state.errors.title" class="text-red ml-2">{{ `*${VALIDATE_MESSAGES.MUST_SELECT(labels['title'])}`  }}</span>
+				<v-autocomplete :label="labels['title']"
+				v-model="state.form.jobTitleId"
+				:items="titleOptions" item-title="text"
 				/>
 				<v-switch
 				v-model="state.form.active"

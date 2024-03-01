@@ -24,13 +24,8 @@ const initialState = {
 		active: false,
 		title: '',
 		model: {},
-		department: null
-	},
-	details: {
-		active: false,
-		id: 0,
-		title: '職務資料',
-		model: {}
+		department: null,
+		jobTitle: null
 	}
 }
 
@@ -53,7 +48,7 @@ const root  = computed(() => {
 
 const departments = computed(() => root.value ? store.state.departments.all.filter(c => c.hasParent(root.value.id)) : [])
 
-const jobs = computed(() => store.state.jobs.list)
+const job_titles = computed(() => store.state.departments.job_titles)
 const roleOptions = computed(() => store.state.jobs.role_options)
 
 
@@ -129,6 +124,7 @@ function onAdd(depId) {
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(CREATE_JOB)
 	.then(model => {
+		if(state.form.jobTitle) state.form.model.jobTitleId = state.form.jobTitle.id
 		state.form.model = deepClone(model)
 		state.form.model.departmentId = department.id
 		state.form.title = `新增${ENTITY_TYPES.JOB.title}`
@@ -141,6 +137,8 @@ function onCancel() {
 }
 function onSubmit(form) {
 	setValues(form, state.form.model)
+	state.form.jobTitle = job_titles.value.find(item => item.id === form.jobTitleId)
+
 	const action = form.id ? UPDATE_JOB : STORE_JOB
 	store.dispatch(action, state.form.model)
 	.then(() => {
@@ -157,19 +155,6 @@ function onSubmit(form) {
 
 function details(id) {
 	router.push({ name: ROUTE_NAMES.JOB_DETAILS, params: { id } })
-}
-function onDetails(id) {
-	if(!id) {
-		state.details = { ...initialState.details }
-		return
-	}
-	store.dispatch(JOB_DETAILS, id)
-	.then(model => {
-		state.details.id = id
-		state.details.model = deepClone(model)
-		state.details.active = true
-	})
-	.catch(error => onErrors(error))
 }
 function onRemove() {
 	const id = state.form.model.id
@@ -213,29 +198,19 @@ function onOrders(ids) {
 		</v-row>
 		<v-dialog persistent v-model="state.form.active" :width="WIDTH.M + 50">
 			<v-card :max-width="WIDTH.M">
-				<CommonButtonClose tooltip="取消" @close="onCancel" />
-				<CommonCardTitle :title="state.form.title" />
+				<CommonCardTitle :title="state.form.title" 
+				@cancel="onCancel"
+				/>
 				<v-card-text>
 					<JobForm v-if="state.form.active"
 					:model="state.form.model" :departments="departments"
-					:role_options="roleOptions"
+					:job_titles="job_titles" :role_options="roleOptions"
 					@submit="onSubmit" @cancel="onCancel"
 					@remove="onRemove"
 					/>
 				</v-card-text>
 			</v-card>
 			
-		</v-dialog>
-		<v-dialog persistent v-model="state.details.active" :width="WIDTH.S + 50">
-			<v-card v-if="state.details.active">
-				<CommonButtonClose @close="onDetails(null)" />
-				<CommonCardTitle :id="state.details.id" :title="state.details.title" />
-				<v-card-text>
-					<JobView
-					:model="state.details.model"
-					/>
-				</v-card-text>
-			</v-card>
 		</v-dialog>
 	</div>
 </template>

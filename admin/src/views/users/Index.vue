@@ -7,7 +7,7 @@ import { FETCH_USERS, CREATE_USER, STORE_USER, IMPORT_USERS
 } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { isEmptyObject, deepClone , activeOptions, copyFromQuery,
-	resolveErrorData, onErrors, onSuccess, setValues, badRequest
+	resolveErrorData, onErrors, onSuccess, setValues, badRequest, is400
 } from '@/utils'
 import { WIDTH, ROUTE_NAMES } from '@/consts'
 
@@ -27,11 +27,10 @@ const initialState = {
 	form: {
 		title: '新增用戶',
 		active: false,
-		model: {}
+		model: {},
+		action: ''
 	}
 }
-
-const uploadInput = ref(null)
 
 const active_options = activeOptions
 const pagedList = computed(() => store.state.users.pagedList)
@@ -94,13 +93,18 @@ function onAdd() {
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(CREATE_USER)
 	.then(model => {
+		state.form.title = '新增用戶'
+		state.form.action = STORE_USER
 		state.form.model = deepClone(model)
 		state.form.active = true
 	})
 	.catch(error => onErrors(error))
 }
 function onImport() {
-	uploadInput.value.launch()
+	state.form.title = '匯入用戶'
+	state.form.action = IMPORT_USERS
+	state.form.model = { key: '', files: [] }
+	state.form.active = true
 }
 function onFileAdded(files) {
 	store.dispatch(IMPORT_USERS, files)
@@ -114,17 +118,35 @@ function onCancel() {
 }
 function onSubmit(form) {
 	setValues(form, state.form.model)
+	if(state.form.action === IMPORT_USERS) {
+		importing()
+		return
+	}
 	store.dispatch(STORE_USER, state.form.model)
 	.then(() => {
 		fetchData()
 		onCancel()
 		onSuccess()
 	})
-	.catch(error => {
+	.catch(error => handleSubmitError(error))
+}
+
+function importing() {
+	store.dispatch(IMPORT_USERS, state.form.model)
+	.then(() => {
+		onCancel()
+		fetchData()
+		onSuccess('匯入成功')
+	})
+	.catch(error => handleSubmitError(error))
+}
+
+function handleSubmitError(error) {
+	if(is400(error)) {
 		let errors = resolveErrorData(error)
 		if(errors) store.commit(SET_ERRORS, Object.values(errors))
 		else onErrors(error)
-	})
+	}else onErrors(error)
 }
 </script>
 
@@ -151,10 +173,6 @@ function onSubmit(form) {
 				/>
 			</v-col>
 			<v-col cols="3">
-				<CommonInputUpload ref="uploadInput"
-				:multiple="false" :is_media="false" :allow_types="['.txt']"
-				@file-added="onFileAdded"
-				/>
 				<v-menu>
 					<template v-slot:activator="{ props }">
 						<v-btn icon="mdi-plus" v-bind="props" size="small" color="info"
@@ -181,12 +199,17 @@ function onSubmit(form) {
 			</v-col>
 		</v-row>
 		<v-dialog persistent v-model="state.form.active" :width="WIDTH.M + 50">
-			<v-card :max-width="WIDTH.M">
+			<v-card v-if="state.form.active" :max-width="WIDTH.M">
 				<CommonCardTitle :title="state.form.title" 
 				@cancel="onCancel"
 				/>
 				<v-card-text>
-					<UserForm v-if="state.form.active"
+					<AdminForm v-if="state.form.action === IMPORT_USERS"
+					:model="state.form.model" :file_request="true"
+					:file_accept="['.txt']" file_label="上傳檔案"
+					@submit="onSubmit"
+					/>
+					<UserForm v-else
 					:model="state.form.model"
 					@submit="onSubmit"
 					/>

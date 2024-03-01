@@ -15,13 +15,36 @@ const props = defineProps({
    model: {
 		type: Object,
 		default: null
-	}
+	},
+	file_request: {
+		type: Boolean,
+		default: false
+	},
+	file_label: {
+		type: String,
+		default: '上傳檔案'
+	},
+	file_accept: {
+		type: Array,
+		default: () => []
+	},
+	file_is_media: {
+		type: Boolean,
+		default: false
+	},
+	file_multiple: {
+		type: Boolean,
+		default: false
+	},
 })
 const initialState = {
    form: {
-		key: ''
+		key: '',
+		files: []
    }
+
 }
+const file_upload = ref(null)
 const state = reactive(deepClone(initialState))
 const rules = computed(() => {
 	return {
@@ -44,11 +67,21 @@ function init() {
 function onSubmit() {
 	v$.value.$validate().then(valid => {
 		if(!valid) return
+		if(props.file_request) {
+			state.form.files = file_upload.value.getFiles().slice()
+			if(!state.form.files.length) {
+				store.commit(SET_ERRORS, Object.values({files: ['必須上傳檔案']}))
+				return
+			}
+		}
 		emit('submit', state.form)
 	})
 }
 function onInputChanged(){
    store.commit(CLEAR_ERRORS)
+}
+function onFileAdded(model) {
+	store.commit(CLEAR_ERRORS)
 }
 </script>
 
@@ -61,6 +94,10 @@ function onInputChanged(){
 				:error-messages="v$.key.$errors.map(e => e.$message)"                     
 				@input="v$.key.$touch"
 				@blur="v$.key.$touch"
+				/>
+				<CommonInputUpload ref="file_upload" :show_button="file_request"
+				:multiple="file_multiple" :is_media="file_is_media" :allow_types="file_accept"
+				@file-added="onFileAdded"
 				/>
 			</v-col>
 			<CommonErrorsList />

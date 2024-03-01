@@ -7,6 +7,10 @@ export const ENTITY_TYPES = {
       name: 'profiles',
       title: '個人資料'
    },
+   LOCATION: {
+      name: 'location',
+      title: '位置'
+   },
    DEPARTMENT: {
       name: 'department',
       title: '部門'

@@ -17,3 +17,8 @@ export const resort = (arr, name, key) => {
    newArr.unshift(arr[index]) // Add the element to the beginning of the array
    return newArr
 }
+
+export const randomItem = (arr) => {
+   const randomIndex = Math.floor(Math.random() * arr.length)
+   return arr[randomIndex];
+}

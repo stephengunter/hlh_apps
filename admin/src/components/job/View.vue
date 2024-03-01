@@ -43,7 +43,7 @@ const labels = {
 		</v-col>
 		<v-col cols="6">
 			<v-text-field :label="labels['title']"
-			readonly :model-value="model.title"
+			readonly :model-value="model.jobTitle.title"
 			/>
 			<v-label style="width: 70px" v-text="labels['active']"></v-label>
 			<CommonChipActive

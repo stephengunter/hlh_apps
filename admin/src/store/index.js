@@ -3,6 +3,7 @@ import { createStore } from 'vuex'
 import app from './modules/app.module'
 import auth from './modules/auth.module'
 import articles from './modules/articles.module'
+import locations from './modules/locations.module'
 import jobUserProfiles from './modules/job_user_profiles.module'
 import jobs from './modules/jobs.module'
 import departments from './modules/departments.module'
@@ -15,10 +16,11 @@ const store = createStore({
       app,
       auth,
       articles,
-      jobUserProfiles,
-
+      
+      locations,
       departments,
       jobs,
+      jobUserProfiles,
       users,
       profiles,
       passwords

@@ -5,7 +5,7 @@ import { useVuelidate } from '@vuelidate/core'
 import { required, numeric, helpers } from '@vuelidate/validators'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { VALIDATE_MESSAGES, WIDTH, HEIGHT, ACTION_TITLES, ENTITY_TYPES } from '@/consts'
-import { setValues, statusText, deepClone, isEmptyObject } from '@/utils'
+import { setValues, statusText, deepClone, isEmptyObject, isSameOrAfter } from '@/utils'
 import Errors from '@/common/errors'
 
 const name = 'JobUserForm'
@@ -78,24 +78,30 @@ const status_text = computed(() => statusText(state.form.active))
 onBeforeMount(init)
 
 function init() {
+	console.log(props.profiles)
 	setValues(props.model, state.form)
 }
 
 function setStartDate(date) {
 	state.form.startDateText = date.text
 	checkDate()
-	// if(date.text) state.errors.clear('startDate')
-	// else state.errors.set('startDate', [VALIDATE_MESSAGES.REQUIRED(labels['startDate'])])
 }
 function setEndDate(date) {
 	state.form.endDateText = date.text
-	if(date.text) {
-
-	}
+	checkDate()
 }
 function checkDate() {
 	if(state.form.startDateText) state.errors.clear('startDate')
 	else state.errors.set('startDate', [VALIDATE_MESSAGES.REQUIRED(labels['startDate'])])
+
+	if(state.form.endDateText) {
+		if(isSameOrAfter(state.form.startDateText, state.form.endDateText)) {
+			state.errors.clear('endDate')
+		}else {
+			state.errors.set('endDate', ['錯誤的結束日期'])
+		}
+	}
+	
 }
 function cancel() {
 	emit('cancel')
@@ -124,12 +130,11 @@ function onInputChanged(){
 				<v-text-field :label="labels['department']"
 				readonly :model-value="departmentFullTitle"
 				/>
-				
 			</v-col>
 			
 			<v-col cols="6">
 				<v-text-field :label="labels['jobId']"
-				readonly :model-value="props.job.title"
+				readonly :model-value="props.job.jobTitle.title"
 				/>
 			</v-col>
 			<v-col cols="6">

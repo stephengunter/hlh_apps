@@ -3,24 +3,21 @@ import { MqResponsive } from 'vue3-mq'
 import { ref, reactive, computed, watch, onBeforeMount, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { FETCH_DEPARTMENTS, CREATE_DEPARTMENT, STORE_DEPARTMENT, EDIT_DEPARTMENT, 
-	UPDATE_DEPARTMENT, REMOVE_DEPARTMENT, ORDERS_DEPARTMENT, EXPORT_DEPARTMENTS, IMPORT_DEPARTMENTS 
+import { FETCH_LOCATIONS, CREATE_LOCATION, STORE_LOCATION, EDIT_LOCATION, 
+	UPDATE_LOCATION, REMOVE_LOCATION, ORDERS_LOCATION, EXPORT_LOCATION, IMPORT_LOCATION 
 } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
-import { isEmptyObject, deepClone , activeOptions, copyFromQuery, downloadFile,
+import { isEmptyObject, deepClone , downloadFile,
 	resolveErrorData, onErrors, onSuccess, setValues, badRequest, is400
 } from '@/utils'
-import { WIDTH, ROOT_DEPARTMENT_KEYS } from '@/consts'
+import { WIDTH, ENTITY_TYPES } from '@/consts'
 
-const name = 'DepartmentsIndexView'
+const name = 'LocationsIndexView'
 const store = useStore()
 const route = useRoute()
 const router = useRouter()
 
 const initialState = {
-	params: {
-		root: ''
-	},
 	form: {
 		title: '',
 		active: false,
@@ -28,93 +25,51 @@ const initialState = {
 		action: ''
 	}
 }
-
-
 const state = reactive(deepClone(initialState))
+const LOCATION = ENTITY_TYPES.LOCATION
 
-const tree = ref(null)
+const tree_AB = ref(null)
+const tree_CB = ref(null)
+const locations = computed(() => store.state.locations.all)
+const roots  = computed(() => store.state.locations.roots)
+const parent_options = computed(() => locations.value.map(item => ({ value: item.id, text: item.getFullText(locations.value) })))
 
-const keys  = computed(() => store.state.departments.keys)
-const selectedKey = computed(() => {
-	if(isEmptyObject(keys.value)) return ''
-	if(!state.params.root) return ''
-	return keys.value[state.params.root]
-})
-const roots  = computed(() => store.state.departments.roots)
-const root  = computed(() => selectedKey.value ? roots.value.find(x => x.key === selectedKey.value) : null)
+onBeforeMount(fetchData)
 
-const departments = computed(() => root.value ? store.state.departments.all.filter(c => c.hasParent(root.value.id)) : [])
-const parent_options = computed(() => {
-	if(!root.value) return []
-	let parents = [root.value].concat(departments.value)
-	return parents.map(item => ({ value: item.id, text: item.getFullText(parents) }))
-})
-
-onBeforeMount(() => {
-	loadParams()
-	if(isEmptyObject(keys.value)) {
-		fetchData()
-		return
-	}
-	checkParams()
-})
-
-watch(route, () => {
-	loadParams()
-	if(isEmptyObject(keys.value)) {
-		fetchData()
-		return
-	}
-	checkParams()
-})
-
-function loadParams() {
-	if(isEmptyObject(route.query)) state.params = deepClone(initialState.params)
-	else copyFromQuery(state.params, route.query)
-}
-function checkParams() {
-	if(state.params.root) {
-		if(keys.value.hasOwnProperty(state.params.root)) init()
-		else badRequest('BAD_REQUEST 錯誤的 root key')
-	}else {
-		state.params.root = keys.value[ROOT_DEPARTMENT_KEYS.HLH]
-		router.push({ path: route.path, query: { ...state.params } })
-	}
-
-}
 function fetchData() {
 	store.commit(CLEAR_ERRORS)
-	store.dispatch(FETCH_DEPARTMENTS)
+	store.dispatch(FETCH_LOCATIONS)
 	.then(() => {
-		nextTick(() => {
-			checkParams()
-		})
+		nextTick(init)
 	})
 	.catch(error => onErrors(error))
 }
 function init() {
-	tree.value.init()
-		
+	tree_AB.value.init()
+	tree_CB.value.init()
 }
-function edit(id) {
+function getRoot(key) {
+	if(roots.value && roots.value.length) return  roots.value.find(item => item.key === key)
+}
+function edit(id) {	
 	store.commit(CLEAR_ERRORS)
-	store.dispatch(EDIT_DEPARTMENT, id)
+	store.dispatch(EDIT_LOCATION, id)
 	.then(model => {
 		state.form.model = deepClone(model)
 		state.form.active = true
-		state.form.title = '編輯部門'
-		state.form.action = UPDATE_DEPARTMENT
+		state.form.title = `編輯${LOCATION.title}`
+		state.form.action = UPDATE_LOCATION
 	})
 	.catch(error => onErrors(error))
 }
 function onAdd(parentId) {
 	store.commit(CLEAR_ERRORS)
-	store.dispatch(CREATE_DEPARTMENT, parentId)
+	store.dispatch(CREATE_LOCATION, parentId)
 	.then(model => {
 		state.form.model = deepClone(model)
 		state.form.active = true
-		state.form.title = '新增部門'
-		state.form.action = STORE_DEPARTMENT
+		state.form.title = `新增${LOCATION.title}`
+		state.form.action = STORE_LOCATION
 	})
 	.catch(error => onErrors(error))
 }
@@ -123,11 +78,11 @@ function onCancel() {
 }
 function onSubmit(form) {
 	setValues(form, state.form.model)
-	if(state.form.action === EXPORT_DEPARTMENTS) {
+	if(state.form.action === EXPORT_LOCATION) {
 		exporting()
 		return
 	}
-	if(state.form.action === IMPORT_DEPARTMENTS) {
+	if(state.form.action === IMPORT_LOCATION) {
 		importing()
 		return
 	}
@@ -142,7 +97,7 @@ function onSubmit(form) {
 }
 function onRemove() {
 	const id = state.form.model.id
-	store.dispatch(REMOVE_DEPARTMENT, id)
+	store.dispatch(REMOVE_LOCATION, id)
 	.then(() => {
 		fetchData()
 		onCancel()
@@ -156,7 +111,7 @@ function onRemove() {
 }
 
 function onOrders(ids) {
-	store.dispatch(ORDERS_DEPARTMENT, ids)
+	store.dispatch(ORDERS_LOCATION, ids)
 	.then(() => {
 		fetchData()
 		onSuccess()
@@ -168,9 +123,9 @@ function onOrders(ids) {
 	})
 }
 function exporting() {
-	store.dispatch(EXPORT_DEPARTMENTS, state.form.model)
+	store.dispatch(EXPORT_LOCATION, state.form.model)
 	.then(data => {
-		downloadFile(data, 'departments.json')
+		downloadFile(data, 'locations.json')
 		onCancel()
 	})
 	.catch(error => {
@@ -186,7 +141,7 @@ function exporting() {
 	})
 }
 function importing() {
-	store.dispatch(IMPORT_DEPARTMENTS, state.form.model)
+	store.dispatch(IMPORT_LOCATION, state.form.model)
 	.then(() => {
 		onCancel()
 		fetchData()
@@ -204,18 +159,16 @@ function handleSubmitError(error) {
 }
 
 function onExport() {
-	store.commit(CLEAR_ERRORS)
 	state.form.model = { key: '' }
 	state.form.title = '匯出部門資料'
-	state.form.action = EXPORT_DEPARTMENTS
+	state.form.action = EXPORT_LOCATION
 
 	state.form.active = true
 }
 function onImport() {
-	store.commit(CLEAR_ERRORS)
 	state.form.model = { key: '', files: [] }
 	state.form.title = '匯入部門資料'
-	state.form.action = IMPORT_DEPARTMENTS
+	state.form.action = IMPORT_LOCATION
 
 	state.form.active = true
 }
@@ -240,9 +193,17 @@ function onImport() {
 					</v-list> 
 				</v-menu>
 			</v-col>
-			<v-col cols="12">
-				<DepartmentTree ref="tree"
-				:root="root" :show_key="true"
+		</v-row>
+		<v-row dense>
+			<v-col cols="6">
+				<LocationTree ref="tree_AB"
+				:root="getRoot('AB')"
+				@select="edit" @add="onAdd" @orders="onOrders"
+				/>
+			</v-col>
+			<v-col cols="6">
+				<LocationTree ref="tree_CB"
+				:root="getRoot('CB')"
 				@select="edit" @add="onAdd" @orders="onOrders"
 				/>
 			</v-col>
@@ -253,12 +214,12 @@ function onImport() {
 				@cancel="onCancel"  
 				/>
 				<v-card-text>
-					<AdminForm v-if="state.form.action === EXPORT_DEPARTMENTS || state.form.action === IMPORT_DEPARTMENTS"
-					:model="state.form.model" :file_request="state.form.action === IMPORT_DEPARTMENTS"
+					<AdminForm v-if="state.form.action === EXPORT_LOCATION || state.form.action === IMPORT_LOCATION"
+					:model="state.form.model" :file_request="state.form.action === IMPORT_LOCATION"
 					:file_accept="['.json']" file_label="上傳檔案"
 					@submit="onSubmit"
 					/>
-					<DepartmentForm v-else
+					<LocationForm v-else
 					:model="state.form.model" :parent_options="parent_options"
 					@submit="onSubmit"  @remove="onRemove"
 					/>
