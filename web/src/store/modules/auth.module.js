@@ -3,14 +3,16 @@ import BaseService from '@/common/baseService'
 import AuthService from '@/services/auth.service'
 import OAuthService from '@/services/oAuth.service'
 import JwtService from '@/services/jwt.service'
-import { resolveUserFromClaims, isAdmin, isEmptyObject } from '@/utils'
+import { resolveUserFromClaims, isAdmin, isEmptyObject, deepClone } from '@/utils'
 
 import { CHECK_AUTH, LOGIN, LOGIN_BY_GOOGLE, LOGOUT, REFRESH_TOKEN } from '@/store/actions.type'
 import { SET_AUTH, PURGE_AUTH, SET_USER, SET_LOADING } from '@/store/mutations.type'
 
-const state = {
+const initialState = {
    user: {}
 }
+
+const state = deepClone(initialState)
 
 const getters = {
    currentUser(state) {
@@ -83,11 +85,16 @@ const actions = {
             BaseService.setHeader(token)
             let claims = JwtService.resolveClaims(token)
             let user = resolveUserFromClaims(claims)
-            context.commit(SET_USER, user) 
-            resolve(user)           
+            if(isAdmin(user)) {
+               context.commit(SET_USER, user) 
+               resolve(true)
+            }else {
+               context.commit(PURGE_AUTH)
+               resolve(false)
+            }            
          }else {
             context.commit(PURGE_AUTH)
-            resolve(null)
+            resolve(false)
          }
       })
    },
@@ -110,7 +117,9 @@ const actions = {
                context.commit(PURGE_AUTH)
                resolve(false)           
             })
-            .finally(() => context.commit(SET_LOADING, false))
+            .finally(() => { 
+               context.commit(SET_LOADING, false)
+            })
          }else {
             context.commit(PURGE_AUTH)
             resolve(false)

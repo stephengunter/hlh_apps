@@ -2,24 +2,10 @@ export const photoCustomTag = (model) => `<PHOTO>${JSON.stringify(model)}</PHOTO
 
 export const emojiCustomTag = ({key, value}) => `<EMOJI>${key},${value}</EMOJI>`
 
-export const converCustomTags = (html) => {
-   return  converEmoji(converPhoto(html))
-}
+export const matchPhotoes = (html) => html.match(/&lt;PHOTO&gt;(.*?)&lt;\/PHOTO&gt;/g)
 
-export const converPhoto = (html) => {
-   let result = html  
-   let matches = html.match(/&lt;PHOTO&gt;(.*?)&lt;\/PHOTO&gt;/g)
-   if(!matches) return result
+export const resolveImageModel = (photo) => JSON.parse(photo.replace(/&lt;PHOTO&gt;/g, '').replace(/&lt;\/PHOTO&gt;/g, ''))
 
-   matches.forEach(item => {
-      let model = JSON.parse(item.replace(/&lt;PHOTO&gt;/g, '').replace(/&lt;\/PHOTO&gt;/g, ''))
-      let block = `<img src="${model.url}" >`
-      
-      if(model.title) block += `<span class="img-text">${model.title}</span>`
-      result = result.replace(item, block)  
-   })
-   return result
-}
 export const converEmoji = (html) => {
    let result = html  
    let matches = html.match(/&lt;EMOJI&gt;(.*?)&lt;\/EMOJI&gt;/g)

@@ -8,13 +8,15 @@ const store = useStore()
 </script>
 
 <template>
-   <v-app>
-      <LayoutsHeader />
-      <LayoutsDrawer />
-      <v-main id="layout-view">
-         <router-view />
-      </v-main>
-      <LayoutsFeedback />
+   <v-app id="app">
+      <LayoutToolbar />
+		<LayoutDrawer />
+      <v-container fluid>
+			<v-main id="layout-view">
+				<router-view />
+			</v-main>
+		</v-container>
+      <LayoutFeedback />
    </v-app>
 </template>
 

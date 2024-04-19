@@ -1,3 +1,5 @@
+import { MENUS } from '@/consts'
+
 export const isSmallScreen = () => window.innerWidth < 991
 
 export const scrollToTop = () => {

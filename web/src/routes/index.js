@@ -3,12 +3,10 @@ import appRoutes from './app'
 import store from '@/store'
 
 import JwtService from '@/services/jwt.service'
-import { ROUTE_TYPES } from '@/consts'
+import { ROUTE_TYPES, ROUTE_NAMES } from '@/consts'
 import { APP_CLOSED } from '@/config'
-import { CHECK_AUTH, REFRESH_TOKEN } from '@/store/actions.type'
-import { SET_MENUS, SET_ROUTE, CLEAR_ERRORS } from '@/store/mutations.type'
-import { getMainMenus } from '@/common/menu'
-import { isAdmin } from '@/utils'
+import { CHECK_AUTH, REFRESH_TOKEN, GET_MENUS } from '@/store/actions.type'
+import { SET_ROUTE, CLEAR_ERRORS } from '@/store/mutations.type'
 
 const history = createWebHistory(process.env.BASE_URL)
 const routes = appRoutes.map(item => {
@@ -29,9 +27,8 @@ const routes = appRoutes.map(item => {
 
 const redirect = (next, route) => next(route)
 
-const authDone = (next, to, user) => {
-	let mainMenus = getMainMenus(to, auth)
-	store.commit(SET_MENUS, mainMenus)
+const authDone = (next, to, auth = false) => {
+	store.dispatch(GET_MENUS, auth)
 	return next()
 }
 const refreshToken = (next, to) => {
@@ -48,35 +45,34 @@ const router = createRouter({
 
 
 router.beforeEach((to, from, next) => {
-	if(APP_CLOSED && to.name !== 'close') return redirect(next, { name: 'close' })
-	let type = to.meta.type
+	if(APP_CLOSED && to.name !== ROUTE_NAMES.CLOSE) return redirect(next, { name: ROUTE_NAMES.CLOSE })
 	
-	store.commit(SET_ROUTE, { to, from })
+	store.commit(SET_ROUTE, { to: appRoutes.find(page => page.name === to.name), from: appRoutes.find(page => page.name === from.name) })
 	store.commit(CLEAR_ERRORS)
-	store.dispatch(CHECK_AUTH).then(user => {
-		if(type === ROUTE_TYPES.FOR_ALL) return next()
-		if(user) { 
-			if(type === ROUTE_TYPES.GUEST_ONLY) return redirect(next, { path: '/' })
+	store.dispatch(CHECK_AUTH).then(auth => {
+		if(to.meta.type === ROUTE_TYPES.FOR_ALL) return authDone(next, to, auth)
+	
+		if(auth) { 
+			if(to.meta.type === ROUTE_TYPES.GUEST_ONLY) return redirect(next, { path: '/' })
 			
 			let tokenStatus = JwtService.tokenStatus()
-			if(tokenStatus < 0) {
-				//token過期 or 即將到期
+			if(tokenStatus === -1) {
+				//token過期
 				return refreshToken(next, to)
-			}else {
-				if(type === ROUTE_TYPES.ADMIN_ONLY) {
-					if(isAdmin(user)) return next()
-					return redirect(next, { name: '404' })
-				}
-				return next()
-			} 
+
+			}else if(tokenStatus === 0) {
+				//token 即將到期
+				return refreshToken(next, to)
+
+			}else return authDone(next, to, auth)
 			
 		}else{
 			//無token
-			if(type === ROUTE_TYPES.USER_ONLY || type === ROUTE_TYPES.ADMIN_ONLY) {
+			if(to.meta.type === ROUTE_TYPES.GUEST_ONLY) return authDone(next, to, auth)
+			else {
 				let query = { ...to.query, returnUrl: to.path }
-				return redirect(next, { path: '/login', query })	
-			} 
-			return next()
+				return redirect(next, { path: '/login', query })
+			}
 		}
 	})
 })

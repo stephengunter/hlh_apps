@@ -1,79 +1,76 @@
-import { ROUTE_TYPES, ROUTE_NAMES } from '@/consts'
+import { ROUTE_TYPES, ROUTE_NAMES, MENUS, ENTITY_TYPES } from '@/consts'
+import { isNullOrEmpty, upperFirstLetter, pluralization } from '@/utils'
+import Page from '@/models/page'
 
-const applinks = [{
-   name: 'home',
-   path: '/',
-   view: 'Home',
-   parent: '',
-   meta: {
-      order: 0,
-      icon: 'mdi-home',
-      title: '首頁',
-      menu: true
-   } 
-},{
-   name: 'games',
-   path: '/games',
-   view: 'Games',
-   parent: '',
-   meta: {
-      order: 0,
-      icon: 'mdi-puzzle',
-      title: '小遊戲',
-      menu: true
-   } 
-},{
-   name: 'tools',
-   path: '/tools',
-   view: 'Tools',
-   parent: '',
-   meta: {
-      order: 0,
-      icon: 'mdi-tools',
-      title: '工具箱',
-      menu: true
-   } 
-},{
-   name: ROUTE_NAMES.ARTICLE_DETAILS,
-   path: '/article/:id',
-   view: 'Article',
-   parent: '',
-   meta: {
-      order: 0,
-      icon: '',
-      title: '',
-      menu: false
-   } 
-}]
+const USER = ENTITY_TYPES.USER
+const PROFILES = ENTITY_TYPES.PROFILES
+const JUDGEBOOK = ENTITY_TYPES.JUDGEBOOK
 
-const guestLinks = [{
-   name: 'login',
-   path: '/login',
-   view: 'Login',
-   parent: 'Dashboard',
-   meta: {
-      icon: 'mdi-login-variant',
-      title: 'Login',
-      menu: true
-   } 
-}]
-
-const adminlinks = []
-
-applinks.forEach(page => {
-   page.meta.type = ROUTE_TYPES.FOR_ALL
+const applinks = [
+new Page({
+   name: ROUTE_NAMES.CLOSE,
+   path: `/${ROUTE_NAMES.CLOSE}`,
+   view: `${upperFirstLetter(ROUTE_NAMES.CLOSE)}`,
+   icon: '',
+   title: '系統維護中',
+   menus: []
+}),
+new Page({
+   name: ROUTE_NAMES.NOT_FOUND,
+   path: '/:pathMatch(.*)*',
+   view: '404', 
+   icon: '',
+   title: 'Page Not Found',
+   menus: []
+}),
+new Page({
+   name: 'test',
+   path: '/test',
+   view: 'Test',      
+   icon: '',
+   title: 'Test',
+   menus: []
 })
-adminlinks.forEach(page => {
-   page.meta.type = ROUTE_TYPES.ADMIN_ONLY
-})
-guestLinks.forEach(page => {
-   page.meta.type = ROUTE_TYPES.GUEST_ONLY
-})
+]
 
-let appRoutes = applinks.concat(adminlinks).concat(guestLinks)
+console.log(pluralization(upperFirstLetter(JUDGEBOOK.name)))
 
-for(let i = 0; i < appRoutes.length; i++){
-   appRoutes[i].meta.order = i
-}
+const userlinks = [
+// groups
+new Page({
+   name: pluralization(JUDGEBOOK.name),
+   path: `/${pluralization(JUDGEBOOK.name)}`,
+   view: `${pluralization(upperFirstLetter(JUDGEBOOK.name))}`,
+   icon: 'mdi-folder-upload', 
+   title: `${JUDGEBOOK.title}管理`,
+   menus: [MENUS.MAIN],
+   alias: '/'
+})
+]
+
+
+const guestLinks = [
+new Page({
+   name: ROUTE_NAMES.LOGIN,
+   path: `/${ROUTE_NAMES.LOGIN}`,
+   view: `${upperFirstLetter(ROUTE_NAMES.LOGIN)}`,
+   icon: '',
+   title: 'Login',
+   menus: []
+})
+]
+
+applinks.forEach(page => page.setType(ROUTE_TYPES.FOR_ALL))
+
+userlinks.forEach(page => page.setType(ROUTE_TYPES.ADMIN_ONLY))
+
+guestLinks.forEach(page => page.setType(ROUTE_TYPES.GUEST_ONLY))
+
+const appRoutes = applinks.concat(userlinks).concat(guestLinks)
+
+appRoutes.forEach((page, index) => {
+   page.setSubs(appRoutes.filter(item => item.hasParent(page.name)))
+   page.setOrder(index)
+})
 
 export default appRoutes
