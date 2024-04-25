@@ -4,7 +4,7 @@ import { isNumeric,
 import Errors from '@/common/errors'
 import { el } from 'date-fns/locale'
 
-class Judgebook {
+class JudgebookFile {
    constructor(year, category ,num, file, ps = '') {
       this.year = year
       this.category = category
@@ -19,6 +19,10 @@ class Judgebook {
       let val = input.toString()
       return (isNumeric(val) && val.length < 4 && val.length > 1)
    }
+   static isValidNum(input) {
+      let val = input.toString()
+      return (isNumeric(val) && val.length <= 6)
+   }
    static checkNum(input) {
       if(!input) return ''
       let val = input.toString()
@@ -27,4 +31,4 @@ class Judgebook {
    }
 }
 
-export default Judgebook
+export default JudgebookFile

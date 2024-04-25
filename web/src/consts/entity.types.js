@@ -7,8 +7,8 @@ export const ENTITY_TYPES = {
       name: 'profiles',
       title: '個人資料'
    },
-   JUDGEBOOK: {
-      name: 'judgebook',
-      title: '書類'
+   JUDGEBOOKFILE: {
+      name: 'judgebookfile',
+      title: '檔案書類'
    }
 }

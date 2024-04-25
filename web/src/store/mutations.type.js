@@ -19,34 +19,7 @@ export const SET_ERRORS = 'setErrors'
 export const CLEAR_ERRORS = 'clearErrors'
 
 //NEW
-export const SET_LOCATIONS = 'setLocations'
 
-
-export const SET_JOBS = 'setJobs'
-
-
-export const SET_DEPARTMENTS = 'setDepartments'
-export const SET_DEPARTMENT_KEYS = 'setDepartmentKeys'
-export const CLEAR_DEPARTMENT_KEYS = 'clearDepartmentKeys'
-export const SET_JOBTITLES = 'setJobtitles'
-
-
-
-//Articles
-export const SET_ARTICLES = 'setArticles'
-
-//Exceptions
-export const SET_EXCEPTIONS = 'setExceptions'
-export const SET_EXCEPTION_TYPES = 'setExceptionTypes'
-export const SET_EXCEPTION_PERIOD = 'setExceptionPeriod'
-
-//Users
-export const SET_USERS = 'setUsers'
-export const SET_ROLES = 'setRoles'
-
-//Profiles
-export const SET_ALL_PROFILES = 'setAllProfiles'
-
-
-//Attachments
-export const SET_ATTACHMENTS = 'setAttachments'
+//JudgebookFiles
+export const SET_JUDGEBOOKFILES = 'setJudgebookFiles'
+export const SET_JUDGEBOOKFILE_UPLOAD_RESULTS = 'setJudgebookFileUploadResults'

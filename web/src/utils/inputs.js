@@ -27,4 +27,4 @@ export const formatNumberWithLeadingZeros = (num, len) => {
    let strNum = num.toString(); // Convert the number to a string
    let paddedStr = strNum.padStart(len, '0'); // Pad with leading zeros to make the length 6
    return paddedStr;
- }
+}

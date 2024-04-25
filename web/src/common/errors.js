@@ -7,7 +7,9 @@ class Errors {
 		else this.errors = {}
    }
 
-
+   getAll() {
+      return this.errors
+   }
 
    /**
     * Determine if an errors exists for the given field.

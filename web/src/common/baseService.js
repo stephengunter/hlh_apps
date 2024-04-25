@@ -18,7 +18,7 @@ const submit = (requestType, url, data) => new Promise((resolve, reject) => {
 	.catch(error => reject(error.response))
 })
 
-const blob = (requestType, url, data) => new Promise((resolve, reject) => {
+const blob = (requestType, url, data = null) => new Promise((resolve, reject) => {
 	axios[requestType](url, data, { responseType: 'blob' })
 	.then(response => resolve(response.data))
 	.catch(error => reject(error.response))

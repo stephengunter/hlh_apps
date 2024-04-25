@@ -4,7 +4,7 @@ import Page from '@/models/page'
 
 const USER = ENTITY_TYPES.USER
 const PROFILES = ENTITY_TYPES.PROFILES
-const JUDGEBOOK = ENTITY_TYPES.JUDGEBOOK
+const JUDGEBOOKFILE = ENTITY_TYPES.JUDGEBOOKFILE
 
 const applinks = [
 new Page({
@@ -33,16 +33,14 @@ new Page({
 })
 ]
 
-console.log(pluralization(upperFirstLetter(JUDGEBOOK.name)))
-
 const userlinks = [
 // groups
 new Page({
-   name: pluralization(JUDGEBOOK.name),
-   path: `/${pluralization(JUDGEBOOK.name)}`,
-   view: `${pluralization(upperFirstLetter(JUDGEBOOK.name))}`,
+   name: pluralization(JUDGEBOOKFILE.name),
+   path: '/files/judgebooks',
+   view: 'files/Judgebooks',
    icon: 'mdi-folder-upload', 
-   title: `${JUDGEBOOK.title}管理`,
+   title: `${JUDGEBOOKFILE.title}管理`,
    menus: [MENUS.MAIN],
    alias: '/'
 })

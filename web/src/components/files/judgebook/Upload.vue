@@ -1,40 +1,38 @@
 <script setup>
-import { MqResponsive } from 'vue3-mq'
 import { ref, reactive, computed, watch, onBeforeMount, nextTick } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { FETCH_USERS, CREATE_USER, STORE_USER, IMPORT_USERS
-} from '@/store/actions.type'
-import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
-import { isEmptyObject, deepClone , activeOptions, copyFromQuery,
-	resolveErrorData, onErrors, onSuccess, setValues, badRequest, is400, isNumeric,
-	formatNumberWithLeadingZeros, tryParseInt
-} from '@/utils'
-import Judgebook from '@/models/judgebook'
-import Errors from '@/common/errors'
-import { WIDTH, ROUTE_NAMES, VALIDATE_MESSAGES } from '@/consts'
+import { isEmptyObject, deepClone, isNumeric, tryParseInt } from '@/utils'
+import JudgebookFile from '@/models/files/judgebook'
+import { VALIDATE_MESSAGES } from '@/consts'
+import { SET_JUDGEBOOKFILE_UPLOAD_RESULTS } from '@/store/mutations.type'
 
-const name = 'JudgebookUpload'
+
+const name = 'FilesJudgebookUpload'
 const store = useStore()
 
-const emit = defineEmits(['submit'])
+const emit = defineEmits(['submit', 'find'])
 
 const initialState = {
 	models: []
 }
-const file_upload = ref(null)
-const labels = {
-   year: '年度',
-   category: '字號',
-   num: '案號'
-}
 
 const state = reactive(deepClone(initialState))
+
+const file_upload = ref(null)
+
+const labels = computed(() => store.state.files_judgebooks.labels)
+
+const results = computed(() => store.state.files_judgebooks.upload_results)
 
 
 const has_error = computed(() => {
    if(!state.models.length) return false
    return state.models.map(model => model.errors.any()).some(element => element === true)
+})
+
+
+onBeforeMount(() => {
+   store.commit(SET_JUDGEBOOKFILE_UPLOAD_RESULTS, [])
 })
 
 function resolveModel(file) {
@@ -47,15 +45,16 @@ function resolveModel(file) {
 		let parts = fileName.split('_')
 		if(parts.length >= 3) {
 			category = parts[1]
-         num = Judgebook.checkNum(parts[2])
-			if(Judgebook.checkYear(parts[0])) year = parts[0]
+         num = JudgebookFile.checkNum(parts[2])
+			if(JudgebookFile.checkYear(parts[0])) year = parts[0]
 			if(parts.length > 3) ps = parts[3]
 		}
-		return new Judgebook(year, category ,num, file, ps)
+		return new JudgebookFile(year, category ,num, file, ps)
 	}
 	return null
 }
 function onFileAdded(files) {
+   let id = -1
    state.models = []
    files.forEach(file => {
       let model = resolveModel(file)
@@ -63,17 +62,19 @@ function onFileAdded(files) {
          check(model, 'year')
          check(model, 'category')
          check(model, 'num')
+         model.id = id
          state.models.push(model)
+         id -= 1
       } 
    })
 }
 
 function check(model, key) {
    let valid = false
-   if(key === 'year') valid = Judgebook.checkYear(model[key])
+   if(key === 'year') valid = JudgebookFile.checkYear(model[key])
    else if(key === 'category') valid = !isNumeric(model[key])
    else if(key === 'num') {
-      valid = Judgebook.checkNum(model[key]) ? true : false
+      valid = JudgebookFile.checkNum(model[key]) ? true : false
    }else valid = true
    
    
@@ -85,8 +86,19 @@ function check(model, key) {
    }
 }
 function onSubmit() {
-   state.models.forEach(model => model.num = Judgebook.checkNum(model.num))
+   state.models.forEach(model => model.num = JudgebookFile.checkNum(model.num))
 	emit('submit', state.models)
+}
+
+function getResult(model) {
+   if(results.value.length) {
+      return results.value.find(item => item.id === model.id)
+   }
+   return null
+}
+function onFind(id) {
+   const model = state.models.find(item => item.id === id)
+   emit('find', model)
 }
 
 </script>
@@ -102,10 +114,14 @@ function onSubmit() {
       
    </v-row>
    <v-row dense>
+      
       <v-col cols="12">
          <v-table>
             <thead>
                <tr>
+                  <th v-show="results.length" class="text-center" style="width: 15%;">
+                     
+                  </th>
                   <th class="text-center" style="width: 15%;">
                      {{ labels['year'] }}
                   </th>
@@ -122,6 +138,11 @@ function onSubmit() {
             </thead>
             <tbody>
                <tr v-for="model in state.models" :key="model.name">
+                  <td v-show="results.length">
+                     <FilesJudgebookResult :result="getResult(model)"
+                     @find="onFind"
+				         />
+                  </td>
                   <td>
                      <v-text-field variant="outlined" class="pt-3" density="compact"
                      v-model="model.year" :error-messages="model.errors.get('year')" 
