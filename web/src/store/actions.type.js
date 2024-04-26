@@ -18,5 +18,7 @@ export const REFRESH_TOKEN = 'refreshToken'
 //Judgebooks
 export const FETCH_JUDGEBOOKFILES = 'fetchJudgebookFiles'
 export const UPLOAD_JUDGEBOOKFILES = 'uploadJudgebookFiles'
+export const DOWNLOAD_JUDGEBOOKFILE = 'downloadJudgebookFile'
 export const EDIT_JUDGEBOOKFILE = 'editJudgebookFile'
 export const UPDATE_JUDGEBOOKFILE = 'updateJudgebookFile'
+export const REMOVE_JUDGEBOOKFILE = 'removeJudgebookFile'

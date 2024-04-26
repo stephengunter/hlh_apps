@@ -2,7 +2,8 @@ import JudgebooksService from '@/services/files/judgebooks.service'
 import { resolveErrorData, deepClone } from '@/utils'
 
 import {
-   FETCH_JUDGEBOOKFILES, UPLOAD_JUDGEBOOKFILES, EDIT_JUDGEBOOKFILE, UPDATE_JUDGEBOOKFILE
+   FETCH_JUDGEBOOKFILES, UPLOAD_JUDGEBOOKFILES, DOWNLOAD_JUDGEBOOKFILE,
+   EDIT_JUDGEBOOKFILE, UPDATE_JUDGEBOOKFILE, REMOVE_JUDGEBOOKFILE
 } from '@/store/actions.type'
 
 import { SET_JUDGEBOOKFILES, SET_JUDGEBOOKFILE_UPLOAD_RESULTS, SET_LOADING } from '@/store/mutations.type'
@@ -66,6 +67,15 @@ const actions = {
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
+   [DOWNLOAD_JUDGEBOOKFILE](context, id) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         JudgebooksService.download(id)
+         .then(data => resolve(data))
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
    [EDIT_JUDGEBOOKFILE](context, id) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
@@ -79,6 +89,15 @@ const actions = {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          JudgebooksService.update(model.id, model)
+         .then(() => resolve())
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
+   [REMOVE_JUDGEBOOKFILE](context, id) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         JudgebooksService.remove(id)
          .then(() => resolve())
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))

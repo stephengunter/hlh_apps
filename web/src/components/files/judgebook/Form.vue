@@ -5,7 +5,7 @@ import { useVuelidate } from '@vuelidate/core'
 import { required, numeric, helpers } from '@vuelidate/validators'
 import { CLEAR_ERRORS } from '@/store/mutations.type'
 import { VALIDATE_MESSAGES, WIDTH, HEIGHT, ACTION_TITLES, ENTITY_TYPES } from '@/consts'
-import { setValues, randomItem, statusText, deepClone, isEmptyObject } from '@/utils'
+import { setValues, showConfirm, hideConfirm, deepClone, isEmptyObject } from '@/utils'
 import JudgebookFile from '@/models/files/judgebook'
 
 
@@ -74,6 +74,17 @@ function onSubmit() {
 	})
 }
 function onRemove() {
+	showConfirm({
+				type: 'warning',
+				title: '確定要刪除嗎?',
+				text: '',
+				on_ok: remove,
+				cancel: '取消'
+			})
+	//emit('remove')
+}
+function remove() {
+	hideConfirm()
 	emit('remove')
 }
 function onInputChanged(){

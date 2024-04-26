@@ -6,9 +6,11 @@ import { useStore } from 'vuex'
 import { useVuelidate } from '@vuelidate/core'
 import { required, numeric, helpers } from '@vuelidate/validators'
 import Errors from '@/common/errors'
-import { FETCH_JUDGEBOOKFILES, UPLOAD_JUDGEBOOKFILES, EDIT_JUDGEBOOKFILE, UPDATE_JUDGEBOOKFILE } from '@/store/actions.type'
+import { FETCH_JUDGEBOOKFILES, UPLOAD_JUDGEBOOKFILES, DOWNLOAD_JUDGEBOOKFILE,
+	EDIT_JUDGEBOOKFILE, UPDATE_JUDGEBOOKFILE, REMOVE_JUDGEBOOKFILE 
+} from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
-import { isEmptyObject, deepClone , activeOptions, copyFromQuery, 
+import { isEmptyObject, deepClone , activeOptions, copyFromQuery, downloadFile,
 	resolveErrorData, onErrors, onSuccess, setValues, badRequest, is400, isNumeric,
 	buildQuery, tryParseInt
 } from '@/utils'
@@ -67,7 +69,13 @@ function edit(id) {
 	.catch(error => onErrors(error))
 }
 function download(id) {
-	console.log('download', id)
+	store.dispatch(DOWNLOAD_JUDGEBOOKFILE, id)
+	.then(data => {
+		console.log(data)
+		downloadFile(data, 'departments.pdf')
+		onCancel()
+	})
+	.catch(error => onErrors(error))
 }
 function onUpload(active) {
 	state.upload.active = active
@@ -115,6 +123,20 @@ function onFind(model) {
 	}
 	window.open(buildQuery(path, params), '_blank')
 }
+function remove() {
+	const id = state.form.model.id
+	store.dispatch(REMOVE_JUDGEBOOKFILE, id)
+	.then(() => {
+		fetchData()
+		onCancel()
+		onSuccess('刪除成功')
+	})
+	.catch(error => {
+		let errors = resolveErrorData(error)
+		if(errors) store.commit(SET_ERRORS, Object.values(errors))
+		else onErrors(error)
+	})
+}
 </script>
 
 <template>
@@ -137,7 +159,7 @@ function onFind(model) {
 			<v-card-text>
 				<FilesJudgebookForm v-if="state.form.action === UPDATE_JUDGEBOOKFILE"
 				:model="state.form.model"
-				@submit="onSubmit"
+				@submit="onSubmit" @remove="remove"
 				/>
 			</v-card-text>
 		</v-card>
