@@ -170,7 +170,8 @@ function onOrders(ids) {
 function exporting() {
 	store.dispatch(EXPORT_DEPARTMENTS, state.form.model)
 	.then(data => {
-		downloadFile(data, 'departments.json')
+		const blob = new Blob([data])
+		downloadFile(blob, 'departments.json')
 		onCancel()
 	})
 	.catch(error => {

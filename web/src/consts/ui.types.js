@@ -15,7 +15,8 @@ export const ACTION_TITLES = {
    EDIT: '編輯',
    REMOVE: '刪除',
    SAVE: '存檔',
-   CANCEL: '取消'
+   CANCEL: '取消',
+   UPLOAD: '上傳',
 }
 export const MENUS = {
    MAIN: 'main',

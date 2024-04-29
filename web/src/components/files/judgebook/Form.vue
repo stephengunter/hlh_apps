@@ -14,7 +14,11 @@ const props = defineProps({
    model: {
 		type: Object,
 		default: null
-	}
+	},
+	court_types: {
+      type: Array,
+      default: () => []
+   }
 })
 const emit = defineEmits(['submit', 'cancel', 'remove'])
 const store = useStore()
@@ -23,6 +27,7 @@ const entity = ENTITY_TYPES.JUDGEBOOKFILE
 const initialState = {
    form: {
 		id: 0,
+		courtType: '',
 		year: '',
 		category: '',
 		num: '',
@@ -64,6 +69,7 @@ const canRemove = computed(() => {
 onBeforeMount(init)
 
 function init() {
+	console.log(props.court_types)
 	setValues(props.model, state.form)
 }
 function onSubmit() {
@@ -75,13 +81,12 @@ function onSubmit() {
 }
 function onRemove() {
 	showConfirm({
-				type: 'warning',
-				title: '確定要刪除嗎?',
-				text: '',
-				on_ok: remove,
-				cancel: '取消'
-			})
-	//emit('remove')
+		type: 'warning',
+		title: '確定要刪除嗎?',
+		text: '',
+		on_ok: remove,
+		cancel: '取消'
+	})
 }
 function remove() {
 	hideConfirm()
@@ -108,31 +113,32 @@ function checkNum(val) {
 <template>
 	<form @submit.prevent="onSubmit" @input="onInputChanged">
 		<v-row>
-			<v-col cols="4">
-				<v-text-field :label="labels['year']"  density="compact"
-				v-model="state.form.year"
-            :error-messages="v$.year.$errors.map(e => e.$message)"                     
-				@input="v$.year.$touch"
-				@blur="v$.year.$touch"
+			<v-col cols="6">
+				<v-select :label="labels['courtType']" density="compact" variant="outlined"
+				:items="court_types" v-model="state.form.courtType"
 				/>
-			</v-col>
-			<v-col cols="4">
 				<v-text-field :label="labels['category']"  density="compact"        
 				v-model="state.form.category"
             :error-messages="v$.category.$errors.map(e => e.$message)"                     
 				@input="v$.category.$touch"
 				@blur="v$.category.$touch"
 				/>
-				
 			</v-col>
-			<v-col cols="4">
+			<v-col cols="6">
+				<v-text-field :label="labels['year']"  density="compact"
+				v-model="state.form.year"
+            :error-messages="v$.year.$errors.map(e => e.$message)"                     
+				@input="v$.year.$touch"
+				@blur="v$.year.$touch"
+				/>
 				<v-text-field :label="labels['num']"  density="compact"    
 				v-model="state.form.num"
             :error-messages="v$.num.$errors.map(e => e.$message)"                     
 				@input="v$.num.$touch"
 				@blur="v$.num.$touch"
 				/>
-			</v-col> 
+				
+			</v-col>
 			<v-col cols="12">
 				<v-textarea auto-grow :label="labels['ps']"  
 				v-model="state.form.ps"	

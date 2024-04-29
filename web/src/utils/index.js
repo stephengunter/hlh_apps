@@ -1,10 +1,11 @@
 import { ERRORS, WARNING, SUCCESS, BAD_REQUEST, DIALOG_TITLE, DIALOG_MESSAGE } from '@/consts'
 import { SHOW_CONFIRM, HIDE_CONFIRM } from '@/store/actions.type'
 export const resolveErrorData = (error) => {
-   if(!error) return null
-   if(!error.hasOwnProperty('status')) return null
-   if(!error.hasOwnProperty('data')) return null
-   return error.data
+   if(is400(error)) {
+      if(!error.hasOwnProperty('data')) return null
+      return error.data
+   } 
+   return null
 }
 
 export const is404 = (error) => {
@@ -43,6 +44,12 @@ export const onWarning = (msg) => Bus.emit(WARNING, msg)
 export const showConfirm = (confirm) => Bus.emit(SHOW_CONFIRM, confirm)
 
 export const hideConfirm = () => Bus.emit(HIDE_CONFIRM)
+
+export const showAlert = (msg) => showConfirm({
+   type: ERRORS,
+   title: msg,
+   text: ''
+})
 
 
 

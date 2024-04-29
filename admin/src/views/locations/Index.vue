@@ -125,7 +125,8 @@ function onOrders(ids) {
 function exporting() {
 	store.dispatch(EXPORT_LOCATION, state.form.model)
 	.then(data => {
-		downloadFile(data, 'locations.json')
+		const blob = new Blob([data])
+		downloadFile(blob, 'locations.json')
 		onCancel()
 	})
 	.catch(error => {

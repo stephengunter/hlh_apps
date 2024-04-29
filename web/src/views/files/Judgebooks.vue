@@ -12,9 +12,9 @@ import { FETCH_JUDGEBOOKFILES, UPLOAD_JUDGEBOOKFILES, DOWNLOAD_JUDGEBOOKFILE,
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { isEmptyObject, deepClone , activeOptions, copyFromQuery, downloadFile,
 	resolveErrorData, onErrors, onSuccess, setValues, badRequest, is400, isNumeric,
-	buildQuery, tryParseInt
+	buildQuery, bytesToBinary, getMimeType, showAlert
 } from '@/utils'
-import { WIDTH, ROUTE_NAMES, VALIDATE_MESSAGES } from '@/consts'
+import { WIDTH, ROUTE_NAMES, VALIDATE_MESSAGES, ACTION_TITLES, ENTITY_TYPES } from '@/consts'
 import JudgebookFile from '@/models/files/judgebook'
 
 const name = 'FilesJudgebooksView'
@@ -22,13 +22,16 @@ const store = useStore()
 const route = useRoute()
 const router = useRouter()
 
+const ENTITY_TYPE = ENTITY_TYPES.JUDGEBOOKFILE
+
 const initialState = {
 	upload: {
-		title: '上傳文書',
+		title: `${ACTION_TITLES.UPLOAD}${ENTITY_TYPE.title}`,
+		courtType: null,
 		active: false
 	},
 	form: {
-		title: '上傳文書',
+		title: '',
 		active: false,
 		model: {},
 		action: ''
@@ -38,10 +41,12 @@ const initialState = {
 
 const state = reactive(deepClone(initialState))
 
+const courtTypes = computed(() => store.state.files_judgebooks.courtTypes)
 
 const head = ref(null)
 const file_upload = ref(null)
 const pagedList = computed(() => store.state.files_judgebooks.pagedList)
+const labels = computed(() => store.state.files_judgebooks.labels)
 
 
 
@@ -62,6 +67,7 @@ function edit(id) {
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(EDIT_JUDGEBOOKFILE, id)
 	.then(model => {
+		state.form.title = `${ACTION_TITLES.EDIT}${ENTITY_TYPE.title}`,
 		state.form.model = deepClone(model)
 		state.form.action = UPDATE_JUDGEBOOKFILE
 		state.form.active = true
@@ -71,20 +77,38 @@ function edit(id) {
 function download(id) {
 	store.dispatch(DOWNLOAD_JUDGEBOOKFILE, id)
 	.then(data => {
-		console.log(data)
-		downloadFile(data, 'departments.pdf')
-		onCancel()
+		const file = data.fileView
+		const ext = data.ext
+		const fileBytes = bytesToBinary(file.fileBytes)
+		const blob = new Blob([fileBytes], { type: getMimeType(ext) })
+		downloadFile(blob, data.fileView.fileName)
 	})
 	.catch(error => onErrors(error))
 }
 function onUpload(active) {
+	if(active) {
+		const courtType = courtTypes.value.find(item => item.value === head.value.getParams().courtType) 
+		state.upload.title = `${ACTION_TITLES.UPLOAD}${ENTITY_TYPE.title} (${courtType.title})`
+		state.upload.courtType = courtType
+	} 
+	else {
+		state.upload.courtType = null
+		state.upload.title = ''
+	} 
+	
 	state.upload.active = active
 }
 function upload(models) {
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(UPLOAD_JUDGEBOOKFILES, models)
 	.then(results => {
-		console.log(results)
+		nextTick(() => {
+			if(!store.state.files_judgebooks.upload.has_error) {
+				fetchData(head.value.getParams())
+				onUpload(false)
+				onSuccess()
+			}	
+		})
 	})
 	.catch(error => onErrors(error))
 }
@@ -110,9 +134,6 @@ function handleSubmitError(error) {
 		if(errors) store.commit(SET_ERRORS, Object.values(errors))
 		else onErrors(error)
 	}else onErrors(error)
-}
-function onInputChanged(){
-   store.commit(CLEAR_ERRORS)
 }
 function onFind(model) {
 	const path = `${window.location.origin}${route.path}`
@@ -146,7 +167,7 @@ function remove() {
 	<v-row dense>
 		<v-col cols="12">
 			<FilesJudgebookTable v-if="!isEmptyObject(pagedList)" 
-			:model="pagedList" 
+			:model="pagedList" :court_types="courtTypes"
 			@select="edit" @download="download"
 			/>
 		</v-col>
@@ -158,7 +179,7 @@ function remove() {
 			/>
 			<v-card-text>
 				<FilesJudgebookForm v-if="state.form.action === UPDATE_JUDGEBOOKFILE"
-				:model="state.form.model"
+				:model="state.form.model" :court_types="courtTypes"
 				@submit="onSubmit" @remove="remove"
 				/>
 			</v-card-text>
@@ -170,7 +191,7 @@ function remove() {
 			@cancel="onUpload(false)"
 			/>
 			<v-card-text>
-				<FilesJudgebookUpload
+				<FilesJudgebookUpload :courtType="state.upload.courtType"
 				@submit="upload" @find="onFind"
 				/>
 			</v-card-text>

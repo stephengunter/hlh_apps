@@ -1,10 +1,11 @@
 import { ERRORS, WARNING, SUCCESS, BAD_REQUEST, DIALOG_TITLE, DIALOG_MESSAGE } from '@/consts'
 import { SHOW_CONFIRM, HIDE_CONFIRM } from '@/store/actions.type'
 export const resolveErrorData = (error) => {
-   if(!error) return null
-   if(!error.hasOwnProperty('status')) return null
-   if(!error.hasOwnProperty('data')) return null
-   return error.data
+   if(is400(error)) {
+      if(!error.hasOwnProperty('data')) return null
+      return error.data
+   } 
+   return null
 }
 
 export const is404 = (error) => {
@@ -20,12 +21,11 @@ export const is500 = (error) => {
    return error.hasOwnProperty('status') && error.status === 500
 }
 
-export const badRequest = (title = DIALOG_TITLE[BAD_REQUEST], text = DIALOG_MESSAGE[BAD_REQUEST]) => onErrors({
-   status: 400, title, text
+export const badRequest = (title = DIALOG_TITLE[BAD_REQUEST], text = DIALOG_MESSAGE[BAD_REQUEST], errors = null) => onErrors({
+   status: 400, title, text, errors
 })
 
 export const onErrors = (error) => {
-   console.log(error)
    if(is500(error)) {
       Bus.emit(ERRORS, { 
          type: ERRORS,

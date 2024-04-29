@@ -6,13 +6,9 @@ import { useStore } from 'vuex'
 import { useVuelidate } from '@vuelidate/core'
 import { required, numeric, helpers } from '@vuelidate/validators'
 import Errors from '@/common/errors'
-import { FETCH_JUDGEBOOKFILES, UPLOAD_JUDGEBOOKFILES } from '@/store/actions.type'
-import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
-import { isEmptyObject, deepClone , activeOptions, copyFromQuery, 
-	resolveErrorData, onErrors, onSuccess, setValues, badRequest, is400, isNumeric,
-	formatNumberWithLeadingZeros, tryParseInt
+import { isEmptyObject, deepClone , copyFromQuery, 
+	resolveErrorData, onErrors, onSuccess, setValues, badRequest, is400, showAlert
 } from '@/utils'
-import { WIDTH, ROUTE_NAMES, VALIDATE_MESSAGES } from '@/consts'
 import JudgebookFile from '@/models/files/judgebook'
 
 const name = 'FilesJudgebookHead'
@@ -27,6 +23,7 @@ defineExpose({
 
 const initialState = {
 	params: {
+		courtType: '',
 		year: '',
 		category: '',
 		num: '',
@@ -40,7 +37,6 @@ function checkYear(val) {
    return true
 }
 function checkCategory(val) {
-   
    return true
 }
 function checkNum(val) {
@@ -49,6 +45,14 @@ function checkNum(val) {
 }
 
 const state = reactive(deepClone(initialState))
+
+const courtTypesOptions = computed(() => {
+	let options = store.state.files_judgebooks.courtTypes.slice()
+	options.splice(0, 0, {
+		value: '', title: '全部'
+	})
+	return options
+})
 const labels = computed(() => store.state.files_judgebooks.labels)
 const rules = computed(() => {
 	return {
@@ -104,7 +108,9 @@ function onSubmit() {
 	router.push({ path: route.path, query: { ...state.params } })
 }
 function onUpload() {
-   emit('upload')
+	if(state.params.courtType) emit('upload')
+	else showAlert(`請先選擇${labels.value['courtType']}`)
+   
 }
 
 </script>
@@ -112,7 +118,12 @@ function onUpload() {
 <template>
    <form @submit.prevent="onSubmit" @input="onInputChanged">
 		<v-row dense>
-			<v-col cols="3">
+			<v-col cols="2">
+				<v-select :label="labels['courtType']" density="compact" 
+            :items="courtTypesOptions" v-model="state.params.courtType"
+            />
+			</v-col>
+			<v-col cols="2">
 				<v-text-field :label="labels['year']"  density="compact"
 				v-model="state.params.year"
             :error-messages="v$.year.$errors.map(e => e.$message)"                     
@@ -120,7 +131,7 @@ function onUpload() {
 				@blur="v$.year.$touch"
 				/>
 			</v-col>
-			<v-col cols="3">
+			<v-col cols="2">
 				<v-text-field :label="labels['category']"  density="compact"        
 				v-model="state.params.category"
             :error-messages="v$.category.$errors.map(e => e.$message)"                     

@@ -57,10 +57,8 @@ function onError(error) {
 	}
 }
 function errorHandler(error, confirm) {
-	
 	if(error.status === 400) {
 		let errors = error.hasOwnProperty('errors') ? error.errors : null
-		console.log('errors', errors)
 		if(errors) {
 			if(Object.values(errors)) {
 				let text = ''

@@ -21,6 +21,10 @@ const props = defineProps({
    can_edit: {
       type: Boolean,
       default: true
+   },
+   court_types: {
+      type: Array,
+      default: () => []
    }
 })
 
@@ -33,6 +37,12 @@ const headers = [{
    width: '10%',
    sortable: false,
    key: 'action',
+},{
+   title: labels.value['courtType'],
+   align: 'start',
+   width: '10%',
+   sortable: false,
+   key: 'courtType',
 },{
    title: labels.value['year'],
    align: 'start',
@@ -66,7 +76,7 @@ const headers = [{
 },{
    title: labels.value['createdAtText'],
    align: 'start',
-   width: '15%',
+   width: '10%',
    sortable: false,
    key: 'createdAtText',
 }]
@@ -89,6 +99,10 @@ function onPageSizeChanged(size) {
       size 
    })
 }
+function getCourtTypeTitle(key) {
+   const type = props.court_types.find(x => x.value === key)
+   return type.title
+}
 
 </script>
 
@@ -105,6 +119,9 @@ function onPageSizeChanged(size) {
          <CommonButtonEdit size="x-small" 
 			@edit="select(item.id)"
 			/>
+      </template>
+      <template v-slot:item.courtType="{ item }">
+         {{ getCourtTypeTitle(item.courtType) }}
       </template>
 		<template v-slot:item.fileName="{ item }">
          <a href="#" @click.prevent="download(item.id)">{{ item.fileName }}</a>

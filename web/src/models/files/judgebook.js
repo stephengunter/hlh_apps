@@ -2,10 +2,10 @@ import { isNumeric,
 	formatNumberWithLeadingZeros, tryParseInt
 } from '@/utils'
 import Errors from '@/common/errors'
-import { el } from 'date-fns/locale'
 
 class JudgebookFile {
-   constructor(year, category ,num, file, ps = '') {
+   constructor(courtType, year, category ,num, file, ps = '') {
+      this.courtType = courtType
       this.year = year
       this.category = category
       this.num = num

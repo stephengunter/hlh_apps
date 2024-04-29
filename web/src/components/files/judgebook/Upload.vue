@@ -8,6 +8,12 @@ import { SET_JUDGEBOOKFILE_UPLOAD_RESULTS } from '@/store/mutations.type'
 
 
 const name = 'FilesJudgebookUpload'
+const props = defineProps({
+	courtType: {
+		type: Object,
+		default: null
+	}
+})
 const store = useStore()
 
 const emit = defineEmits(['submit', 'find'])
@@ -20,9 +26,11 @@ const state = reactive(deepClone(initialState))
 
 const file_upload = ref(null)
 
+const courtTypes = computed(() => store.state.files_judgebooks.courtTypes)
+
 const labels = computed(() => store.state.files_judgebooks.labels)
 
-const results = computed(() => store.state.files_judgebooks.upload_results)
+const results = computed(() => store.state.files_judgebooks.upload.results)
 
 
 const has_error = computed(() => {
@@ -35,7 +43,8 @@ onBeforeMount(() => {
    store.commit(SET_JUDGEBOOKFILE_UPLOAD_RESULTS, [])
 })
 
-function resolveModel(file) {
+function resolveModel(file, courtType) {
+   console.log('courtType', courtType)
 	if(file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
       let fileName = file.name.slice(0, -4)
 		let year = ''
@@ -49,7 +58,7 @@ function resolveModel(file) {
 			if(JudgebookFile.checkYear(parts[0])) year = parts[0]
 			if(parts.length > 3) ps = parts[3]
 		}
-		return new JudgebookFile(year, category ,num, file, ps)
+		return new JudgebookFile(courtType, year, category ,num, file, ps)
 	}
 	return null
 }
@@ -57,7 +66,7 @@ function onFileAdded(files) {
    let id = -1
    state.models = []
    files.forEach(file => {
-      let model = resolveModel(file)
+      let model = resolveModel(file, props.courtType.value)
       if(model) {
          check(model, 'year')
          check(model, 'category')
@@ -81,7 +90,7 @@ function check(model, key) {
    if(valid) {
       model.errors.clear(key)
    }else {
-      let msg = model[key] ? `${labels[key]}不正確` : VALIDATE_MESSAGES.REQUIRED(labels[key])
+      let msg = model[key] ? `${labels.value[key]}不正確` : VALIDATE_MESSAGES.REQUIRED(labels.value[key])
       model.errors.set(key, [msg])
    }
 }
@@ -123,6 +132,9 @@ function onFind(id) {
                      
                   </th>
                   <th class="text-center" style="width: 15%;">
+                     {{ labels['courtType'] }}
+                  </th>
+                  <th class="text-center" style="width: 15%;">
                      {{ labels['year'] }}
                   </th>
                   <th class="text-center" style="width: 15%;">
@@ -142,6 +154,11 @@ function onFind(id) {
                      <FilesJudgebookResult :result="getResult(model)"
                      @find="onFind"
 				         />
+                  </td>
+                  <td>
+                     <v-select class="mt-3" :label="labels['courtType']" density="compact" readonly variant="outlined"
+                     :items="courtTypes" v-model="model.courtType"
+                     />
                   </td>
                   <td>
                      <v-text-field variant="outlined" class="pt-3" density="compact"

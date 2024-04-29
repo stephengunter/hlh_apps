@@ -46,9 +46,7 @@ const title_icon = computed(() => {
    return 'mdi-information'
 })
 
-const noAction = computed(() => {
-   return false
-})//!props.on_ok && !props.on_cancel)
+const noAction = computed(() => !props.on_ok && !props.on_cancel)
 
 function ok() {
    if(props.on_ok) props.on_ok()
