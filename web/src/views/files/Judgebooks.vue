@@ -1,18 +1,18 @@
 <script setup>
 import { MqResponsive } from 'vue3-mq'
-import { ref, reactive, computed, watch, onBeforeMount, nextTick } from 'vue'
+import { ref, reactive, computed, watch, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { useVuelidate } from '@vuelidate/core'
 import { required, numeric, helpers } from '@vuelidate/validators'
 import Errors from '@/common/errors'
 import { FETCH_JUDGEBOOKFILES, UPLOAD_JUDGEBOOKFILES, DOWNLOAD_JUDGEBOOKFILE,
-	EDIT_JUDGEBOOKFILE, UPDATE_JUDGEBOOKFILE, REMOVE_JUDGEBOOKFILE 
+	EDIT_JUDGEBOOKFILE, UPDATE_JUDGEBOOKFILE, REMOVE_JUDGEBOOKFILE, FETCH_JUDGEBOOK_TYPES 
 } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
-import { isEmptyObject, deepClone , activeOptions, copyFromQuery, downloadFile,
+import { isEmptyObject, deepClone , downloadFile,
 	resolveErrorData, onErrors, onSuccess, setValues, badRequest, is400, isNumeric,
-	buildQuery, bytesToBinary, getMimeType, showAlert
+	buildQuery, bytesToBinary, getMimeType, showModifyRecords
 } from '@/utils'
 import { WIDTH, ROUTE_NAMES, VALIDATE_MESSAGES, ACTION_TITLES, ENTITY_TYPES } from '@/consts'
 import JudgebookFile from '@/models/files/judgebook'
@@ -27,6 +27,7 @@ const ENTITY_TYPE = ENTITY_TYPES.JUDGEBOOKFILE
 const initialState = {
 	upload: {
 		title: `${ACTION_TITLES.UPLOAD}${ENTITY_TYPE.title}`,
+		type: null,
 		courtType: null,
 		active: false
 	},
@@ -41,6 +42,7 @@ const initialState = {
 
 const state = reactive(deepClone(initialState))
 
+const types = computed(() => store.state.files_judgebooks.types)
 const courtTypes = computed(() => store.state.files_judgebooks.courtTypes)
 
 const head = ref(null)
@@ -49,18 +51,32 @@ const pagedList = computed(() => store.state.files_judgebooks.pagedList)
 const labels = computed(() => store.state.files_judgebooks.labels)
 
 
+onMounted(() => {
+	if(types.value.length) init()
+	else {
+		store.dispatch(FETCH_JUDGEBOOK_TYPES)
+		.then(() => {
+			nextTick(init)
+		})
+		.catch(error => onErrors(error))
+	}
+})
 
+function init() {
+	head.value.init()
+}
 function fetchData(params) {
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(FETCH_JUDGEBOOKFILES, params)
 	.then(model => {
 		if(model.request) {
 			head.value.setParams(model.request)
-			//setValues(model.request, state.params)
-			//checkParams() 
 		}
 	})
 	.catch(error => onErrors(error))
+}
+function onOptionChanged(option) {
+	head.value.setPageOption(option)
 }
 
 function edit(id) {
@@ -87,8 +103,11 @@ function download(id) {
 }
 function onUpload(active) {
 	if(active) {
-		const courtType = courtTypes.value.find(item => item.value === head.value.getParams().courtType) 
+		const params = head.value.getParams()
+		const type = types.value.find(item => item.id === params.typeId)
+		const courtType = courtTypes.value.find(item => item.value === params.courtType) 
 		state.upload.title = `${ACTION_TITLES.UPLOAD}${ENTITY_TYPE.title} (${courtType.title})`
+		state.upload.type = type
 		state.upload.courtType = courtType
 	} 
 	else {
@@ -148,7 +167,7 @@ function remove() {
 	const id = state.form.model.id
 	store.dispatch(REMOVE_JUDGEBOOKFILE, id)
 	.then(() => {
-		fetchData()
+		fetchData(head.value.getParams())
 		onCancel()
 		onSuccess('刪除成功')
 	})
@@ -169,6 +188,7 @@ function remove() {
 			<FilesJudgebookTable v-if="!isEmptyObject(pagedList)" 
 			:model="pagedList" :court_types="courtTypes"
 			@select="edit" @download="download"
+			@options_changed="onOptionChanged"
 			/>
 		</v-col>
 	</v-row>
@@ -191,7 +211,7 @@ function remove() {
 			@cancel="onUpload(false)"
 			/>
 			<v-card-text>
-				<FilesJudgebookUpload :courtType="state.upload.courtType"
+				<FilesJudgebookUpload :type="state.upload.type" :courtType="state.upload.courtType"
 				@submit="upload" @find="onFind"
 				/>
 			</v-card-text>

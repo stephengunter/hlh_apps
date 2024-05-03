@@ -1,4 +1,8 @@
 export const ENTITY_TYPES = {
+   MODIFY_RECORD: {
+      name: 'modifyRecord',
+      title: '編修紀錄'
+   },
    USER: {
       name: 'user',
       title: '用戶'

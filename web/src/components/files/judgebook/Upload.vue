@@ -9,6 +9,10 @@ import { SET_JUDGEBOOKFILE_UPLOAD_RESULTS } from '@/store/mutations.type'
 
 const name = 'FilesJudgebookUpload'
 const props = defineProps({
+   type: {
+		type: Object,
+		default: null
+	},
 	courtType: {
 		type: Object,
 		default: null
@@ -32,6 +36,11 @@ const labels = computed(() => store.state.files_judgebooks.labels)
 
 const results = computed(() => store.state.files_judgebooks.upload.results)
 
+const type_options = computed(() => {
+	return store.state.files_judgebooks.types.map(item => ({
+		value: item.id, title: item.title
+	}))
+})
 
 const has_error = computed(() => {
    if(!state.models.length) return false
@@ -44,7 +53,6 @@ onBeforeMount(() => {
 })
 
 function resolveModel(file, courtType) {
-   console.log('courtType', courtType)
 	if(file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
       let fileName = file.name.slice(0, -4)
 		let year = ''
@@ -72,6 +80,9 @@ function onFileAdded(files) {
          check(model, 'category')
          check(model, 'num')
          model.id = id
+         if(props.type) model.typeId = props.type.id
+         else model.typeId = 0
+         
          state.models.push(model)
          id -= 1
       } 
@@ -132,6 +143,9 @@ function onFind(id) {
                      
                   </th>
                   <th class="text-center" style="width: 15%;">
+                     {{ labels['typeId'] }}
+                  </th>
+                  <th class="text-center" style="width: 15%;">
                      {{ labels['courtType'] }}
                   </th>
                   <th class="text-center" style="width: 15%;">
@@ -154,6 +168,11 @@ function onFind(id) {
                      <FilesJudgebookResult :result="getResult(model)"
                      @find="onFind"
 				         />
+                  </td>
+                  <td>
+                     <v-select class="mt-3" :label="labels['typeId']" density="compact" variant="outlined"
+                     :items="type_options" v-model="model.typeId"
+                     />
                   </td>
                   <td>
                      <v-select class="mt-3" :label="labels['courtType']" density="compact" readonly variant="outlined"

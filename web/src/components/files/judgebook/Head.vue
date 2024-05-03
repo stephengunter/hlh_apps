@@ -6,7 +6,8 @@ import { useStore } from 'vuex'
 import { useVuelidate } from '@vuelidate/core'
 import { required, numeric, helpers } from '@vuelidate/validators'
 import Errors from '@/common/errors'
-import { isEmptyObject, deepClone , copyFromQuery, 
+import { FETCH_JUDGEBOOK_TYPES } from '@/store/actions.type'
+import { isEmptyObject, deepClone , copyFromQuery, areObjectsEqual,
 	resolveErrorData, onErrors, onSuccess, setValues, badRequest, is400, showAlert
 } from '@/utils'
 import JudgebookFile from '@/models/files/judgebook'
@@ -18,11 +19,12 @@ const router = useRouter()
 
 const emit = defineEmits(['submit', 'upload'])
 defineExpose({
-   setParams, getParams
+   init, setParams, getParams, setPageOption
 })
 
 const initialState = {
 	params: {
+		typeId: 0,
 		courtType: '',
 		year: '',
 		category: '',
@@ -46,11 +48,17 @@ function checkNum(val) {
 
 const state = reactive(deepClone(initialState))
 
+const type_options = computed(() => {
+	return store.state.files_judgebooks.types.map(item => ({
+		value: item.id, title: item.title
+	}))
+})
+
 const courtTypesOptions = computed(() => {
 	let options = store.state.files_judgebooks.courtTypes.slice()
-	options.splice(0, 0, {
-		value: '', title: '全部'
-	})
+	// options.splice(0, 0, {
+	// 	value: '', title: '全部'
+	// })
 	return options
 })
 const labels = computed(() => store.state.files_judgebooks.labels)
@@ -67,27 +75,50 @@ const rules = computed(() => {
 		}
 	}
 })
-const v$ = useVuelidate(rules, state.params)
 
-onBeforeMount(init)
+const query_match_params = computed(() => {
+	if(route.query) {
+		return areObjectsEqual(state.params, route.query, true)
+	} return false
+})
+
+const v$ = useVuelidate(rules, state.params)
 
 watch(route, init)
 
 function init() {
+   if(!state.params.typeId) state.params.typeId = type_options.value[0].value
+	if(!state.params.courtType) state.params.courtType = courtTypesOptions.value[0].value
+
 	if(isEmptyObject(route.query)) {
 		router.push({ path: route.path, query: { ...state.params } })
 		return
-	} 
+	}
+
 	copyFromQuery(state.params, route.query)
+	if(!state.params.typeId) state.params.typeId = type_options.value[0].value
+	if(!state.params.courtType) state.params.courtType = courtTypesOptions.value[0].value
+
+	if(!query_match_params.value) {
+		router.push({ path: route.path, query: { ...state.params } })
+		return
+	}
+
 	const errors = checkParams()
+	if(errors.any()) {
+		badRequest('BAD_REQUEST ', '錯誤的查詢參數', errors.getAll())
+		return 
+	}
 	
 	if(errors.any()) {
 		badRequest('BAD_REQUEST ', '錯誤的查詢參數', errors.getAll())
 		return 
 	}
-
+	
 	emit('submit', state.params)
+	
 }
+
 function checkParams() {
 	let errors = new Errors()
 	const year = state.params.year
@@ -95,7 +126,13 @@ function checkParams() {
 
    const num = state.params.num
    if(!checkNum(num)) errors.set('num', [`錯誤的${labels['num']}`])
-	return errors;
+
+	return errors
+}
+function setPageOption(option) {
+	if(option.hasOwnProperty('page')) state.params.page = option.page
+	if(option.hasOwnProperty('size')) state.params.pageSize = option.size
+	onSubmit()
 }
 function setParams(model) {
    setValues(model, state.params)
@@ -105,12 +142,18 @@ function getParams() {
 }
 
 function onSubmit() {
-	router.push({ path: route.path, query: { ...state.params } })
+	if(query_match_params.value) emit('submit', state.params)
+	else router.push({ path: route.path, query: { ...state.params } })
+	
 }
 function onUpload() {
 	if(state.params.courtType) emit('upload')
 	else showAlert(`請先選擇${labels.value['courtType']}`)
    
+}
+
+function onParamsChanged() {
+	onSubmit()
 }
 
 </script>
@@ -119,9 +162,16 @@ function onUpload() {
    <form @submit.prevent="onSubmit" @input="onInputChanged">
 		<v-row dense>
 			<v-col cols="2">
+				<v-select :label="labels['typeId']" density="compact" 
+            :items="type_options" v-model="state.params.typeId"
+				@update:modelValue="onParamsChanged"
+            />
+			</v-col>
+			<v-col cols="2">
 				<v-select :label="labels['courtType']" density="compact" 
             :items="courtTypesOptions" v-model="state.params.courtType"
-            />
+            @update:modelValue="onParamsChanged"
+				/>
 			</v-col>
 			<v-col cols="2">
 				<v-text-field :label="labels['year']"  density="compact"
@@ -139,7 +189,7 @@ function onUpload() {
 				@blur="v$.category.$touch"
 				/>
 			</v-col>
-			<v-col cols="3">
+			<v-col cols="2">
 				<v-text-field :label="labels['num']"  density="compact" :clearable="true"       
 				v-model="state.params.num"
             :error-messages="v$.num.$errors.map(e => e.$message)"                     
@@ -147,7 +197,7 @@ function onUpload() {
 				@blur="v$.num.$touch"
 				/>
 			</v-col>
-			<v-col cols="3">
+			<v-col cols="2">
 				<v-tooltip text="查詢">
 					<template v-slot:activator="{ props }">
 						<v-btn class="float-left" v-bind="props" color="success"

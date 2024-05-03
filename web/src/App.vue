@@ -16,7 +16,9 @@ const store = useStore()
 				<router-view />
 			</v-main>
 		</v-container>
+      <LayoutShow />
       <LayoutFeedback />
+      <LayoutLoading />
    </v-app>
 </template>
 

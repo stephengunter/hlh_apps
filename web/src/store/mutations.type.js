@@ -18,8 +18,11 @@ export const SET_ROUTE = 'setRoute'
 export const SET_ERRORS = 'setErrors'
 export const CLEAR_ERRORS = 'clearErrors'
 
+export const SET_MODIFY_RECORDS = 'setModifyRecords'
+
 //NEW
 
 //JudgebookFiles
 export const SET_JUDGEBOOKFILES = 'setJudgebookFiles'
+export const SET_JUDGEBOOK_TYPES = 'setJudgebookTypes'
 export const SET_JUDGEBOOKFILE_UPLOAD_RESULTS = 'setJudgebookFileUploadResults'

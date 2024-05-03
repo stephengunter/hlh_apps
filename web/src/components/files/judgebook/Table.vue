@@ -2,6 +2,7 @@
 import { ref, reactive, computed, watch, onBeforeMount, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { isEmptyObject } from '@/utils'
+import { ENTITY_TYPES } from '@/consts'
 
 const name = 'FilesJudgebookTable'
 const store = useStore()
@@ -28,25 +29,33 @@ const props = defineProps({
    }
 })
 
+const entity_type = ENTITY_TYPES.JUDGEBOOKFILE
+
 const emit = defineEmits(['select', 'download', 'options_changed'])
 const labels = computed(() => store.state.files_judgebooks.labels)
 
 const headers = [{
    title: '',
    align: 'center',
-   width: '10%',
+   width: '5%',
    sortable: false,
    key: 'action',
 },{
+   title: labels.value['typeId'],
+   align: 'start',
+   width: '8%',
+   sortable: false,
+   key: 'typeId',
+},{
    title: labels.value['courtType'],
    align: 'start',
-   width: '10%',
+   width: '8%',
    sortable: false,
    key: 'courtType',
 },{
    title: labels.value['year'],
    align: 'start',
-   width: '10%',
+   width: '8%',
    sortable: false,
    key: 'year',
 },{
@@ -76,7 +85,7 @@ const headers = [{
 },{
    title: labels.value['createdAtText'],
    align: 'start',
-   width: '10%',
+   width: '15%',
    sortable: false,
    key: 'createdAtText',
 }]
@@ -120,11 +129,23 @@ function getCourtTypeTitle(key) {
 			@edit="select(item.id)"
 			/>
       </template>
+      <template v-slot:item.typeId="{ item }">
+         {{ item.type.title }}
+      </template>
       <template v-slot:item.courtType="{ item }">
          {{ getCourtTypeTitle(item.courtType) }}
       </template>
 		<template v-slot:item.fileName="{ item }">
-         <a href="#" @click.prevent="download(item.id)">{{ item.fileName }}</a>
+         <v-tooltip text="下載檔案">
+            <template v-slot:activator="{ props }">
+               <a href="#" v-bind="props" @click.prevent="download(item.id)">{{ item.fileName }}</a>
+            </template>
+         </v-tooltip>
+      </template>
+      <template v-slot:item.createdAtText="{ item }">
+         <ModifyRecordButton :type="entity_type" :id="item.id.toString()"
+         :text="item.createdAtText" 
+         />         
       </template>
 		<template v-slot:bottom="{ item }">
          <CommonTablePager  :model="model"

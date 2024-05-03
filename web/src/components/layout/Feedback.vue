@@ -153,29 +153,21 @@ Bus.on(RE_LOGIN, reLogin)
 
 </script>
 <template>
-	<div>
+	<v-snackbar :timeout="state.success.timeout"
+	:color="state.success.color" v-model="state.success.show"
+	>
+		<v-icon :icon="state.success.icon" color="white" />
+		<span class="ml-3">
+			{{ state.success.msg  }}
+		</span>
+	</v-snackbar>
 
-		<LayoutLoading />
-
-		<LayoutShow />
-
-		<v-snackbar :timeout="state.success.timeout"
-		:color="state.success.color" v-model="state.success.show"
-		>
-			<v-icon :icon="state.success.icon" color="white" />
-			<span class="ml-3">
-				{{ state.success.msg  }}
-			</span>
-		</v-snackbar>
-
-		<v-dialog v-model="state.confirm.active" :max-width="state.confirm.max_width" :persistent="!confirmNoAction">
-			<CommonDialogConfirmation :type="state.confirm.type"
-			:title="state.confirm.title" :text="state.confirm.text"
-			:ok_text="state.confirm.ok_text"  :cancel_text="state.confirm.cancel_text"
-			:on_cancel="state.confirm.on_cancel"  :on_ok="state.confirm.on_ok"
-			@ok="hideConfirm" @cancel="hideConfirm"
-			/>
-		</v-dialog>
-		
-	</div>
+	<v-dialog v-model="state.confirm.active" :max-width="state.confirm.max_width" :persistent="!confirmNoAction">
+		<CommonDialogConfirmation :type="state.confirm.type"
+		:title="state.confirm.title" :text="state.confirm.text"
+		:ok_text="state.confirm.ok_text"  :cancel_text="state.confirm.cancel_text"
+		:on_cancel="state.confirm.on_cancel"  :on_ok="state.confirm.on_ok"
+		@ok="hideConfirm" @cancel="hideConfirm"
+		/>
+	</v-dialog>
 </template>

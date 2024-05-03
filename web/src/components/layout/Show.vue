@@ -1,48 +1,42 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
-import { SHOW_PHOTO } from '@/store/actions.type'
-import { WIDTH } from '@/consts'
+import { deepClone, onErrors } from '@/utils'
+import { SHOW_MODIFY_RECORDS, FETCH_MODIFY_RECORDS } from '@/store/actions.type'
+import { WIDTH, ENTITY_TYPES } from '@/consts'
 
 const name = 'LayoutShow'
 const store = useStore()
-const photo = ref({
-   active: false,
-   model: null,
-   maxWidth: WIDTH.S
-})
-const term = ref({
-   model: null,
-   active: false,
-   maxWidth: WIDTH.S
-})
-const note = ref({
-   model: null,
-   active: false,
-   maxWidth: WIDTH.S
-})
 
-Bus.on(SHOW_PHOTO, showPhoto)
+const initialState = {
+   type: null,
+   active: false,
+   width: WIDTH.S
+}
 
-onMounted(() => {
+const state = reactive(deepClone(initialState))
+
+Bus.on(SHOW_MODIFY_RECORDS, showModifyRecords)
+
+// onMounted(() => {
 	
-})
-onBeforeUnmount(() => {
-	
-})
-function showPhoto(photo) {
-   if(photo) {
-      photo.value.model = photo;
-      photo.value.active = true;
-   }else {
-      photo.value.model = null;
-      photo.value.active = false;
-   }
+// })
+function showModifyRecords(model) {
+   state.type = model.type
+   state.title = model.type.title
+   state.width = WIDTH.M + 200
+   store.dispatch(FETCH_MODIFY_RECORDS, { type: state.type.name , id: model.id })
+   .then(() => state.active = true)
+	.catch(error => console.log(error))
+   
+}
+function onCancel() {
+   state.active = false
+   Object.assign(state, deepClone(initialState));
 }
 </script>
 <template>
-<div>
-   <v-dialog v-model="photo.active" :max-width="photo.maxWidth">
+   <!-- <v-dialog v-model="photo.active" :max-width="photo.maxWidth">
       <v-card v-if="photo.model">
          <v-card-text>
             <div class="text-center" style="padding-top:36px;">
@@ -53,6 +47,15 @@ function showPhoto(photo) {
             </div>
          </v-card-text>
       </v-card>
+   </v-dialog> -->
+   <v-dialog persistent v-model="state.active" :width="state.width">
+      <v-card v-if="state.active">
+         <CommonCardTitle :title="`${ENTITY_TYPES.MODIFY_RECORD.title}`"
+			@cancel="onCancel"
+			/>
+         <v-card-text>
+            <ModifyRecordTable />
+         </v-card-text>
+      </v-card>
    </v-dialog>
-</div>      
 </template>

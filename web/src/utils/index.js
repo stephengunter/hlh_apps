@@ -1,5 +1,5 @@
 import { ERRORS, WARNING, SUCCESS, BAD_REQUEST, DIALOG_TITLE, DIALOG_MESSAGE } from '@/consts'
-import { SHOW_CONFIRM, HIDE_CONFIRM } from '@/store/actions.type'
+import { SHOW_CONFIRM, HIDE_CONFIRM, SHOW_MODIFY_RECORDS } from '@/store/actions.type'
 export const resolveErrorData = (error) => {
    if(is400(error)) {
       if(!error.hasOwnProperty('data')) return null
@@ -50,6 +50,9 @@ export const showAlert = (msg) => showConfirm({
    title: msg,
    text: ''
 })
+
+
+export const showModifyRecords = (model) => Bus.emit(SHOW_MODIFY_RECORDS, model)
 
 
 

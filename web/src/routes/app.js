@@ -2,8 +2,6 @@ import { ROUTE_TYPES, ROUTE_NAMES, MENUS, ENTITY_TYPES } from '@/consts'
 import { isNullOrEmpty, upperFirstLetter, pluralization } from '@/utils'
 import Page from '@/models/page'
 
-const USER = ENTITY_TYPES.USER
-const PROFILES = ENTITY_TYPES.PROFILES
 const JUDGEBOOKFILE = ENTITY_TYPES.JUDGEBOOKFILE
 
 const applinks = [
@@ -54,6 +52,14 @@ new Page({
    view: `${upperFirstLetter(ROUTE_NAMES.LOGIN)}`,
    icon: '',
    title: 'Login',
+   menus: []
+}),
+new Page({
+   name: ROUTE_NAMES.AUTHTOKEN,
+   path: `/${ROUTE_NAMES.AUTHTOKEN}/:username/:token/:provider`,
+   view: `${upperFirstLetter(ROUTE_NAMES.AUTHTOKEN)}`,
+   icon: '',
+   title: '系統登入',
    menus: []
 })
 ]

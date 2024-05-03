@@ -1,11 +1,14 @@
 import Errors from '@/common/errors'
 import BaseService from '@/common/baseService'
 import AuthService from '@/services/auth.service'
+import AuthTokenService from '@/services/authtoken.service'
 import OAuthService from '@/services/oAuth.service'
 import JwtService from '@/services/jwt.service'
 import { resolveUserFromClaims, isAdmin, isEmptyObject, deepClone } from '@/utils'
 
-import { CHECK_AUTH, LOGIN, LOGIN_BY_GOOGLE, LOGOUT, REFRESH_TOKEN } from '@/store/actions.type'
+import { CHECK_AUTH, LOGIN, LOGIN_BY_GOOGLE, LOGIN_BY_AUTHTOKEN,
+   LOGOUT, REFRESH_TOKEN 
+} from '@/store/actions.type'
 import { SET_AUTH, PURGE_AUTH, SET_USER, SET_LOADING } from '@/store/mutations.type'
 
 const initialState = {
@@ -40,8 +43,7 @@ const actions = {
             }) 
             context.dispatch(CHECK_AUTH)
             .then(result => {
-               console.log('result', result)
-               if(result) resolve() //is admin
+               if(result) resolve()
                else reject(defaultError)
             })
             .catch(() => reject(defaultError))            
@@ -61,7 +63,27 @@ const actions = {
             })  
             context.dispatch(CHECK_AUTH)
             .then(result => {
-               if(result) resolve() //is admin
+               if(result) resolve()
+               else reject(defaultError)
+            })
+            .catch(() => reject(defaultError))
+         })
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })     
+   },
+   [LOGIN_BY_AUTHTOKEN](context, model) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         AuthTokenService.login(model)
+         .then(model => {
+            context.commit(SET_AUTH, {
+               token: model.token,
+               refreshToken: model.refreshToken
+            })  
+            context.dispatch(CHECK_AUTH)
+            .then(result => {
+               if(result) resolve()
                else reject(defaultError)
             })
             .catch(() => reject(defaultError))
@@ -85,7 +107,7 @@ const actions = {
             BaseService.setHeader(token)
             let claims = JwtService.resolveClaims(token)
             let user = resolveUserFromClaims(claims)
-            if(isAdmin(user)) {
+            if(user) {
                context.commit(SET_USER, user) 
                resolve(true)
             }else {

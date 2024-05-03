@@ -27,6 +27,7 @@ const entity = ENTITY_TYPES.JUDGEBOOKFILE
 const initialState = {
    form: {
 		id: 0,
+		typeId: 0,
 		courtType: '',
 		year: '',
 		category: '',
@@ -37,6 +38,12 @@ const initialState = {
 		'title': false
 	}
 }
+const type_options = computed(() => {
+	return store.state.files_judgebooks.types.map(item => ({
+		value: item.id, title: item.title
+	}))
+})
+
 const state = reactive(deepClone(initialState))
 const title = computed(() => props.model.id ? `${ACTION_TITLES.EDIT}${entity.title}` : `${ACTION_TITLES.CREATE}${entity.title}`)
 const rules = computed(() => {
@@ -113,7 +120,13 @@ function checkNum(val) {
 <template>
 	<form @submit.prevent="onSubmit" @input="onInputChanged">
 		<v-row>
+			<v-col cols="12">
+				<v-select :label="labels['typeId']" density="compact" variant="outlined"
+				:items="type_options" v-model="state.form.typeId"
+				/>
+			</v-col>
 			<v-col cols="6">
+				
 				<v-select :label="labels['courtType']" density="compact" variant="outlined"
 				:items="court_types" v-model="state.form.courtType"
 				/>

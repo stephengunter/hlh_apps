@@ -7,6 +7,7 @@ export const ROUTE_TYPES = {
 export const ROUTE_NAMES = {
    DASHBOARDS: 'dashboards',
    LOGIN: 'login',
+   AUTHTOKEN: 'authtoken',
    DEPARTMENTS: 'departments',
    USER_DETAILS: 'user-details',
    JOB_DETAILS: 'job-details',

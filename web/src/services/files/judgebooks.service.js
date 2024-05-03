@@ -13,9 +13,11 @@ const edit = (id) => BaseService.fetch(`${source}/edit/${id}`)
 
 const update = (id, model) => BaseService.put(`${source}/${id}`, model)
 
-//const download = (id) => BaseService.blob('get', `${source}/download/${id}`)
 const download = (id) => BaseService.fetch(`${source}/download/${id}`)
 
 const remove = (id) => BaseService.remove(`${source}/${id}`)
 
-export default { fetch, get, upload, edit, update, download, remove }
+const fetch_types = () => BaseService.fetch(`${source}/types`)
+
+
+export default { fetch, get, upload, edit, update, download, remove, fetch_types }

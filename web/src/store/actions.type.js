@@ -8,10 +8,15 @@ export const GET_MENUS = 'getMenus'
 //Auth
 export const LOGIN = 'login'
 export const LOGIN_BY_GOOGLE = 'loginByGoogle'
+export const LOGIN_BY_AUTHTOKEN = 'loginByAuthtoken'
+
 export const LOGOUT = 'logout'
 export const RE_LOGIN = 'reLogin'
 export const CHECK_AUTH = 'checkAuth'
 export const REFRESH_TOKEN = 'refreshToken'
+
+export const FETCH_MODIFY_RECORDS = 'fetchModifyRecords'
+export const SHOW_MODIFY_RECORDS = 'showModifyRecords'
 
 //NEW
 
@@ -22,3 +27,4 @@ export const DOWNLOAD_JUDGEBOOKFILE = 'downloadJudgebookFile'
 export const EDIT_JUDGEBOOKFILE = 'editJudgebookFile'
 export const UPDATE_JUDGEBOOKFILE = 'updateJudgebookFile'
 export const REMOVE_JUDGEBOOKFILE = 'removeJudgebookFile'
+export const FETCH_JUDGEBOOK_TYPES = 'fetchJudgebookTypes'
