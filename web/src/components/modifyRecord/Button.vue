@@ -29,15 +29,13 @@ const state = reactive(deepClone(initialState))
 
 onBeforeMount(init)
 function init() { 
-   console.log(props.type)
-	//fetchData(props.type, props.id)
+   
 }
 
 function fetchData() {
    showModifyRecords({
       type: props.type, id: props.id
    })
-	//store.dispatch(FETCH_MODIFY_RECORDS, { type, id })
 }
 </script>
 <template>

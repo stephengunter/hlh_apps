@@ -25,6 +25,7 @@ defineExpose({
 const initialState = {
 	params: {
 		typeId: 0,
+		fileNumber: '',
 		courtType: '',
 		year: '',
 		category: '',
@@ -33,7 +34,10 @@ const initialState = {
 		pageSize: 50
 	}
 }
-
+function checkFileNumber(val) {
+   if(val) return  JudgebookFile.checkFileNumber(val)
+   return true
+}
 function checkYear(val) {
    if(val) return  JudgebookFile.checkYear(val)
    return true
@@ -64,6 +68,9 @@ const courtTypesOptions = computed(() => {
 const labels = computed(() => store.state.files_judgebooks.labels)
 const rules = computed(() => {
 	return {
+		fileNumber: { 
+			isValid: helpers.withMessage(`${labels.value['fileNumber']}不正確`, checkFileNumber)
+		},
 		year: { 
 			isValid: helpers.withMessage(`${labels.value['year']}不正確`, checkYear)
 		},
@@ -167,13 +174,21 @@ function onParamsChanged() {
 				@update:modelValue="onParamsChanged"
             />
 			</v-col>
-			<v-col cols="2">
+			<v-col cols="1">
 				<v-select :label="labels['courtType']" density="compact" 
             :items="courtTypesOptions" v-model="state.params.courtType"
             @update:modelValue="onParamsChanged"
 				/>
 			</v-col>
 			<v-col cols="2">
+				<v-text-field :label="labels['fileNumber']"  density="compact" :clearable="true"
+				v-model="state.params.fileNumber"
+            :error-messages="v$.fileNumber.$errors.map(e => e.$message)"                     
+				@input="v$.fileNumber.$touch"
+				@blur="v$.fileNumber.$touch"
+				/>
+			</v-col>
+			<v-col cols="1">
 				<v-text-field :label="labels['year']"  density="compact"
 				v-model="state.params.year"
             :error-messages="v$.year.$errors.map(e => e.$message)"                     

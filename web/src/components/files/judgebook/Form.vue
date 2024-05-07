@@ -28,6 +28,7 @@ const initialState = {
    form: {
 		id: 0,
 		typeId: 0,
+		fileNumber: '',
 		courtType: '',
 		year: '',
 		category: '',
@@ -48,6 +49,10 @@ const state = reactive(deepClone(initialState))
 const title = computed(() => props.model.id ? `${ACTION_TITLES.EDIT}${entity.title}` : `${ACTION_TITLES.CREATE}${entity.title}`)
 const rules = computed(() => {
 	return {
+		fileNumber: {
+			required: helpers.withMessage(VALIDATE_MESSAGES.REQUIRED(labels.value['fileNumber']), required),
+			isValid: helpers.withMessage(`${labels.value['fileNumber']}不正確`, checkFileNumber)
+		},
 		year: {
 			required: helpers.withMessage(VALIDATE_MESSAGES.REQUIRED(labels.value['year']), required),
 			isValid: helpers.withMessage(`${labels.value['year']}不正確`, checkYear)
@@ -76,7 +81,6 @@ const canRemove = computed(() => {
 onBeforeMount(init)
 
 function init() {
-	console.log(props.court_types)
 	setValues(props.model, state.form)
 }
 function onSubmit() {
@@ -102,7 +106,10 @@ function remove() {
 function onInputChanged(){
    store.commit(CLEAR_ERRORS)
 }
-
+function checkFileNumber(val) {
+   if(val) return  JudgebookFile.checkFileNumber(val)
+   return false
+}
 function checkYear(val) {
    if(val) return  JudgebookFile.checkYear(val)
    return false
@@ -120,15 +127,15 @@ function checkNum(val) {
 <template>
 	<form @submit.prevent="onSubmit" @input="onInputChanged">
 		<v-row>
-			<v-col cols="12">
+			<v-col cols="6">
 				<v-select :label="labels['typeId']" density="compact" variant="outlined"
 				:items="type_options" v-model="state.form.typeId"
 				/>
-			</v-col>
-			<v-col cols="6">
-				
-				<v-select :label="labels['courtType']" density="compact" variant="outlined"
-				:items="court_types" v-model="state.form.courtType"
+				<v-text-field :label="labels['fileNumber']"  density="compact"        
+				v-model="state.form.fileNumber"
+            :error-messages="v$.fileNumber.$errors.map(e => e.$message)"                     
+				@input="v$.fileNumber.$touch"
+				@blur="v$.fileNumber.$touch"
 				/>
 				<v-text-field :label="labels['category']"  density="compact"        
 				v-model="state.form.category"
@@ -138,6 +145,10 @@ function checkNum(val) {
 				/>
 			</v-col>
 			<v-col cols="6">
+				<v-select :label="labels['courtType']" density="compact" variant="outlined"
+				:items="court_types" v-model="state.form.courtType"
+				/>
+
 				<v-text-field :label="labels['year']"  density="compact"
 				v-model="state.form.year"
             :error-messages="v$.year.$errors.map(e => e.$message)"                     

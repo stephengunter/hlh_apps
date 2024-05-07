@@ -52,8 +52,9 @@ onBeforeMount(() => {
    store.commit(SET_JUDGEBOOKFILE_UPLOAD_RESULTS, [])
 })
 
-function resolveModel(file, courtType) {
+function resolveModel(file, typeId, courtType) {
 	if(file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+      const fileNumber = ''
       let fileName = file.name.slice(0, -4)
 		let year = ''
 		let category = ''
@@ -66,23 +67,24 @@ function resolveModel(file, courtType) {
 			if(JudgebookFile.checkYear(parts[0])) year = parts[0]
 			if(parts.length > 3) ps = parts[3]
 		}
-		return new JudgebookFile(courtType, year, category ,num, file, ps)
+		return new JudgebookFile(typeId, fileNumber, courtType, year, category ,num, file, ps)
 	}
 	return null
 }
 function onFileAdded(files) {
+   const typeId = props.type.id
+   const courtType = props.courtType.value
    let id = -1
    state.models = []
    files.forEach(file => {
-      let model = resolveModel(file, props.courtType.value)
+      let model = resolveModel(file, typeId, courtType)
       if(model) {
+         check(model, 'fileNumber')
          check(model, 'year')
          check(model, 'category')
          check(model, 'num')
+
          model.id = id
-         if(props.type) model.typeId = props.type.id
-         else model.typeId = 0
-         
          state.models.push(model)
          id -= 1
       } 
@@ -91,7 +93,11 @@ function onFileAdded(files) {
 
 function check(model, key) {
    let valid = false
-   if(key === 'year') valid = JudgebookFile.checkYear(model[key])
+   if(key === 'fileNumber') {
+      if(model[key]) valid = JudgebookFile.checkFileNumber(model[key])
+      else valid = false
+   } 
+   else if(key === 'year') valid = JudgebookFile.checkYear(model[key])
    else if(key === 'category') valid = !isNumeric(model[key])
    else if(key === 'num') {
       valid = JudgebookFile.checkNum(model[key]) ? true : false
@@ -145,16 +151,19 @@ function onFind(id) {
                   <th class="text-center" style="width: 15%;">
                      {{ labels['typeId'] }}
                   </th>
-                  <th class="text-center" style="width: 15%;">
+                  <th class="text-center" style="width: 12%;">
                      {{ labels['courtType'] }}
                   </th>
-                  <th class="text-center" style="width: 15%;">
+                  <th class="text-center" style="width: 18%;">
+                     {{ labels['fileNumber'] }}
+                  </th>
+                  <th class="text-center" style="width: 10%;">
                      {{ labels['year'] }}
                   </th>
-                  <th class="text-center" style="width: 15%;">
+                  <th class="text-center" style="width: 12%;">
                      {{ labels['category'] }}
                   </th>
-                  <th class="text-center" style="width: 15%;">
+                  <th class="text-center" style="width: 12%;">
                      {{ labels['num'] }}
                   </th>
                   <th class="text-center" >
@@ -177,6 +186,12 @@ function onFind(id) {
                   <td>
                      <v-select class="mt-3" :label="labels['courtType']" density="compact" readonly variant="outlined"
                      :items="courtTypes" v-model="model.courtType"
+                     />
+                  </td>
+                  <td>
+                     <v-text-field variant="outlined" class="pt-3" density="compact"
+                     v-model="model.fileNumber" :error-messages="model.errors.get('fileNumber')" 
+                     @input="check(model, 'fileNumber')"
                      />
                   </td>
                   <td>

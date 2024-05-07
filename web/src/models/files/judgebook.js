@@ -4,7 +4,9 @@ import { isNumeric,
 import Errors from '@/common/errors'
 
 class JudgebookFile {
-   constructor(courtType, year, category ,num, file, ps = '') {
+   constructor(typeId, fileNumber, courtType, year, category ,num, file, ps = '') {
+      this.typeId = typeId
+      this.fileNumber = fileNumber
       this.courtType = courtType
       this.year = year
       this.category = category
@@ -14,7 +16,10 @@ class JudgebookFile {
 
       this.errors = new Errors()
    }
-
+   static checkFileNumber(input) {
+      let val = input.toString()
+      return true
+   }
    static checkYear(input) {
       let val = input.toString()
       return (isNumeric(val) && val.length < 4 && val.length > 1)

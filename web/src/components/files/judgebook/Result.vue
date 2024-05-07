@@ -28,12 +28,9 @@ const duplicate_error = computed(() => {
 })
 
 onBeforeMount(() => {
-   console.log(props.result)
+   
 })
 
-function onSubmit() {
-	router.push({ path: route.path, query: { ...state.params } })
-}
 function onFind() {
    emit('find', props.result.id)
 }

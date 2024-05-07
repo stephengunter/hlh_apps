@@ -43,25 +43,31 @@ const headers = [{
 },{
    title: labels.value['typeId'],
    align: 'start',
-   width: '8%',
+   width: '10%',
    sortable: false,
    key: 'typeId',
 },{
    title: labels.value['courtType'],
    align: 'start',
-   width: '8%',
+   width: '5%',
    sortable: false,
    key: 'courtType',
 },{
+   title: labels.value['fileNumber'],
+   align: 'start',
+   width: '10%',
+   sortable: false,
+   key: 'fileNumber',
+},{
    title: labels.value['year'],
    align: 'start',
-   width: '8%',
+   width: '5%',
    sortable: false,
    key: 'year',
 },{
    title: labels.value['category'],
    align: 'start',
-   width: '10%',
+   width: '5%',
    sortable: false,
    key: 'category',
 },{
@@ -73,19 +79,19 @@ const headers = [{
 },{
    title: labels.value['ps'],
    align: 'start',
-   width: '15%',
+   width: '12%',
    sortable: false,
    key: 'ps',
 },{
    title: '檔案',
    align: 'start',
-   width: '20%',
+   width: '12%',
    sortable: false,
    key: 'fileName',
 },{
    title: labels.value['createdAtText'],
    align: 'start',
-   width: '15%',
+   width: '12%',
    sortable: false,
    key: 'createdAtText',
 }]

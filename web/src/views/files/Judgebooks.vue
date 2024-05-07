@@ -15,7 +15,6 @@ import { isEmptyObject, deepClone , downloadFile,
 	buildQuery, bytesToBinary, getMimeType, showModifyRecords
 } from '@/utils'
 import { WIDTH, ROUTE_NAMES, VALIDATE_MESSAGES, ACTION_TITLES, ENTITY_TYPES } from '@/consts'
-import JudgebookFile from '@/models/files/judgebook'
 
 const name = 'FilesJudgebooksView'
 const store = useStore()
@@ -46,9 +45,7 @@ const types = computed(() => store.state.files_judgebooks.types)
 const courtTypes = computed(() => store.state.files_judgebooks.courtTypes)
 
 const head = ref(null)
-const file_upload = ref(null)
 const pagedList = computed(() => store.state.files_judgebooks.pagedList)
-const labels = computed(() => store.state.files_judgebooks.labels)
 
 
 onMounted(() => {
@@ -111,6 +108,7 @@ function onUpload(active) {
 		state.upload.courtType = courtType
 	} 
 	else {
+		state.upload.type = null
 		state.upload.courtType = null
 		state.upload.title = ''
 	} 

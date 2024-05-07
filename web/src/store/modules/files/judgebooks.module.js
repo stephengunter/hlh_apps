@@ -16,7 +16,8 @@ const initialState = {
    courtTypes: getListFromObj(COURT_TYPES),
    labels: {
       typeId: '書類',
-      courtType: '庭別',
+      fileNumber: '檔案號',
+      courtType: '案類',
       year: '年度',
       category: '字號',
       num: '案號',
