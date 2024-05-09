@@ -1,11 +1,12 @@
-import { isNumeric,
+import { isNumeric, deepClone,
 	formatNumberWithLeadingZeros, tryParseInt
 } from '@/utils'
 import Errors from '@/common/errors'
 
 class JudgebookFile {
-   constructor(typeId, fileNumber, courtType, year, category ,num, file, ps = '') {
-      this.typeId = typeId
+   constructor(type, fileNumber, courtType, year, category ,num, file, ps = '') {
+      this.type = deepClone(type)
+      this.typeId = type.id
       this.fileNumber = fileNumber
       this.courtType = courtType
       this.year = year
@@ -15,6 +16,10 @@ class JudgebookFile {
       this.ps = ps
 
       this.errors = new Errors()
+   }
+   static checkType(type) {
+      if(type.id && type.key)  return true
+      return false
    }
    static checkFileNumber(input) {
       let val = input.toString()

@@ -103,7 +103,7 @@ function onUpload(active) {
 		const params = head.value.getParams()
 		const type = types.value.find(item => item.id === params.typeId)
 		const courtType = courtTypes.value.find(item => item.value === params.courtType) 
-		state.upload.title = `${ACTION_TITLES.UPLOAD}${ENTITY_TYPE.title} (${courtType.title})`
+		state.upload.title = `${ACTION_TITLES.UPLOAD}${type.title} (${courtType.title})`
 		state.upload.type = type
 		state.upload.courtType = courtType
 	} 

@@ -36,8 +36,9 @@ const labels = computed(() => store.state.files_judgebooks.labels)
 
 const results = computed(() => store.state.files_judgebooks.upload.results)
 
+const types = computed(() => store.state.files_judgebooks.types)
 const type_options = computed(() => {
-	return store.state.files_judgebooks.types.map(item => ({
+	return types.value.map(item => ({
 		value: item.id, title: item.title
 	}))
 })
@@ -52,7 +53,7 @@ onBeforeMount(() => {
    store.commit(SET_JUDGEBOOKFILE_UPLOAD_RESULTS, [])
 })
 
-function resolveModel(file, typeId, courtType) {
+function resolveModel(file, type, courtType) {
 	if(file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
       const fileNumber = ''
       let fileName = file.name.slice(0, -4)
@@ -67,17 +68,17 @@ function resolveModel(file, typeId, courtType) {
 			if(JudgebookFile.checkYear(parts[0])) year = parts[0]
 			if(parts.length > 3) ps = parts[3]
 		}
-		return new JudgebookFile(typeId, fileNumber, courtType, year, category ,num, file, ps)
+		return new JudgebookFile(type, fileNumber, courtType, year, category ,num, file, ps)
 	}
 	return null
 }
 function onFileAdded(files) {
-   const typeId = props.type.id
+   const type = props.type
    const courtType = props.courtType.value
    let id = -1
    state.models = []
    files.forEach(file => {
-      let model = resolveModel(file, typeId, courtType)
+      let model = resolveModel(file, type, courtType)
       if(model) {
          check(model, 'fileNumber')
          check(model, 'year')
