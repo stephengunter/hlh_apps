@@ -1,7 +1,6 @@
 <script setup>
 import { reactive, computed, onBeforeMount, watch } from 'vue'
 import { deepClone, dateToText, textToDate, isValidDate } from '@/utils'
-import { STORE_DEPARTMENT } from '@/store/actions.type';
 
 const name = 'CommonPickerDate'
 const props = defineProps({

@@ -1,20 +1,15 @@
 <script setup>
-import { MqResponsive } from 'vue3-mq'
-import { ref, reactive, computed, watch, onMounted, nextTick } from 'vue'
+import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { useVuelidate } from '@vuelidate/core'
-import { required, numeric, helpers } from '@vuelidate/validators'
-import Errors from '@/common/errors'
 import { FETCH_JUDGEBOOKFILES, UPLOAD_JUDGEBOOKFILES, DOWNLOAD_JUDGEBOOKFILE,
 	EDIT_JUDGEBOOKFILE, UPDATE_JUDGEBOOKFILE, REMOVE_JUDGEBOOKFILE, FETCH_JUDGEBOOK_TYPES 
 } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { isEmptyObject, deepClone , downloadFile,
-	resolveErrorData, onErrors, onSuccess, setValues, badRequest, is400, isNumeric,
-	buildQuery, bytesToBinary, getMimeType, showModifyRecords
-} from '@/utils'
-import { WIDTH, ROUTE_NAMES, VALIDATE_MESSAGES, ACTION_TITLES, ENTITY_TYPES } from '@/consts'
+	resolveErrorData, onErrors, onSuccess, setValues, is400, 
+	buildQuery, bytesToBinary, getMimeType} from '@/utils'
+import { WIDTH, ACTION_TITLES, ENTITY_TYPES } from '@/consts'
 
 const name = 'FilesJudgebooksView'
 const store = useStore()
