@@ -31,6 +31,7 @@ const state = reactive(deepClone(initialState))
 const file_upload = ref(null)
 
 const courtTypes = computed(() => store.state.files_judgebooks.courtTypes)
+const originTypes = computed(() => store.state.files_judgebooks.originTypes)
 
 const labels = computed(() => store.state.files_judgebooks.labels)
 
@@ -53,7 +54,7 @@ onBeforeMount(() => {
    store.commit(SET_JUDGEBOOKFILE_UPLOAD_RESULTS, [])
 })
 
-function resolveModel(file, type, courtType) {
+function resolveModel(file, type, judgeDate, courtType, originType) {
 	if(file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
       const fileNumber = ''
       let fileName = file.name.slice(0, -4)
@@ -68,17 +69,19 @@ function resolveModel(file, type, courtType) {
 			if(JudgebookFile.checkYear(parts[0])) year = parts[0]
 			if(parts.length > 3) ps = parts[3]
 		}
-		return new JudgebookFile(type, fileNumber, courtType, year, category ,num, file, ps)
+		return new JudgebookFile(type, judgeDate, fileNumber, originType, courtType, year, category ,num, file, ps)
 	}
 	return null
 }
 function onFileAdded(files) {
-   const type = props.type
-   const courtType = props.courtType.value
+   const type = isEmptyObject(props.type) ? types.value[0] : props.type
+   const courtType = isEmptyObject(props.courtType) ? courtTypes.value[0].value : props.courtType.value
+   const originType = originTypes.value[0].value
+   const judgeDate = 0
    let id = -1
    state.models = []
    files.forEach(file => {
-      let model = resolveModel(file, type, courtType)
+      let model = resolveModel(file, type, judgeDate, courtType, originType)
       if(model) {
          check(model, 'fileNumber')
          check(model, 'year')
@@ -138,7 +141,6 @@ function onFind(id) {
          @file-added="onFileAdded" @file-removed="onFileAdded"
          />
       </v-col>
-      
    </v-row>
    <v-row dense>
       
@@ -146,26 +148,32 @@ function onFind(id) {
          <v-table>
             <thead>
                <tr>
-                  <th v-show="results.length" class="text-center" style="width: 15%;">
+                  <th v-show="results.length" class="text-center" style="width: 10%;">
                      
                   </th>
-                  <th class="text-center" style="width: 15%;">
+                  <th class="text-center" style="width: 10%;">
                      {{ labels['typeId'] }}
                   </th>
-                  <th class="text-center" style="width: 12%;">
+                  <th class="text-center" style="width: 10%;">
                      {{ labels['courtType'] }}
                   </th>
-                  <th class="text-center" style="width: 18%;">
+                  <th class="text-center" style="width: 10%;">
+                     {{ labels['originType'] }}
+                  </th>
+                  <th class="text-center" style="width: 20%;">
                      {{ labels['fileNumber'] }}
                   </th>
-                  <th class="text-center" style="width: 10%;">
+                  <th class="text-center" style="width: 8%;">
                      {{ labels['year'] }}
                   </th>
                   <th class="text-center" style="width: 12%;">
                      {{ labels['category'] }}
                   </th>
-                  <th class="text-center" style="width: 12%;">
+                  <th class="text-center" style="width: 10%;">
                      {{ labels['num'] }}
+                  </th>
+                  <th class="text-center" style="width: 10%;">
+                     {{ labels['judgeDate'] }}
                   </th>
                   <th class="text-center" >
                      備註
@@ -185,8 +193,13 @@ function onFind(id) {
                      />
                   </td>
                   <td>
-                     <v-select class="mt-3" :label="labels['courtType']" density="compact" readonly variant="outlined"
+                     <v-select class="mt-3" :label="labels['courtType']" density="compact" variant="outlined"
                      :items="courtTypes" v-model="model.courtType"
+                     />
+                  </td>
+                  <td>
+                     <v-select class="mt-3" :label="labels['originType']" density="compact" variant="outlined"
+                     :items="originTypes" v-model="model.originType"
                      />
                   </td>
                   <td>
@@ -211,6 +224,11 @@ function onFind(id) {
                      <v-text-field variant="outlined" class="pt-3" density="compact"
                      v-model="model.num" :error-messages="model.errors.get('num')" 
                      @input="check(model, 'num')"
+                     />
+                  </td>
+                  <td>
+                     <v-text-field variant="outlined" class="pt-3" density="compact"
+                     v-model="model.judgeDate"
                      />
                   </td>
                   <td>

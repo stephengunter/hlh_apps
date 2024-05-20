@@ -4,9 +4,17 @@ import { isNumeric, deepClone,
 import Errors from '@/common/errors'
 
 class JudgebookFile {
-   constructor(type, fileNumber, courtType, year, category ,num, file, ps = '') {
-      this.type = deepClone(type)
-      this.typeId = type.id
+   constructor(type, judgeDate, fileNumber, originType, courtType, year, category ,num, file, ps = '') {
+      if(type) {
+         this.type = deepClone(type)
+         this.typeId = type.id
+      }else {
+         this.type = null
+         this.typeId = 0
+      }
+      this.judgeDate = judgeDate
+      this.originType = originType
+      this.courtType = courtType
       this.fileNumber = fileNumber
       this.courtType = courtType
       this.year = year
@@ -16,6 +24,11 @@ class JudgebookFile {
       this.ps = ps
 
       this.errors = new Errors()
+   }
+   static checkJudgeDate(input) {
+      // let val = input.toString()
+      // if(val.length < 6 || val.length > 7)  return false
+      return true
    }
    static checkType(type) {
       if(type.id && type.key)  return true

@@ -18,11 +18,11 @@ const getters = {
 
 
 const actions = {
-   [FETCH_MODIFY_RECORDS](context, { type, id }) {
+   [FETCH_MODIFY_RECORDS](context, params) {
       context.commit(SET_MODIFY_RECORDS, [])
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         ModifyRecordsService.fetch(type, id)
+         ModifyRecordsService.fetch(params)
             .then(list => {
                context.commit(SET_MODIFY_RECORDS, list)
                resolve()

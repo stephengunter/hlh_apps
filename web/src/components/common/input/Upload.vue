@@ -152,7 +152,7 @@ function isImage(type) {
 <template>
    <v-btn v-show="show_button" variant="outlined"  
    color="primary" v-text="button_label" :disabled="button_disable"
-   @click.prevent="launch()"
+   @click.prevent="launch"
    >
    </v-btn>
    <input ref="inputUpload" style="display: none;" type="file" 

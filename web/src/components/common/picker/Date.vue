@@ -54,6 +54,10 @@ function onSelected(val) {
    state.active = false
 }
 
+function getJapaneseEraYear(val) {
+   console.log('getJapaneseEraYear', val)
+}
+
 </script>
 <template>
 	<v-menu :close-on-content-click="false" v-model="state.active">

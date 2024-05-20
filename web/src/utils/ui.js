@@ -16,6 +16,13 @@ export const activeOptions = [{
    value: false,
    title: '已下架'
 }]
+export const reviewedOptions = [{
+   value: 1,
+   title: '已審核'
+},{
+   value: 0,
+   title: '未審核'
+}]
 export const yearOptions = (begin, end) => {
    let options = []
    for(let i = begin; i <= end; i++) {

@@ -9,9 +9,8 @@ const name = 'LayoutShow'
 const store = useStore()
 
 const initialState = {
-   type: null,
    active: false,
-   width: WIDTH.S
+   width: WIDTH.M
 }
 
 const state = reactive(deepClone(initialState))
@@ -21,11 +20,10 @@ Bus.on(SHOW_MODIFY_RECORDS, showModifyRecords)
 // onMounted(() => {
 	
 // })
-function showModifyRecords(model) {
-   state.type = model.type
-   state.title = model.type.title
-   state.width = WIDTH.M + 200
-   store.dispatch(FETCH_MODIFY_RECORDS, { type: state.type.name , id: model.id })
+function showModifyRecords({type, id, action, title, width}) {
+   state.title = title
+   state.width = width ? width : WIDTH.M + 200
+   store.dispatch(FETCH_MODIFY_RECORDS, { type, id, action })
    .then(() => state.active = true)
 	.catch(error => console.log(error))
    
@@ -50,7 +48,7 @@ function onCancel() {
    </v-dialog> -->
    <v-dialog persistent v-model="state.active" :width="state.width">
       <v-card v-if="state.active">
-         <CommonCardTitle :title="`${ENTITY_TYPES.MODIFY_RECORD.title}`"
+         <CommonCardTitle :title="state.title"
 			@cancel="onCancel"
 			/>
          <v-card-text>

@@ -1,8 +1,8 @@
 <script setup>
 import { ref, reactive, computed, watch, onBeforeMount, onMounted } from 'vue'
 import { useStore } from 'vuex'
-import { isEmptyObject } from '@/utils'
-import { ENTITY_TYPES } from '@/consts'
+import { isEmptyObject, deepClone, showModifyRecords } from '@/utils'
+import { ENTITY_TYPES, ACTION_TYPES, WIDTH } from '@/consts'
 
 const name = 'FilesJudgebookTable'
 const store = useStore()
@@ -23,27 +23,61 @@ const props = defineProps({
       type: Boolean,
       default: true
    },
+   can_review: {
+      type: Boolean,
+      default: false
+   },
+   disable_review: {
+      type: Boolean,
+      default: false
+   },
    court_types: {
       type: Array,
       default: () => []
    }
 })
 
+const initialState = {
+	checked_ids: [],
+   checkAll: false
+}
+
+const state = reactive(deepClone(initialState))
+
 const entity_type = ENTITY_TYPES.JUDGEBOOKFILE
 
-const emit = defineEmits(['select', 'download', 'options_changed'])
+const emit = defineEmits(['select', 'download', 'check_changed', 'options_changed'])
 const labels = computed(() => store.state.files_judgebooks.labels)
+const params = computed(() => store.state.files_judgebooks.params)
+
+watch(params, (new_value) => {
+   state.checkAll = false
+   state.checked_ids = []
+})
+watch(
+   () => state.checked_ids,
+   (new_value, old_value) => {
+	   emit('check_changed', new_value)
+   },
+   { deep: true }
+)
 
 const headers = [{
    title: '',
    align: 'center',
-   width: '5%',
+   width: '3%',
    sortable: false,
    key: 'action',
 },{
+   title: '審核',
+   align: 'center',
+   width: '3%',
+   sortable: false,
+   key: 'reviewed',
+},{
    title: labels.value['typeId'],
    align: 'start',
-   width: '10%',
+   width: '5%',
    sortable: false,
    key: 'typeId',
 },{
@@ -55,7 +89,7 @@ const headers = [{
 },{
    title: labels.value['fileNumber'],
    align: 'start',
-   width: '10%',
+   width: '15%',
    sortable: false,
    key: 'fileNumber',
 },{
@@ -73,28 +107,42 @@ const headers = [{
 },{
    title: labels.value['num'],
    align: 'start',
-   width: '10%',
+   width: '5%',
    sortable: false,
    key: 'num',
 },{
    title: labels.value['ps'],
    align: 'start',
-   width: '12%',
+   width: '5%',
    sortable: false,
    key: 'ps',
 },{
    title: '檔案',
    align: 'start',
-   width: '12%',
+   width: '10%',
    sortable: false,
    key: 'fileName',
 },{
    title: labels.value['createdAtText'],
    align: 'start',
-   width: '12%',
+   width: '10%',
    sortable: false,
    key: 'createdAtText',
 }]
+
+const table_headers = computed(() => {
+   if(props.can_review && !props.disable_review) {
+      let th_list = headers.slice()
+      th_list.splice(0, 0, {
+         title: '',
+         align: 'start',
+         width: '3%',
+         sortable: false,
+         key: 'check'
+      })
+      return th_list
+   }else return headers
+})
 
 const list = computed(() => isEmptyObject(props.model) ? [] : props.model.viewList)
 
@@ -118,6 +166,17 @@ function getCourtTypeTitle(key) {
    const type = props.court_types.find(x => x.value === key)
    return type.title
 }
+function checkReviewRecords(id) {
+   showModifyRecords({
+      type:entity_type.name, id: id, 
+      action: ACTION_TYPES.REVIEW.name, title: `${ACTION_TYPES.REVIEW.title}紀錄`, width: WIDTH.L
+   })
+}
+function onCheckAll(val) {
+   if(val) {
+      state.checked_ids = list.value.map(item => item.id)
+   }else state.checked_ids = []
+}
 
 </script>
 
@@ -125,15 +184,37 @@ function getCourtTypeTitle(key) {
 <template>
    <v-data-table-server
    v-model:items-per-page="model.pageSize"
-   :headers="headers"
+   :headers="table_headers"
    :items-length="model.totalItems"
    :loading="props.loading"
    :items="list"
    >
+      <template v-if="can_review" v-slot:header.check>
+         <v-checkbox hide-details v-show="list.length"
+         v-model="state.checkAll"
+         @update:modelValue="onCheckAll"
+         />
+      </template>
+      <template v-if="can_review" v-slot:item.check="{ item }">
+         <v-checkbox hide-details
+         v-model="state.checked_ids"
+         :value="item.id"
+         />
+      </template>
 		<template v-slot:item.action="{ item }">
-         <CommonButtonEdit size="x-small" 
+         <CommonButtonEdit v-if="item.canEdit" size="x-small"  
 			@edit="select(item.id)"
 			/>
+      </template>
+      <template v-slot:item.reviewed="{ item }">
+         <v-tooltip text="查看審核紀錄" v-if="item.reviewed">
+            <template v-slot:activator="{ props }">
+               <v-icon v-bind="props" color="success" icon="mdi-check-circle" 
+               @click.prevent="checkReviewRecords(item.id)"
+               >
+               </v-icon>
+            </template>
+         </v-tooltip>
       </template>
       <template v-slot:item.typeId="{ item }">
          {{ item.type.title }}
@@ -142,14 +223,17 @@ function getCourtTypeTitle(key) {
          {{ getCourtTypeTitle(item.courtType) }}
       </template>
 		<template v-slot:item.fileName="{ item }">
-         <v-tooltip text="下載檔案">
+         <v-tooltip text="下載檔案" v-if="item.canEdit">
             <template v-slot:activator="{ props }">
                <a href="#" v-bind="props" @click.prevent="download(item.id)">{{ item.fileName }}</a>
             </template>
          </v-tooltip>
+         <span v-else>{{ item.fileName }}</span>
       </template>
       <template v-slot:item.createdAtText="{ item }">
-         <ModifyRecordButton :type="entity_type" :id="item.id.toString()"
+         <ModifyRecordButton :type="entity_type" 
+         tooltip="查看編修紀錄" title="編修紀錄"
+         :id="item.id.toString()"
          :text="item.createdAtText" 
          />         
       </template>

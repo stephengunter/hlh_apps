@@ -36,6 +36,11 @@ const headers = [{
    align: 'start',
    sortable: false,
    key: 'userId',
+},{
+   title: 'IP',
+   align: 'start',
+   sortable: false,
+   key: 'remoteIP',
 }]
 
 const list = computed(() => store.state.modify_records.list)
@@ -62,6 +67,9 @@ const list = computed(() => store.state.modify_records.list)
 				<th>
 					User
 				</th>
+				<th>
+					IP
+				</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -79,7 +87,10 @@ const list = computed(() => store.state.modify_records.list)
 					{{ item.dateTimeText }}
 				</td>
 				<td>
-					{{ item.userId }}
+					{{ item.userName }}
+				</td>
+				<td>
+					{{ item.remoteIP }}
 				</td>
 			</tr>
 		</tbody>

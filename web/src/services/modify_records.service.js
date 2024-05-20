@@ -3,6 +3,6 @@ import { API_URL } from '@/config'
 
 const source =`${API_URL}/api/modifyRecords`
 
-const fetch = (type, id) => BaseService.fetch(`${source}/${type}/${id}`)
+const fetch = (params) => BaseService.fetch(source, params)
 
 export default { fetch }

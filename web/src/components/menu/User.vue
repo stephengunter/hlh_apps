@@ -48,27 +48,29 @@ function profiles() {
 
 </script>
 <template>
-   <v-menu>
-      <template v-slot:activator="{ props }">
-         <v-btn icon v-bind="props">
-            <v-avatar v-if="noPicture" color="indigo">
-               {{ shortName(user) }}
-            </v-avatar>
-            <v-avatar v-else>
-               <v-img @error="() => state.pictureError = true"
-               :src="user.picture"
-               :alt="user.name"
-               />
-            </v-avatar>
-        </v-btn>
-      </template>
-      <v-list min-width="180"  max-width="300">   
+   <div>
+      <v-menu>
+         <template v-slot:activator="{ props }">
+            <v-btn icon v-bind="props">
+               <v-avatar v-if="noPicture" color="indigo">
+                  {{ shortName(user) }}
+               </v-avatar>
+               <v-avatar v-else>
+                  <v-img @error="() => state.pictureError = true"
+                  :src="user.picture"
+                  :alt="user.name"
+                  />
+               </v-avatar>
+         </v-btn>
+         </template>
+         <v-list min-width="180"  max-width="300">   
          <v-list-item v-for="(item, index) in state.items" :key="index" @click.prevent="onSelected(item.name)">
-            <template v-slot:prepend>
-               <v-icon :icon="item.icon"></v-icon>
-            </template>
-            <v-list-item-title v-text="item.title" />
-         </v-list-item>
-      </v-list> 
-   </v-menu>
+               <template v-slot:prepend>
+                  <v-icon :icon="item.icon"></v-icon>
+               </template>
+               <v-list-item-title v-text="item.title" />
+            </v-list-item>
+         </v-list> 
+      </v-menu>
+   </div>
 </template>

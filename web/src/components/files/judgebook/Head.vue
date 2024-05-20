@@ -7,7 +7,7 @@ import { useVuelidate } from '@vuelidate/core'
 import { required, numeric, helpers } from '@vuelidate/validators'
 import Errors from '@/common/errors'
 import { FETCH_JUDGEBOOK_TYPES } from '@/store/actions.type'
-import { isEmptyObject, deepClone , copyFromQuery, areObjectsEqual,
+import { isEmptyObject, deepClone , copyFromQuery, areObjectsEqual, reviewedOptions,
 	resolveErrorData, onErrors, onSuccess, setValues, badRequest, is400, showAlert
 } from '@/utils'
 import JudgebookFile from '@/models/files/judgebook'
@@ -16,15 +16,27 @@ const name = 'FilesJudgebookHead'
 const store = useStore()
 const route = useRoute()
 const router = useRouter()
+const props = defineProps({
+   can_review: {
+      type: Boolean,
+      default: false
+   },
+	disable_review: {
+      type: Boolean,
+      default: false
+   }
+})
 
-const emit = defineEmits(['submit', 'upload'])
+const emit = defineEmits(['submit', 'upload', 'review'])
 defineExpose({
    init, setParams, getParams, setPageOption
 })
 
 const initialState = {
 	params: {
+		reviewed: -1,
 		typeId: 0,
+		judgeDate: 0,
 		fileNumber: '',
 		courtType: '',
 		year: '',
@@ -32,8 +44,20 @@ const initialState = {
 		num: '',
 		page: -1,
 		pageSize: 50
+	},
+	review: {
+		options: []
 	}
 }
+
+onBeforeMount(() => {
+	if(params.value) setParams(params.value)
+	let options = reviewedOptions.slice(0)
+	options.splice(0, 0, {
+		value: -1, title: '全部'
+	})
+	state.review.options = options
+})
 function checkFileNumber(val) {
    if(val) return  JudgebookFile.checkFileNumber(val)
    return true
@@ -51,21 +75,28 @@ function checkNum(val) {
 }
 
 const state = reactive(deepClone(initialState))
-
+const ready = computed(() => store.state.files_judgebooks.pagedList != null)
+const params = computed(() => store.state.files_judgebooks.params)
 const type_options = computed(() => {
-	return store.state.files_judgebooks.types.map(item => ({
+	let options = store.state.files_judgebooks.types.map(item => ({
 		value: item.id, title: item.title
 	}))
+	options.splice(0, 0, {
+		value: 0, title: '全部'
+	})
+	return options
 })
 
 const courtTypesOptions = computed(() => {
 	let options = store.state.files_judgebooks.courtTypes.slice()
-	// options.splice(0, 0, {
-	// 	value: '', title: '全部'
-	// })
+	options.splice(0, 0, {
+		value: '', title: '全部'
+	})
 	return options
 })
 const labels = computed(() => store.state.files_judgebooks.labels)
+
+
 const rules = computed(() => {
 	return {
 		fileNumber: { 
@@ -93,8 +124,13 @@ const v$ = useVuelidate(rules, state.params)
 
 watch(route, init)
 
+watch(params, (new_value) => {
+	setParams(new_value)
+})
+
 function init() {
    if(!state.params.typeId) state.params.typeId = type_options.value[0].value
+	
 	if(!state.params.courtType) state.params.courtType = courtTypesOptions.value[0].value
 
 	if(isEmptyObject(route.query)) {
@@ -154,21 +190,28 @@ function onSubmit() {
 	
 }
 function onUpload() {
-	if(state.params.courtType) emit('upload')
-	else showAlert(`請先選擇${labels.value['courtType']}`)
-   
+	emit('upload')
 }
 
 function onParamsChanged() {
 	onSubmit()
 }
+function onReview() {
+	emit('review')
+}
 
 </script>
 
 <template>
-   <form @submit.prevent="onSubmit" @input="onInputChanged">
+   <form v-show="ready" @submit.prevent="onSubmit" @input="onInputChanged">
 		<v-row dense>
-			<v-col cols="2">
+			<v-col cols="1">
+				<v-select :label="labels['reviewed']" density="compact" 
+            :items="state.review.options" v-model="state.params.reviewed"
+				@update:modelValue="onParamsChanged"
+            />
+			</v-col>
+			<v-col cols="1">
 				<v-select :label="labels['typeId']" density="compact" 
             :items="type_options" v-model="state.params.typeId"
 				@update:modelValue="onParamsChanged"
@@ -180,7 +223,7 @@ function onParamsChanged() {
             @update:modelValue="onParamsChanged"
 				/>
 			</v-col>
-			<v-col cols="2">
+			<v-col cols="3">
 				<v-text-field :label="labels['fileNumber']"  density="compact" :clearable="true"
 				v-model="state.params.fileNumber"
             :error-messages="v$.fileNumber.$errors.map(e => e.$message)"                     
@@ -204,7 +247,7 @@ function onParamsChanged() {
 				@blur="v$.category.$touch"
 				/>
 			</v-col>
-			<v-col cols="2">
+			<v-col cols="1">
 				<v-text-field :label="labels['num']"  density="compact" :clearable="true"       
 				v-model="state.params.num"
             :error-messages="v$.num.$errors.map(e => e.$message)"                     
@@ -212,7 +255,7 @@ function onParamsChanged() {
 				@blur="v$.num.$touch"
 				/>
 			</v-col>
-			<v-col cols="2">
+			<v-col cols="1">
 				<v-tooltip text="查詢">
 					<template v-slot:activator="{ props }">
 						<v-btn class="float-left" v-bind="props" color="success"
@@ -222,9 +265,20 @@ function onParamsChanged() {
 						</v-btn>
 					</template>
 				</v-tooltip>
+			</v-col>
+			<v-col cols="1">
+				<v-tooltip v-if="props.can_review" :disabled="props.disable_review" text="審核選取的項目">
+					<template v-slot:activator="{ props }">
+						<v-btn :disabled="disable_review" class="float-left" v-bind="props" color="warning"
+						@click.prevent="onReview"
+						>
+						審核
+						</v-btn>
+					</template>
+				</v-tooltip>
 				<v-tooltip text="上傳">
 					<template v-slot:activator="{ props }">
-						<v-btn class="float-right" icon="mdi-upload" v-bind="props" size="small" color="info"
+						<v-btn :disabled="state.params.reviewed === 1" class="float-right" icon="mdi-upload" v-bind="props" size="small" color="info"
 						@click.prevent="onUpload"
 						/>
 					</template>

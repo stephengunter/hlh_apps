@@ -8,6 +8,7 @@ export const ROUTE_NAMES = {
    DASHBOARDS: 'dashboards',
    LOGIN: 'login',
    AUTHTOKEN: 'authtoken',
+   JUDGEBOOKFILES: 'judgebookfiles',
    DEPARTMENTS: 'departments',
    USER_DETAILS: 'user-details',
    JOB_DETAILS: 'job-details',

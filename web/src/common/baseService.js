@@ -12,8 +12,8 @@ const fetch = (url, params) => new Promise((resolve, reject) => {
 	.catch(error => reject(error.response))
 })
 
-const submit = (requestType, url, data) => new Promise((resolve, reject) => {
-	axios[requestType](url, data)
+const submit = (requestType, url, data, options = null) => new Promise((resolve, reject) => {
+	axios[requestType](url, data, options)
 	.then(response => resolve(response.data))
 	.catch(error => reject(error.response))
 })
@@ -24,10 +24,11 @@ const blob = (requestType, url, data = null) => new Promise((resolve, reject) =>
 	.catch(error => reject(error.response))
 })
 
-const post = (url, data) => submit('post', url, data)
 
-const put = (url, data) => submit('put', url, data)
+const post = (url, data, options = null) => submit('post', url, data, options)
 
-const remove = (url, data) => submit('delete', url, data)
+const put = (url, data, options = null) => submit('put', url, data, options)
+
+const remove = (url, data, options = null) => submit('delete', url, data, options)
 
 export default { setHeader, fetch, submit, post, put, remove, blob }

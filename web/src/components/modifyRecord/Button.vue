@@ -1,15 +1,20 @@
 <script setup>
-import { computed, reactive, onBeforeMount } from 'vue'
-import { useStore } from 'vuex'
-import { deepClone, findItemFromObj, showModifyRecords } from '@/utils'
-import { FETCH_MODIFY_RECORDS } from '@/store/actions.type'
-import { ENTITY_TYPES } from '@/consts'
+import { WIDTH } from '@/consts'
+import { isEmptyObject, deepClone, showModifyRecords } from '@/utils'
 
 const name = 'ModifyRecordButton'
 const props = defineProps({
    text: {
       type: String,
       default: ''
+   },
+   tooltip: {
+      type: String,
+      default: ''
+   },
+   title: {
+      type: String,
+      default: '編修紀錄'
    },
    type: {
       type: Object,
@@ -18,28 +23,27 @@ const props = defineProps({
    id: {
       type: String,
       default: ''
+   },
+   action: {
+      type: String,
+      default: ''
+   },
+   width: {
+      type: Number,
+      default: () => WIDTH.L
    }
 })
-const store = useStore()
 
-const initialState = {
-   entity_type: null
-}
-const state = reactive(deepClone(initialState))
-
-onBeforeMount(init)
-function init() { 
-   
-}
 
 function fetchData() {
    showModifyRecords({
-      type: props.type, id: props.id
+      type: props.type.name, id: props.id, 
+      action: props.action, title: props.title, width: props.width
    })
 }
 </script>
 <template>
-   <v-tooltip :text="`查看${ENTITY_TYPES.MODIFY_RECORD.title}`">
+   <v-tooltip :text="tooltip">
       <template v-slot:activator="{ props }">
          <a href="#" v-bind="props" @click.prevent="fetchData">{{ text }}</a>
       </template>

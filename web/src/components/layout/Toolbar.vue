@@ -10,6 +10,7 @@ const store = useStore()
 
 const currentUser = computed(() => store.getters.currentUser)
 const isAuthenticated = computed(() => store.getters.isAuthenticated)
+const showUserMenu = computed(() => store.getters.showUserMenu)
 
 
 function toggleDrawer() {
@@ -23,6 +24,6 @@ function toggleDrawer() {
       v-text="route.meta.title"
       />
       <v-spacer />
-      <MenuUser v-if="isAuthenticated" :user="currentUser" />
+      <MenuUser v-if="isAuthenticated" v-show="showUserMenu" :user="currentUser" />
    </v-app-bar>
 </template>

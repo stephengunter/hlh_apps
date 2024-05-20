@@ -3,12 +3,13 @@ import appRoutes from '@/routes/app'
 import { MENUS } from '@/consts'
 import { GET_MENUS, PAGE_NOT_FOUND } from '@/store/actions.type'
 import { SET_BREAD_ITEMS, SET_LOADING, SET_ERRORS, CLEAR_ERRORS, 
-   SET_DRAWER, TOGGLE_DRAWER, SET_ROUTE, SET_MENUS
+   SET_DRAWER, TOGGLE_DRAWER, SET_ROUTE, SET_MENUS, TOGGLE_USER_MENU
 } from '@/store/mutations.type'
 import { deepClone } from '@/utils'
 import { ROUTE_NAMES } from '@/consts'
 
 const initialState = {
+   showUserMenu: true,
    breadItems: [],
    loading: false,
    drawer: true,
@@ -35,6 +36,9 @@ const getters = {
    },
    errors(state) {
       return state.errors
+   },
+   showUserMenu(state) {
+      return state.showUserMenu
    }
 }
 
@@ -75,6 +79,9 @@ const mutations = {
    },
    [SET_MENUS](state, menus) {
       state.menus = menus
+   },
+   [TOGGLE_USER_MENU](state, val) {
+      state.showUserMenu = val
    }
 }
 

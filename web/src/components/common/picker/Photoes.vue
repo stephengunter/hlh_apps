@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive, computed, watch, onBeforeMount } from 'vue'
-import { WIDTH, VALIDATE_MESSAGES, ACTION_TITLES } from '@/consts'
+import { WIDTH, VALIDATE_MESSAGES, ACTION_TYPES } from '@/consts'
 import { deepClone } from '@/utils'
 
 const name = 'PickerPhotoes'
@@ -65,7 +65,7 @@ function cancel() {
 				<span class="text-h5 font-weight-black">{{ props.title }}</span>       
 			</v-card-title>
 			<template v-slot:append>
-				<v-tooltip :text="ACTION_TITLES.CANCEL">
+				<v-tooltip :text="ACTION_TYPES.CANCEL.title">
 					<template v-slot:activator="{ props }">
 						<v-btn v-bind="props" icon="mdi-window-close" 
 						@click.prevent="cancel" 

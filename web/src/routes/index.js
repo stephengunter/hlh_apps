@@ -5,8 +5,8 @@ import store from '@/store'
 import JwtService from '@/services/jwt.service'
 import { ROUTE_TYPES, ROUTE_NAMES } from '@/consts'
 import { APP_CLOSED } from '@/config'
-import { CHECK_AUTH, REFRESH_TOKEN, GET_MENUS } from '@/store/actions.type'
-import { SET_ROUTE, CLEAR_ERRORS } from '@/store/mutations.type'
+import { CHECK_AUTH, REFRESH_TOKEN, GET_MENUS, LOGOUT } from '@/store/actions.type'
+import { SET_ROUTE, CLEAR_ERRORS, PURGE_AUTH, TOGGLE_USER_MENU } from '@/store/mutations.type'
 
 const history = createWebHistory(process.env.BASE_URL)
 const routes = appRoutes.map(item => {
@@ -28,6 +28,9 @@ const routes = appRoutes.map(item => {
 const redirect = (next, route) => next(route)
 
 const authDone = (next, to, auth = false) => {
+	if(to.name === ROUTE_NAMES.JUDGEBOOKFILES) {
+		store.commit(TOGGLE_USER_MENU, false)
+	}else store.commit(TOGGLE_USER_MENU, true)
 	store.dispatch(GET_MENUS, auth)
 	return next()
 }
@@ -46,9 +49,15 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
 	if(APP_CLOSED && to.name !== ROUTE_NAMES.CLOSE) return redirect(next, { name: ROUTE_NAMES.CLOSE })
+	if(to.name === ROUTE_NAMES.AUTHTOKEN) {
+		store.commit(PURGE_AUTH)
+		return authDone(next, to)
+	}
 	
 	store.commit(SET_ROUTE, { to: appRoutes.find(page => page.name === to.name), from: appRoutes.find(page => page.name === from.name) })
 	store.commit(CLEAR_ERRORS)
+	
+
 	store.dispatch(CHECK_AUTH).then(auth => {
 		if(to.meta.type === ROUTE_TYPES.FOR_ALL) return authDone(next, to, auth)
 	

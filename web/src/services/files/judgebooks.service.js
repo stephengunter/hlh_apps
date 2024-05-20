@@ -15,9 +15,13 @@ const update = (id, model) => BaseService.put(`${source}/${id}`, model)
 
 const download = (id) => BaseService.fetch(`${source}/download/${id}`)
 
+const review = (ids) => BaseService.fetch(`${source}/review/${ids}`)
+
+const submit_review = (models) => BaseService.post(`${source}/review`, models)
+
 const remove = (id) => BaseService.remove(`${source}/${id}`)
 
 const fetch_types = () => BaseService.fetch(`${source}/types`)
 
 
-export default { fetch, get, upload, edit, update, download, remove, fetch_types }
+export default { fetch, get, upload, edit, update, download, review, submit_review, remove, fetch_types }

@@ -80,7 +80,7 @@ function errorHandler(error, confirm) {
 	}else if(error.status === 403) {
 		//Forbidden
 		showConfirm({
-			type: '',
+			type: ERRORS,
 			title: '權限不足',
 			text: '',
 			ok: '確定',
