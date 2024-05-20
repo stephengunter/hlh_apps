@@ -29,7 +29,10 @@ function image(val) {
 const state = reactive(deepClone(initialState))
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
 function onStartDateChanged(model) {
 	console.log(model)
 	//image(false)
@@ -41,6 +44,7 @@ function onStartDateChanged(model) {
 	<div>
 		<v-row>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 			<v-col cols="2">
 				<CommonPickerRocDate 
 				:value="state.date.text"
@@ -48,6 +52,8 @@ function onStartDateChanged(model) {
 			</v-col>
 			<v-col cols="12">
 =======
+=======
+>>>>>>> Stashed changes
 			<v-col cols="6">
 				<v-locale-provider locale="zhTW">
 					<v-date-picker  color="primary" :hide-header="true" header=""
@@ -57,6 +63,9 @@ function onStartDateChanged(model) {
 			</v-col>
 			<v-col cols="6">
 				
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 			</v-col>
 		</v-row>

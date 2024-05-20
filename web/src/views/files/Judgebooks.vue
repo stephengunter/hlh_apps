@@ -4,6 +4,9 @@ import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 =======
 import { MqResponsive } from 'vue3-mq'
 import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } from 'vue'
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
@@ -22,6 +25,9 @@ import { WIDTH, ACTION_TITLES, ENTITY_TYPES } from '@/consts'
 	buildQuery, bytesToBinary, getMimeType, showModifyRecords
 } from '@/utils'
 import { WIDTH, ROUTE_NAMES, VALIDATE_MESSAGES, ACTION_TYPES, ENTITY_TYPES } from '@/consts'
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 const name = 'FilesJudgebooksView'
