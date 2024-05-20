@@ -36,7 +36,6 @@ const initialState = {
 	params: {
 		reviewed: -1,
 		typeId: 0,
-		judgeDate: 0,
 		fileNumber: '',
 		courtType: '',
 		year: '',

@@ -1,13 +1,6 @@
 <script setup>
-<<<<<<< Updated upstream
-import { ref, reactive, computed, onMounted, nextTick } from 'vue'
-=======
 import { MqResponsive } from 'vue3-mq'
 import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } from 'vue'
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { FETCH_JUDGEBOOKFILES, UPLOAD_JUDGEBOOKFILES, DOWNLOAD_JUDGEBOOKFILE,
@@ -16,19 +9,11 @@ import { FETCH_JUDGEBOOKFILES, UPLOAD_JUDGEBOOKFILES, DOWNLOAD_JUDGEBOOKFILE,
 } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { isEmptyObject, deepClone , downloadFile,
-<<<<<<< Updated upstream
-	resolveErrorData, onErrors, onSuccess, setValues, is400, 
-	buildQuery, bytesToBinary, getMimeType} from '@/utils'
-import { WIDTH, ACTION_TITLES, ENTITY_TYPES } from '@/consts'
-=======
-	resolveErrorData, onErrors, onSuccess, setValues, badRequest, is400, isNumeric,
+	 onErrors, onSuccess, setValues, is400, 
+	resolveErrorData, isNumeric,
 	buildQuery, bytesToBinary, getMimeType, showModifyRecords
 } from '@/utils'
 import { WIDTH, ROUTE_NAMES, VALIDATE_MESSAGES, ACTION_TYPES, ENTITY_TYPES } from '@/consts'
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 
 const name = 'FilesJudgebooksView'
 const store = useStore()
