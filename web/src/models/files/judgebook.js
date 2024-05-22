@@ -1,10 +1,11 @@
-import { isNumeric, deepClone,
+import { isNumeric, deepClone, rocNumToDateText, rocNumToDate,
 	formatNumberWithLeadingZeros, tryParseInt
 } from '@/utils'
 import Errors from '@/common/errors'
 
 class JudgebookFile {
    constructor(type, judgeDate, fileNumber, originType, courtType, year, category ,num, file, ps = '') {
+      
       if(type) {
          this.type = deepClone(type)
          this.typeId = type.id
@@ -12,7 +13,10 @@ class JudgebookFile {
          this.type = null
          this.typeId = 0
       }
+
       this.judgeDate = judgeDate
+      this.judgeDateModel = JudgebookFile.iniJudgeDateModel(judgeDate)
+
       this.originType = originType
       this.courtType = courtType
       this.fileNumber = fileNumber
@@ -23,12 +27,40 @@ class JudgebookFile {
       this.file = file
       this.ps = ps
 
+     
+
       this.errors = new Errors()
    }
-   static checkJudgeDate(input) {
-      // let val = input.toString()
-      // if(val.length < 6 || val.length > 7)  return false
-      return true
+
+   static iniJudgeDateModel(num) {
+      let text = rocNumToDateText(num)
+      if(text) {
+         let parts = text.split('-')
+         parts[0] = tryParseInt(parts[0]) - 1911
+         return {
+            value: text,
+            model: {
+               text: text,
+               text_cn: `${parts[0]}-${parts[1]}-${parts[2]}`,
+               num: num
+            }
+         }
+      } 
+      return {
+         value: '',
+         model: {
+            text: '',
+            text_cn: '',
+            num: 0
+         },
+         error_message: ''
+      }
+   }
+    
+   static checkJudgeDate(dateNum) {
+      let text = rocNumToDateText(dateNum)
+      if(text) return true
+      return false 
    }
    static checkType(type) {
       if(type.id && type.key)  return true

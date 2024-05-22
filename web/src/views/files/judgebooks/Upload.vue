@@ -1,58 +1,84 @@
 <script setup>
-import { ref, reactive, computed, watch, onBeforeMount, nextTick } from 'vue'
+import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { isEmptyObject, deepClone, isNumeric, tryParseInt } from '@/utils'
+import { isEmptyObject, deepClone, isNumeric, tryParseInt, onSuccess, onErrors } from '@/utils'
 import JudgebookFile from '@/models/files/judgebook'
-import { VALIDATE_MESSAGES } from '@/consts'
-import { SET_JUDGEBOOKFILE_UPLOAD_RESULTS } from '@/store/mutations.type'
+import { VALIDATE_MESSAGES, WIDTH, ROUTE_NAMES, ENTITY_TYPES } from '@/consts'
+import { FETCH_JUDGEBOOK_TYPES, UPLOAD_JUDGEBOOKFILES } from '@/store/actions.type'
+import { SET_JUDGEBOOKFILE_UPLOAD_RESULTS, CLEAR_ERRORS } from '@/store/mutations.type'
 
 
-const name = 'FilesJudgebookUpload'
-const props = defineProps({
-   type: {
-		type: Object,
-		default: null
-	},
-	courtType: {
-		type: Object,
-		default: null
-	}
-})
+const name = 'FilesJudgebooksUploadView'
 const store = useStore()
+const route = useRoute()
+const router = useRouter()
 
-const emit = defineEmits(['submit', 'find'])
+const JUDGEBOOKFILE = ENTITY_TYPES.JUDGEBOOKFILE
 
 const initialState = {
-	models: []
+	type: null, 
+	courtType: null, 
+	models: [],
+	date: {
+		id: 1001,
+		title: '',
+		active: false,
+		value: '',
+		model: {
+			text: '',
+			text_cn: '',
+			num: 0
+		},
+		error_message: ''
+	}
 }
 
 const state = reactive(deepClone(initialState))
 
 const file_upload = ref(null)
 
+const params = computed(() => store.state.files_judgebooks.params)
+
+const types = computed(() => store.state.files_judgebooks.types)
 const courtTypes = computed(() => store.state.files_judgebooks.courtTypes)
 const originTypes = computed(() => store.state.files_judgebooks.originTypes)
 
 const labels = computed(() => store.state.files_judgebooks.labels)
-
-const results = computed(() => store.state.files_judgebooks.upload.results)
-
-const types = computed(() => store.state.files_judgebooks.types)
 const type_options = computed(() => {
 	return types.value.map(item => ({
 		value: item.id, title: item.title
 	}))
 })
 
+const results = computed(() => store.state.files_judgebooks.upload.results)
+
 const has_error = computed(() => {
    if(!state.models.length) return false
    return state.models.map(model => model.errors.any()).some(element => element === true)
 })
 
-
 onBeforeMount(() => {
-   store.commit(SET_JUDGEBOOKFILE_UPLOAD_RESULTS, [])
+	if(types.value.length) init()
+	else {
+		store.dispatch(FETCH_JUDGEBOOK_TYPES)
+		.then(() => {
+			nextTick(init)
+		})
+		.catch(error => onErrors(error))
+	}
+
 })
+
+function init() {
+	store.commit(SET_JUDGEBOOKFILE_UPLOAD_RESULTS, [])
+	if(params.value.typeId) state.type = types.value.find(item => item.id === params.value.typeId)
+	if(params.value.courtType) state.courtType = courtTypes.value.find(item => item.value === params.value.courtType)
+}
+
+function backToIndex() {
+	router.push({ name: ROUTE_NAMES.JUDGEBOOKFILES, query: { ...params.value } })
+}
 
 function resolveModel(file, type, judgeDate, courtType, originType) {
 	if(file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
@@ -74,8 +100,8 @@ function resolveModel(file, type, judgeDate, courtType, originType) {
 	return null
 }
 function onFileAdded(files) {
-   const type = isEmptyObject(props.type) ? types.value[0] : props.type
-   const courtType = isEmptyObject(props.courtType) ? courtTypes.value[0].value : props.courtType.value
+   const type = isEmptyObject(state.type) ? types.value[0] : state.type
+   const courtType = isEmptyObject(state.courtType) ? courtTypes.value[0].value : state.courtType.value
    const originType = originTypes.value[0].value
    const judgeDate = 0
    let id = -1
@@ -84,12 +110,12 @@ function onFileAdded(files) {
       let model = resolveModel(file, type, judgeDate, courtType, originType)
       if(model) {
          check(model, 'fileNumber')
+			check(model, 'judgeDate')
          check(model, 'year')
          check(model, 'category')
          check(model, 'num')
 
          model.id = id
-         console.log(model)
          state.models.push(model)
          id -= 1
       } 
@@ -100,6 +126,10 @@ function check(model, key) {
    let valid = false
    if(key === 'fileNumber') {
       if(model[key]) valid = JudgebookFile.checkFileNumber(model[key])
+      else valid = false
+   } 
+	else if(key === 'judgeDate') {
+      if(model[key]) valid = JudgebookFile.checkJudgeDate(model[key])
       else valid = false
    } 
    else if(key === 'year') valid = JudgebookFile.checkYear(model[key])
@@ -116,9 +146,45 @@ function check(model, key) {
       model.errors.set(key, [msg])
    }
 }
+function selectDate(id) {
+	if(id > 100) {
+		state.date = deepClone(initialState.date)
+	}else {
+		let entry = state.models.find(item => item.id === id)
+		state.date.model = deepClone(entry.judgeDateModel.model)
+		state.date.value = entry.judgeDateModel.model.text
+		state.date.id = id
+		state.date.title = `選擇${labels.value['judgeDate']}`
+		state.date.active = true
+	}
+}
+
+function onDateSelected(model) {
+	let entry = state.models.find(item => item.id === state.date.id)
+
+	if(model) {
+		entry.judgeDateModel.model = deepClone(model)
+		entry.judgeDate = model.num
+	}else {
+		entry.judgeDate = 0
+		entry.judgeDateModel = JudgebookFile.iniJudgeDateModel()
+	}
+	check(entry, 'judgeDate')
+	state.date = deepClone(initialState.date)
+}
 function onSubmit() {
    state.models.forEach(model => model.num = JudgebookFile.checkNum(model.num))
-	emit('submit', state.models)
+	store.commit(CLEAR_ERRORS)
+	store.dispatch(UPLOAD_JUDGEBOOKFILES, state.models)
+	.then(results => {
+		nextTick(() => {
+			if(!store.state.files_judgebooks.upload.has_error) {
+				onSuccess()
+            backToIndex()
+			}	
+		})
+	})
+	.catch(error => onErrors(error))
 }
 
 function getResult(model) {
@@ -131,30 +197,28 @@ function onFind(id) {
    const model = state.models.find(item => item.id === id)
    emit('find', model)
 }
-function setJudgeDate(obj, id) {
-   console.log('obj', obj)
-   console.log('id', id)
-   const model = state.models.find(item => item.id === id)
-   console.log('model', model)
-}
-function clearJudgeDate(id) {
-   console.log('clearJudgeDate', id)
-   const model = state.models.find(item => item.id === id)
-   console.log('model', model)
-}
 </script>
 
 <template>
 <div>
    <v-row dense>
-      <v-col cols="12">
-         <CommonInputUpload ref="file_upload" :show_button="true" :multiple="true"
+      <v-col cols="11">
+			<CommonInputUpload ref="file_upload" :multiple="true" :show_button="true"
          :is_media="false" :allow_types="['.pdf']"
          @file-added="onFileAdded" @file-removed="onFileAdded"
          />
       </v-col>
+		<v-col cols="1">
+			<v-tooltip :text="`返回${JUDGEBOOKFILE.title}管理`">
+				<template v-slot:activator="{ props }">
+					<v-btn class="float-right" icon="mdi-arrow-left-bold" v-bind="props" size="small" color="info"
+					@click.prevent="backToIndex"
+					/>
+				</template>
+			</v-tooltip>
+		</v-col>
    </v-row>
-   <v-row dense>
+   <v-row dense v-show="state.models.length">
       <v-col cols="12">
          <v-table>
             <thead>
@@ -238,14 +302,10 @@ function clearJudgeDate(id) {
                      />
                   </td>
                   <td>
-                     <v-text-field variant="outlined" class="pt-3" density="compact" readonly
-                     v-model="model.judgeDateModel.value" :error-messages="model.errors.get('judgeDate')" 
-                     @click:control="() => { console.log(model.id) }"
+                     <v-text-field variant="outlined" readonly class="pt-3" density="compact"
+                     v-model="model.judgeDateModel.model.text_cn" :error-messages="model.errors.get('judgeDate')" 
+                     @click:control="selectDate(model.id)"
                      />
-                     <!-- <CommonPickerRocDate :error_message="model.errors.get('judgeDate')"
-                     :value="model.judgeDateModel.value"
-                     @selected="(date) => { console.log(model.id, date)}"
-                     /> -->
                   </td>
                   <td>
                      <v-text-field variant="outlined" class="pt-3" density="compact"
@@ -256,9 +316,7 @@ function clearJudgeDate(id) {
             </tbody>
          </v-table>
       </v-col>
-   </v-row>
-   <v-row dense>
-      <v-col cols="12">
+		<v-col cols="12">
          <v-btn color="success" class="float-right"
          :disabled="state.models.length === 0 || has_error"
          @click.prevent="onSubmit"
@@ -267,5 +325,25 @@ function clearJudgeDate(id) {
          </v-btn>
       </v-col>
    </v-row>
+   <v-dialog persistent v-model="state.date.active" :width="WIDTH.S + 50" >
+		<v-card v-if="state.date.active" :height="400" :max-width="WIDTH.S">
+			<CommonCardTitle :title="state.date.title" 
+			@cancel="selectDate(1001)"
+			/>
+			<v-card-text>
+				<v-row>
+					<v-col cols="6">
+						<CommonPickerRocDate :clearable="false" :auto_launch="true"
+						:error_message="state.date.error_message"
+						:value="state.date.value"
+						@selected="onDateSelected"
+						/>
+					</v-col>
+					<v-col cols="6">
+					</v-col>
+				</v-row>
+			</v-card-text>
+		</v-card>
+	</v-dialog>
 </div>
 </template>

@@ -6,7 +6,6 @@ import { useStore } from 'vuex'
 import { useVuelidate } from '@vuelidate/core'
 import { required, numeric, helpers } from '@vuelidate/validators'
 import Errors from '@/common/errors'
-import { FETCH_JUDGEBOOK_TYPES } from '@/store/actions.type'
 import { isEmptyObject, deepClone , copyFromQuery, areObjectsEqual, reviewedOptions,
 	resolveErrorData, onErrors, onSuccess, setValues, badRequest, is400, showAlert
 } from '@/utils'
@@ -231,7 +230,7 @@ function onReview() {
 				/>
 			</v-col>
 			<v-col cols="1">
-				<v-text-field :label="labels['year']"  density="compact"
+				<v-text-field :label="labels['year']"  density="compact" clearable
 				v-model="state.params.year"
             :error-messages="v$.year.$errors.map(e => e.$message)"                     
 				@input="v$.year.$touch"
@@ -239,7 +238,7 @@ function onReview() {
 				/>
 			</v-col>
 			<v-col cols="2">
-				<v-text-field :label="labels['category']"  density="compact"        
+				<v-text-field :label="labels['category']"  density="compact" clearable        
 				v-model="state.params.category"
             :error-messages="v$.category.$errors.map(e => e.$message)"                     
 				@input="v$.category.$touch"
@@ -247,7 +246,7 @@ function onReview() {
 				/>
 			</v-col>
 			<v-col cols="1">
-				<v-text-field :label="labels['num']"  density="compact" :clearable="true"       
+				<v-text-field :label="labels['num']"  density="compact" clearable    
 				v-model="state.params.num"
             :error-messages="v$.num.$errors.map(e => e.$message)"                     
 				@input="v$.num.$touch"

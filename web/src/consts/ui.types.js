@@ -8,6 +8,7 @@ export const WIDTH = {
 }
 export const HEIGHT = {
    S: 320,
+   XS: 480,
    M: 640,
    L: 960
 }

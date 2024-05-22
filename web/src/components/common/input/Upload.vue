@@ -150,19 +150,21 @@ function isImage(type) {
 }
 </script>
 <template>
-   <v-btn v-show="show_button" variant="outlined"  
-   color="primary" v-text="button_label" :disabled="button_disable"
-   @click.prevent="launch"
-   >
-   </v-btn>
-   <input ref="inputUpload" style="display: none;" type="file" 
-   :multiple="multiple" :accept="accept" 
-   @change="onFileChange" 
-   > 
-   <v-chip size="small" class="ma-2" v-for="file in state.files"
-   closable :key="file.name"  
-   @click:close="removeFile(file.name)"
-   >
-   {{ file.name }}
-   </v-chip>
+   <div>
+      <v-btn v-show="show_button" variant="outlined" v-bind="props"  
+      color="primary" v-text="button_label" :disabled="button_disable"
+      @click.prevent="launch"
+      >
+      </v-btn>
+      <input ref="inputUpload" style="display: none;" type="file" 
+      :multiple="multiple" :accept="accept" 
+      @change="onFileChange" 
+      > 
+      <v-chip size="small" class="ma-2" v-for="file in state.files"
+      closable :key="file.name"  
+      @click:close="removeFile(file.name)"
+      >
+      {{ file.name }}
+      </v-chip>
+   </div>
 </template>

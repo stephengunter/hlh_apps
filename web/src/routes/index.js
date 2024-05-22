@@ -11,7 +11,13 @@ import { SET_ROUTE, CLEAR_ERRORS, PURGE_AUTH, TOGGLE_USER_MENU } from '@/store/m
 const history = createWebHistory(process.env.BASE_URL)
 const routes = appRoutes.map(item => {
 	let parts = item.view.split('/')
-	if(parts.length === 2) {
+	if(parts.length === 3) {
+		return { 
+			...item, 
+			component: () => import(`@/views/${parts[0]}/${parts[1]}/${parts[2]}.vue`)
+		}
+	}
+	else if(parts.length === 2) {
 		return { 
 			...item, 
 			component: () => import(`@/views/${parts[0]}/${parts[1]}.vue`)

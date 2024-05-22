@@ -1,16 +1,23 @@
 <script setup>
 import { ref, reactive, computed, watch, onBeforeMount, nextTick } from 'vue'
 import { useStore } from 'vuex'
-import { isEmptyObject, deepClone, isNumeric, setValues } from '@/utils'
+import { isEmptyObject, deepClone, isNumeric, setValues, rocNumToDateText } from '@/utils'
 import JudgebookFile from '@/models/files/judgebook'
 import Errors from '@/common/errors'
 import { VALIDATE_MESSAGES, ACTION_TYPES } from '@/consts'
-import { SET_JUDGEBOOKFILE_UPLOAD_RESULTS } from '@/store/mutations.type'
 
 
 const name = 'FilesJudgebookReview'
 const props = defineProps({
    list: {
+      type: Array,
+      default: () => []
+   },
+   court_types: {
+      type: Array,
+      default: () => []
+   },
+	origin_types: {
       type: Array,
       default: () => []
    }
@@ -31,7 +38,9 @@ function init() {
       let model = {
          id: 0,
          typeId: 0,
+         judgeDate: 0,
          fileNumber: '',
+         originType: '',
          courtType: '',
          year: '',
          category: '',
@@ -46,7 +55,6 @@ function init() {
 }
 
 const labels = computed(() => store.state.files_judgebooks.labels)
-const courtTypes = computed(() => store.state.files_judgebooks.courtTypes)
 const results = computed(() => store.state.files_judgebooks.upload.results)
 
 const types = computed(() => store.state.files_judgebooks.types)
@@ -60,6 +68,23 @@ const has_error = computed(() => {
    if(!state.models.length) return false
    return state.models.map(model => model.errors.any()).some(element => element === true)
 })
+
+function typeOrigin(model) {
+   const type = types.value.find(item => item.id === model.typeId)
+   const originType = props.origin_types.find(item => item.value === model.originType)
+   
+   return `${type.title} (${originType.title})`
+}
+function caseInfo(model) {
+   const courtType = props.court_types.find(item => item.value === model.courtType)
+   
+   return `${courtType.title} ${model.year}年 ${model.category} ${model.num}`
+}
+function judgeDate(model) {
+   const roc = true
+   return rocNumToDateText(model.judgeDate, roc)
+   
+}
 
 
 function checkFileNumber(model) {
@@ -96,23 +121,17 @@ function getResult(model) {
          <v-table>
             <thead>
                <tr>
+                  <th class="text-center" style="width: 10%;">
+                     
+                  </th>
                   <th class="text-center" style="width: 15%;">
-                     {{ labels['typeId'] }}
-                  </th>
-                  <th class="text-center" style="width: 12%;">
-                     {{ labels['courtType'] }}
-                  </th>
-                  <th class="text-center text-indigo-lighten-1" style="width: 18%;">
-                     {{ labels['fileNumber'] }}
+                     
                   </th>
                   <th class="text-center" style="width: 10%;">
-                     {{ labels['year'] }}
+                     {{ labels['judgeDate'] }}
                   </th>
-                  <th class="text-center" style="width: 12%;">
-                     {{ labels['category'] }}
-                  </th>
-                  <th class="text-center" style="width: 12%;">
-                     {{ labels['num'] }}
+                  <th class="text-center text-indigo-lighten-1" style="width: 25%;">
+                     {{ labels['fileNumber'] }}
                   </th>
                   <th class="text-center text-indigo-lighten-1" >
                      備註
@@ -121,35 +140,19 @@ function getResult(model) {
             </thead>
             <tbody>
                <tr v-for="model in state.models" :key="model.id">
-                  <td>
-                     <v-select readonly class="mt-3" :label="labels['typeId']" density="compact" variant="outlined"
-                     :items="type_options" v-model="model.typeId"
-                     />
+                  <td class="font-weight-bold">
+                     {{ typeOrigin(model) }}
                   </td>
-                  <td>
-                     <v-select readonly class="mt-3" :label="labels['courtType']" density="compact" variant="outlined"
-                     :items="courtTypes" v-model="model.courtType"
-                     />
+                  <td class="font-weight-bold">
+                     {{ caseInfo(model) }}
+                  </td>
+                  <td class="font-weight-bold text-center" >
+                     {{ judgeDate(model) }}
                   </td>
                   <td>
                      <v-text-field variant="outlined" class="pt-3" density="compact"
                      v-model="model.fileNumber" :error-messages="model.errors.get('fileNumber')" 
                      @input="checkFileNumber(model)"
-                     />
-                  </td>
-                  <td>
-                     <v-text-field readonly variant="outlined" class="pt-3" density="compact"
-                     v-model="model.year"
-                     />
-                  </td>
-                  <td>
-                     <v-text-field readonly variant="outlined" class="pt-3" density="compact"
-                     v-model="model.category"
-                     />
-                  </td>
-                  <td>
-                     <v-text-field readonly variant="outlined" class="pt-3" density="compact"
-                     v-model="model.num"
                      />
                   </td>
                   <td>

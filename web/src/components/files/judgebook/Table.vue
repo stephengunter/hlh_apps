@@ -34,6 +34,10 @@ const props = defineProps({
    court_types: {
       type: Array,
       default: () => []
+   },
+   origin_types: {
+      type: Array,
+      default: () => []
    }
 })
 
@@ -74,46 +78,46 @@ const headers = [{
    width: '3%',
    sortable: false,
    key: 'reviewed',
-},{
-   title: labels.value['typeId'],
+},
+{
+   title: labels.value['fileNumber'],
+   align: 'start',
+   width: '12%',
+   sortable: false,
+   key: 'fileNumber',
+},
+{
+   title: `${labels.value['typeId']} (${labels.value['originType']})`,
+   align: '',
+   width: '8%',
+   sortable: false,
+   key: 'typeId',
+},
+{
+   title: labels.value['judgeDate'],
    align: 'start',
    width: '5%',
    sortable: false,
-   key: 'typeId',
-},{
+   key: 'judgeDate',
+},
+{
    title: labels.value['courtType'],
    align: 'start',
    width: '5%',
    sortable: false,
    key: 'courtType',
-},{
-   title: labels.value['fileNumber'],
+}
+,{
+   title: `${labels.value['year']} / ${labels.value['category']} / ${labels.value['num']}`,
    align: 'start',
-   width: '15%',
-   sortable: false,
-   key: 'fileNumber',
-},{
-   title: labels.value['year'],
-   align: 'start',
-   width: '5%',
-   sortable: false,
-   key: 'year',
-},{
-   title: labels.value['category'],
-   align: 'start',
-   width: '5%',
-   sortable: false,
-   key: 'category',
-},{
-   title: labels.value['num'],
-   align: 'start',
-   width: '5%',
+   width: '10%',
    sortable: false,
    key: 'num',
-},{
+},
+{
    title: labels.value['ps'],
    align: 'start',
-   width: '5%',
+   width: '8%',
    sortable: false,
    key: 'ps',
 },{
@@ -125,7 +129,7 @@ const headers = [{
 },{
    title: labels.value['createdAtText'],
    align: 'start',
-   width: '10%',
+   width: '8%',
    sortable: false,
    key: 'createdAtText',
 }]
@@ -162,8 +166,24 @@ function onPageSizeChanged(size) {
       size 
    })
 }
+
+function typeOrigin(model) {
+   const originType = props.origin_types.find(item => item.value === model.originType)
+   
+   return `${model.type.title} (${originType.title})`
+}
+
+function caseInfo(model) {
+   
+   return `${model.year}年 ${model.category} ${model.num}`
+}
+
 function getCourtTypeTitle(key) {
    const type = props.court_types.find(x => x.value === key)
+   return type.title
+}
+function getOriginTypeTitle(key) {
+   const type = props.origin_types.find(x => x.value === key)
    return type.title
 }
 function checkReviewRecords(id) {
@@ -217,10 +237,13 @@ function onCheckAll(val) {
          </v-tooltip>
       </template>
       <template v-slot:item.typeId="{ item }">
-         {{ item.type.title }}
+         {{ typeOrigin(item) }}
       </template>
       <template v-slot:item.courtType="{ item }">
          {{ getCourtTypeTitle(item.courtType) }}
+      </template>
+      <template v-slot:item.num="{ item }">
+         {{ caseInfo(item) }}
       </template>
 		<template v-slot:item.fileName="{ item }">
          <v-tooltip text="下載檔案" v-if="item.canEdit">

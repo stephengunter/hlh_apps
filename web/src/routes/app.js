@@ -34,14 +34,25 @@ new Page({
 const userlinks = [
 // groups
 new Page({
-   name: pluralization(JUDGEBOOKFILE.name),
+   name: ROUTE_NAMES.JUDGEBOOKFILES,
    path: '/files/judgebooks',
-   view: 'files/Judgebooks',
+   view: 'files/judgebooks/Index',
    icon: 'mdi-folder-upload', 
    title: `${JUDGEBOOKFILE.title}管理`,
    menus: [MENUS.MAIN],
    alias: '/'
-})
+}),
+
+
+new Page({
+   name: `upload-${ROUTE_NAMES.JUDGEBOOKFILES}`,
+   path: '/files/judgebooks/upload',
+   view: 'files/judgebooks/Upload',
+   icon: 'mdi-briefcase-outline',
+   title: `${JUDGEBOOKFILE.title}上傳`,
+   menus: [],
+   parent: ROUTE_NAMES.JUDGEBOOKFILES
+}),
 ]
 
 

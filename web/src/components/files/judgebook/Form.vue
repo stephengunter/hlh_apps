@@ -22,6 +22,10 @@ const props = defineProps({
 	court_types: {
       type: Array,
       default: () => []
+   },
+	origin_types: {
+      type: Array,
+      default: () => []
    }
 })
 const emit = defineEmits([ACTION_TYPES.SUBMIT.name, ACTION_TYPES.CANCEL.name, ACTION_TYPES.REMOVE.name])
@@ -32,6 +36,8 @@ const initialState = {
    form: {
 		id: 0,
 		typeId: 0,
+		judgeDate: 0,
+		originType: '',
 		fileNumber: '',
 		courtType: '',
 		year: '',
@@ -41,6 +47,15 @@ const initialState = {
 		fileName: '',
 		reviewed: false
    },
+	date: {
+		value: '',
+		model: {
+			text: '',
+			text_cn: '',
+			num: 0
+		},
+		error_message: ''
+	},
 	
 	file: null
 }
@@ -51,6 +66,7 @@ const type_options = computed(() => {
 		value: item.id, title: item.title
 	}))
 })
+
 // const user_can_review = computed(() => {
 //    const actions = props.actions
 //    if(!actions.length) return false
@@ -104,10 +120,15 @@ onBeforeMount(init)
 
 function init() {
 	setValues(props.model, state.form)
+	state.date = deepClone(JudgebookFile.iniJudgeDateModel(props.model.judgeDate))
 }
 function onSubmit() {
 	v$.value.$validate().then(valid => {
 		if(!valid) return
+		if(!JudgebookFile.checkJudgeDate(state.form.judgeDate)) {
+			state.date.error_message = `${labels.value['judgeDate']}不正確`
+			return
+		}
 		// const errors = {
 		// 	fileNumber: [`${labels.value['fileNumber']}不正確`]
 		// }
@@ -167,6 +188,17 @@ function onFileAdded(files) {
 		state.file = null
 	}
 }
+
+function onDateSelected(model) {
+	if(model) {
+		state.date.model = deepClone(model)
+		state.form.judgeDate = model.num
+		state.date.error_message = ''
+	}else {
+		state.form.judgeDate = 0
+		entry.judgeDateModel = deepClone(JudgebookFile.iniJudgeDateModel())
+	}
+}
 function onFileNumberChanged(val) {
 	if($externalResults.value.hasOwnProperty('fileNumber')) {
 		$externalResults.value['fileNumber'] = []
@@ -208,17 +240,27 @@ function checkOnReviewed() {
 			</v-col>
 		</v-row>
 		<v-row dense>
-			<v-col cols="4">
+			<v-col cols="3">
 				<v-select :label="labels['typeId']" density="compact" variant="outlined"
 				:items="type_options" v-model="state.form.typeId"
 				/>
 			</v-col>
-			<v-col cols="4">
+			<v-col cols="3">
 				<v-select :label="labels['courtType']" density="compact" variant="outlined"
 				:items="court_types" v-model="state.form.courtType"
 				/>
 			</v-col>
-			<v-col cols="4">
+			<v-col cols="3">
+				<v-select :label="labels['originType']" density="compact" variant="outlined"
+				:items="props.origin_types" v-model="state.form.originType"
+				/>
+			</v-col>
+			<v-col cols="3">
+				<CommonPickerRocDate :clearable="false" :label="labels['judgeDate']"
+				:error_message="state.date.error_message"
+				:value="state.date.value"
+				@selected="onDateSelected"
+				/>
 			</v-col>
 		</v-row>
 		<v-row dense>
@@ -249,11 +291,6 @@ function checkOnReviewed() {
 		</v-row>
 		<v-row dense>
 			<v-col cols="12">
-				<v-textarea auto-grow :label="labels['ps']"  
-				v-model="state.form.ps"	
-				/>
-			</v-col>
-			<v-col cols="12">
 				<v-text-field :label="labels['fileNumber']"  density="compact"        
 				v-model="state.form.fileNumber"
             :error-messages="v$.fileNumber.$errors.map(e => e.$message)"
@@ -265,6 +302,11 @@ function checkOnReviewed() {
             :error-messages="v$.fileNumber.$errors.map(e => e.$message)"
 				@input="onFileNumberChanged"
 				/> -->
+			</v-col>
+			<v-col cols="12">
+				<v-textarea auto-grow :label="labels['ps']"  
+				v-model="state.form.ps"	
+				/>
 			</v-col>
 			<v-col cols="12" v-if="canDoAction(ACTION_TYPES.REVIEW.name)">
 				<v-switch :label="review_status" hide-details inset color="success"

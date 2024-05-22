@@ -8,7 +8,7 @@ import {
    REVIEW_JUDGEBOOKFILES, SUBMIT_REVIEW_JUDGEBOOKFILES
 } from '@/store/actions.type'
 
-import { SET_JUDGEBOOKFILES_ADMIN_MODEL, SET_JUDGEBOOKFILE_UPLOAD_RESULTS, SET_JUDGEBOOK_TYPES,
+import { SET_JUDGEBOOKFILES_ADMIN_MODEL, SET_JUDGEBOOKFILES_PARAMS, SET_JUDGEBOOKFILE_UPLOAD_RESULTS, SET_JUDGEBOOK_TYPES,
    SET_LOADING 
 } from '@/store/mutations.type'
 
@@ -123,7 +123,6 @@ const actions = {
       })
    },
    [UPDATE_JUDGEBOOKFILE](context, { id, model, file }) {
-      console.log(id)
       const formData = new FormData()
       for (const key in model) {
          formData.append(key, model[key]);
@@ -173,6 +172,9 @@ const mutations = {
       state.params = model.request
       state.actions = model.actions
       state.pagedList = model.pagedList
+   },
+   [SET_JUDGEBOOKFILES_PARAMS](state, params) {
+      state.params = params
    },
    [SET_JUDGEBOOKFILE_UPLOAD_RESULTS](state, results) {
       state.upload.results = results

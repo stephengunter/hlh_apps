@@ -26,5 +26,6 @@ export const SET_MODIFY_RECORDS = 'setModifyRecords'
 
 //JudgebookFiles
 export const SET_JUDGEBOOKFILES_ADMIN_MODEL = 'setJudgebookFilesAdminModel'
+export const SET_JUDGEBOOKFILES_PARAMS = 'setJudgebookFilesParams'
 export const SET_JUDGEBOOK_TYPES = 'setJudgebookTypes'
 export const SET_JUDGEBOOKFILE_UPLOAD_RESULTS = 'setJudgebookFileUploadResults'
