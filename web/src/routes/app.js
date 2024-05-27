@@ -42,15 +42,22 @@ new Page({
    menus: [MENUS.MAIN],
    alias: '/'
 }),
-
-
 new Page({
    name: `upload-${ROUTE_NAMES.JUDGEBOOKFILES}`,
    path: '/files/judgebooks/upload',
    view: 'files/judgebooks/Upload',
    icon: 'mdi-briefcase-outline',
    title: `${JUDGEBOOKFILE.title}上傳`,
-   menus: [],
+   menus: [MENUS.MAIN],
+   parent: ROUTE_NAMES.JUDGEBOOKFILES
+}),
+new Page({
+   name: `reports-${ROUTE_NAMES.JUDGEBOOKFILES}`,
+   path: '/files/judgebooks/reports',
+   view: 'files/judgebooks/Reports',
+   icon: 'mdi-file-export',
+   title: `${JUDGEBOOKFILE.title}報表`,
+   menus: [MENUS.MAIN],
    parent: ROUTE_NAMES.JUDGEBOOKFILES
 }),
 ]

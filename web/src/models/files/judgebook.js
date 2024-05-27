@@ -1,4 +1,4 @@
-import { isNumeric, deepClone, rocNumToDateText, rocNumToDate,
+import { isNumeric, deepClone, rocNumToDateText, rocNumToDate, dateTextToRoc,
 	formatNumberWithLeadingZeros, tryParseInt
 } from '@/utils'
 import Errors from '@/common/errors'
@@ -35,15 +35,15 @@ class JudgebookFile {
    static iniJudgeDateModel(num) {
       let text = rocNumToDateText(num)
       if(text) {
-         let parts = text.split('-')
-         parts[0] = tryParseInt(parts[0]) - 1911
+         const text_cn = dateTextToRoc(text)
          return {
             value: text,
             model: {
-               text: text,
-               text_cn: `${parts[0]}-${parts[1]}-${parts[2]}`,
+               text,
+               text_cn,
                num: num
-            }
+            },
+            error_message: ''
          }
       } 
       return {

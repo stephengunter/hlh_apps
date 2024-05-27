@@ -17,6 +17,10 @@ const download = (id) => BaseService.fetch(`${source}/download/${id}`)
 
 const review = (ids) => BaseService.fetch(`${source}/review/${ids}`)
 
+const reports = (params) => BaseService.fetch(`${source}/reports`, params)
+
+const submit_reports = (model) => BaseService.post(`${source}/reports`, model)
+
 const submit_review = (models) => BaseService.post(`${source}/review`, models)
 
 const remove = (id) => BaseService.remove(`${source}/${id}`)
@@ -24,4 +28,4 @@ const remove = (id) => BaseService.remove(`${source}/${id}`)
 const fetch_types = () => BaseService.fetch(`${source}/types`)
 
 
-export default { fetch, get, upload, edit, update, download, review, submit_review, remove, fetch_types }
+export default { fetch, get, upload, edit, update, download, review, reports, submit_review, submit_reports, remove, fetch_types }

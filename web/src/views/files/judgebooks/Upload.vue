@@ -146,31 +146,16 @@ function check(model, key) {
       model.errors.set(key, [msg])
    }
 }
-function selectDate(id) {
-	if(id > 100) {
-		state.date = deepClone(initialState.date)
-	}else {
-		let entry = state.models.find(item => item.id === id)
-		state.date.model = deepClone(entry.judgeDateModel.model)
-		state.date.value = entry.judgeDateModel.model.text
-		state.date.id = id
-		state.date.title = `選擇${labels.value['judgeDate']}`
-		state.date.active = true
-	}
-}
 
-function onDateSelected(model) {
-	let entry = state.models.find(item => item.id === state.date.id)
-
-	if(model) {
-		entry.judgeDateModel.model = deepClone(model)
-		entry.judgeDate = model.num
-	}else {
-		entry.judgeDate = 0
+function onDateSelected(entry, { date, model }) {
+   if(model) {
+      entry.judgeDateModel.model = deepClone(model)
+      entry.judgeDate = model.num
+   }else {
+      entry.judgeDate = 0
 		entry.judgeDateModel = JudgebookFile.iniJudgeDateModel()
-	}
-	check(entry, 'judgeDate')
-	state.date = deepClone(initialState.date)
+   }
+   check(entry, 'judgeDate')
 }
 function onSubmit() {
    state.models.forEach(model => model.num = JudgebookFile.checkNum(model.num))
@@ -302,9 +287,11 @@ function onFind(id) {
                      />
                   </td>
                   <td>
-                     <v-text-field variant="outlined" readonly class="pt-3" density="compact"
-                     v-model="model.judgeDateModel.model.text_cn" :error-messages="model.errors.get('judgeDate')" 
-                     @click:control="selectDate(model.id)"
+                     <CommonPickerRocDate class_name="pt-3"
+                     :clearable="false" label=""
+                     :error_message="model.errors.get('judgeDate')"
+                     :value="model.judgeDateModel.model.value"
+                     @selected="(date) => onDateSelected(model, date)"
                      />
                   </td>
                   <td>
@@ -325,25 +312,5 @@ function onFind(id) {
          </v-btn>
       </v-col>
    </v-row>
-   <v-dialog persistent v-model="state.date.active" :width="WIDTH.S + 50" >
-		<v-card v-if="state.date.active" :height="400" :max-width="WIDTH.S">
-			<CommonCardTitle :title="state.date.title" 
-			@cancel="selectDate(1001)"
-			/>
-			<v-card-text>
-				<v-row>
-					<v-col cols="6">
-						<CommonPickerRocDate :clearable="false" :auto_launch="true"
-						:error_message="state.date.error_message"
-						:value="state.date.value"
-						@selected="onDateSelected"
-						/>
-					</v-col>
-					<v-col cols="6">
-					</v-col>
-				</v-row>
-			</v-card-text>
-		</v-card>
-	</v-dialog>
 </div>
 </template>

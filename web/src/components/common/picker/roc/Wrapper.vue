@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed,  watch, watchEffect } from 'vue'
+import { ref, computed,  watch, watchEffect, onBeforeMount } from 'vue'
 import { parse, isValid, format, max, min } from 'date-fns'
 import Year from './Year.vue'
 import Month from './Month.vue'
@@ -10,6 +10,10 @@ const props = defineProps({
 	action: {
 		type: String,
 		default: '',
+	},
+	auto_show: {
+		type: Boolean,
+		default: false,
 	},
 	placeholder: {
 		type: String,
@@ -105,13 +109,17 @@ const props = defineProps({
 		required: false,
 		default: 'day'
 	}
-
 })
 
 const emit = defineEmits(['update:modelValue', 'decadePageChanged', 'yearPageChanged', 'monthPageChanged', 'opened', 'closed'])
 
 defineExpose({
    launch
+})
+
+
+onBeforeMount(() => {
+	if(props.auto_show) focus()
 })
 const TIME_RESOLUTIONS = ['time', 'day', 'month', 'year']
 
@@ -287,7 +295,8 @@ function launch() {
  
 <style>
 .v3dp__datepicker {
-  --popout-bg-color: var(--vdp-bg-color, #fff);  
+  /* --popout-bg-color: var(--vdp-bg-color, #fff);  */
+  --popout-bg-color: var(--vdp-bg-color, #fff); 
   --box-shadow: var(
     --vdp-box-shadow,
     0 4px 10px 0 rgba(128, 144, 160, 0.1),

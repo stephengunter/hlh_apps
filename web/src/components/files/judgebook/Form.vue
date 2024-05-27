@@ -189,7 +189,7 @@ function onFileAdded(files) {
 	}
 }
 
-function onDateSelected(model) {
+function onDateSelected({ date, model }) {
 	if(model) {
 		state.date.model = deepClone(model)
 		state.form.judgeDate = model.num

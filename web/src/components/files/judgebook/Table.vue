@@ -1,7 +1,7 @@
 <script setup>
 import { ref, reactive, computed, watch, onBeforeMount, onMounted } from 'vue'
 import { useStore } from 'vuex'
-import { isEmptyObject, deepClone, showModifyRecords } from '@/utils'
+import { isEmptyObject, deepClone, showModifyRecords, rocNumToDateText } from '@/utils'
 import { ENTITY_TYPES, ACTION_TYPES, WIDTH } from '@/consts'
 
 const name = 'FilesJudgebookTable'
@@ -79,6 +79,29 @@ const headers = [{
    sortable: false,
    key: 'reviewed',
 },
+
+{
+   title: `${labels.value['typeId']}`,
+   align: '',
+   width: '5%',
+   sortable: false,
+   key: 'typeId',
+},
+
+{
+   title: labels.value['courtType'],
+   align: 'start',
+   width: '5%',
+   sortable: false,
+   key: 'courtType',
+},
+{
+   title: labels.value['originType'],
+   align: 'start',
+   width: '5%',
+   sortable: false,
+   key: 'originType',
+},
 {
    title: labels.value['fileNumber'],
    align: 'start',
@@ -87,11 +110,25 @@ const headers = [{
    key: 'fileNumber',
 },
 {
-   title: `${labels.value['typeId']} (${labels.value['originType']})`,
-   align: '',
-   width: '8%',
+   title: `${labels.value['year']}`,
+   align: 'start',
+   width: '5%',
    sortable: false,
-   key: 'typeId',
+   key: 'year',
+},
+{
+   title: `${labels.value['category']}`,
+   align: 'start',
+   width: '5%',
+   sortable: false,
+   key: 'category',
+},
+{
+   title: `${labels.value['num']}`,
+   align: 'start',
+   width: '5%',
+   sortable: false,
+   key: 'num',
 },
 {
    title: labels.value['judgeDate'],
@@ -101,26 +138,6 @@ const headers = [{
    key: 'judgeDate',
 },
 {
-   title: labels.value['courtType'],
-   align: 'start',
-   width: '5%',
-   sortable: false,
-   key: 'courtType',
-}
-,{
-   title: `${labels.value['year']} / ${labels.value['category']} / ${labels.value['num']}`,
-   align: 'start',
-   width: '10%',
-   sortable: false,
-   key: 'num',
-},
-{
-   title: labels.value['ps'],
-   align: 'start',
-   width: '8%',
-   sortable: false,
-   key: 'ps',
-},{
    title: '檔案',
    align: 'start',
    width: '10%',
@@ -132,7 +149,8 @@ const headers = [{
    width: '8%',
    sortable: false,
    key: 'createdAtText',
-}]
+}
+]
 
 const table_headers = computed(() => {
    if(props.can_review && !props.disable_review) {
@@ -237,13 +255,16 @@ function onCheckAll(val) {
          </v-tooltip>
       </template>
       <template v-slot:item.typeId="{ item }">
-         {{ typeOrigin(item) }}
+         {{ item.type.title }}
       </template>
       <template v-slot:item.courtType="{ item }">
          {{ getCourtTypeTitle(item.courtType) }}
       </template>
-      <template v-slot:item.num="{ item }">
-         {{ caseInfo(item) }}
+      <template v-slot:item.originType="{ item }">
+         {{ getOriginTypeTitle(item.originType) }}
+      </template>
+      <template v-slot:item.judgeDate="{ item }">
+         {{ rocNumToDateText(item.judgeDate, true) }}
       </template>
 		<template v-slot:item.fileName="{ item }">
          <v-tooltip text="下載檔案" v-if="item.canEdit">

@@ -5,7 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { FETCH_JUDGEBOOKFILES, UPLOAD_JUDGEBOOKFILES, DOWNLOAD_JUDGEBOOKFILE,
 	EDIT_JUDGEBOOKFILE, UPDATE_JUDGEBOOKFILE, REMOVE_JUDGEBOOKFILE, FETCH_JUDGEBOOK_TYPES,
-	REVIEW_JUDGEBOOKFILES, SUBMIT_REVIEW_JUDGEBOOKFILES 
+	REVIEW_JUDGEBOOKFILES, SUBMIT_REVIEW_JUDGEBOOKFILES, REPORT_JUDGEBOOKFILES 
 } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS, SET_JUDGEBOOKFILES_PARAMS } from '@/store/mutations.type'
 import { isEmptyObject, deepClone , downloadFile,
@@ -45,23 +45,17 @@ const initialState = {
 
 
 const state = reactive(deepClone(initialState))
+const params = computed(() => store.state.files_judgebooks.params)
 
 const types = computed(() => store.state.files_judgebooks.types)
 const courtTypes = computed(() => store.state.files_judgebooks.courtTypes)
 const originTypes = computed(() => store.state.files_judgebooks.originTypes)
-const type_options = computed(() => {
-	return types.value.map(item => ({
-		value: item.id, title: item.title
-	}))
-})
 
 const head = ref(null)
 const pagedList = computed(() => store.state.files_judgebooks.pagedList)
 const can_review = computed(() => canDoAction(ACTION_TYPES.REVIEW.name))
-const disable_review = computed(() =>{
-	const params = store.state.files_judgebooks.params
-	return params.reviewed !== 0
-})
+
+const disable_review = computed(() => params.value.reviewed !== 0)
 const can_submit_review = computed(() => {
    if(!can_review.value) return false
 	if(disable_review.value) return false
@@ -155,6 +149,7 @@ function review(models) {
 	})
 	.catch(error => onErrors(error))
 }
+
 function onCancel() {
 	state.form = deepClone(initialState.form)
 }
@@ -170,13 +165,6 @@ function update({ form, file }) {
 	})
 	.catch(error => handleSubmitError(error))
 }
-
-function onSubmit(models) {
-	if(state.form.action = UPDATE_JUDGEBOOKFILE) update()
-	else if(state.form.action = SUBMIT_REVIEW_JUDGEBOOKFILES) review(models)
-}
-
-
 
 function handleSubmitError(error) {
 	if(is400(error)) {
@@ -216,7 +204,8 @@ function remove() {
 <template>
 	<div>
 		<FilesJudgebookHead ref="head"
-		:can_review="can_review" :disable_review="!can_submit_review"
+		:can_review="can_review" :disable_review="!can_submit_review" 
+		:origin_types="originTypes"
 		@submit="fetchData" @upload="onUpload(true)"
 		@review="onReview"
 		/>

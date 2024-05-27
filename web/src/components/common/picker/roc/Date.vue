@@ -19,18 +19,27 @@ const props = defineProps({
       type: String,
 		default: ''
 	},
-	auto_launch: {
-      type: Boolean,
-		default: false
+	lower_limit: {
+      type: Date,
+		default: () => null
+	},
+	upper_limit: {
+      type: Date,
+		default: () => null
 	},
 	clearable: {
       type: Boolean,
 		default: true
+	},
+	class_name: {
+      type: String,
+		default: ''
 	}
 })
-const emit = defineEmits(['selected'])
+const emit = defineEmits(['ready', 'selected'])
 
 const initialState = {
+	active: false,
 	action: '',
 	date: null,
 	model: {
@@ -41,11 +50,10 @@ const initialState = {
 }
 const state = reactive(deepClone(initialState))
 
-const wrapper = ref(null)
-
 const errorMessages = computed(() => props.error_message ? [props.error_message] : [])
 
 onMounted(init)
+
 watch(() => props.value, init, {
 	deep: false
 })
@@ -69,60 +77,50 @@ function init() {
 		state.date = null
 		state.model = deepClone(initialState.model)
 	}
-
-	if(props.auto_launch) wrapper.value.launch()
-}
-function onFocused(val) {
-	if(val) {
-		state.action = 'focus'
-	}
-	else {
-		state.action = 'blur'
-	} 
-}
-function onClick() {
-	state.action = ''
-	nextTick(() => {
-		state.action = 'click'
-	})
-	
+	emit('ready', { date: state.date, model: state.model })
 }
 
 function resolve(date) {
-	state.date = date
-	state.model.text = dateToText(date)
-	let parts = state.model.text.split('-')
-	parts[0] = tryParseInt(parts[0]) - 1911
-	state.model.text_cn = `${parts[0]}-${parts[1]}-${parts[2]}`
-	state.model.num = tryParseInt(`${parts[0]}${parts[1]}${parts[2]}`)
-	
+	let text = ''
+	let text_cn = ''
+	let num = 0
+	if(date) {
+		text = dateToText(date)
+		let parts = text.split('-')
+		parts[0] = tryParseInt(parts[0]) - 1911
+		text_cn = `${parts[0]}-${parts[1]}-${parts[2]}`
+		num = tryParseInt(`${parts[0]}${parts[1]}${parts[2]}`)
+	}
+	return { text, text_cn, num }
 }
 
 function onSelected(date) {
-	if(date) {
-		resolve(date)
-		emit('selected', state.model)
-	}else {
-		emit('selected')
-	}
-	
+	if(date) state.date = date
+	else state.date = null
+
+	let model = resolve(date)
+	state.model = model
+	emit('selected', { date: state.date, model: deepClone(model) })
+
+	state.active = false
 }
 
 </script>
 <template>
-	<div>
-		<v-text-field  density="compact" variant="outlined"
-		:label="label" readonly 
-		:clearable="clearable"
-		:model-value="state.model.text_cn"
-		:error-messages="errorMessages"
-		@click:clear="onSelected(null)"
-		@click:control="onClick"
-		@update:focused="onFocused"
-		/>
-		<Wrapper ref="wrapper" :action="state.action"
-		:modelValue="state.date"
+	<v-menu :close-on-content-click="false" v-model="state.active">
+      <template v-slot:activator="{ props }">
+         <v-text-field :class="class_name"  readonly v-bind="props"
+			density="compact" variant="outlined"
+			:label="label" :clearable="clearable"
+         :model-value="state.model.text_cn"
+			:error-messages="errorMessages"
+			@click:clear="onSelected(null)"
+         />
+      </template>
+      <Wrapper :auto_show="true"
+		:lowerLimit="lower_limit" :upperLimit="upper_limit"
+		:modelValue="state.date" 
 		@update:modelValue="onSelected"
 		/>
-	</div>
+   </v-menu>
 </template>

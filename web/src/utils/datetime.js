@@ -48,6 +48,7 @@ export const rocNumToDate = (num) => {
 }
 
 export const rocNumToDateText = (input, rocDate = false) => {
+   if(!input) return '' 
    let dateString = input.toString()
    let parts = []
    if(dateString.length === 6) {
@@ -64,6 +65,47 @@ export const rocNumToDateText = (input, rocDate = false) => {
    return '' 
 }
 
+export const dateTextToRoc = (text) => {
+   if(text) {
+      let parts = text.split('-')
+      parts[0] = parseInt(parts[0]) - 1911
+      return `${parts[0]}-${parts[1]}-${parts[2]}`
+   }
+   return ''
+}
+
+
+export const getRocDatePickerModel = (date) => {
+   if(date) {
+      let text = dateToText(date)
+      let text_cn =  dateTextToRoc(text)
+      let num = dateToNumber(date, true)
+      return {
+         text,
+         text_cn,
+         num
+      }
+   }
+   return {
+         text: '',
+         text_cn: '',
+         num: 0
+      }
+   
+}
+
+export const dateToNumber = (date, roc = false) => {
+   let year = date.getFullYear()
+   let month = date.getMonth() + 1
+   let day = date.getDate()
+
+   if(roc) year = year - 1911
+   const str_y = year.toString()
+   const str_m = month < 10 ? `0${month}` : month.toString()
+   const str_d = day < 10 ? `0${day}` : day.toString()
+   
+   return parseInt(`${str_y}${str_m}${str_d}`)
+}
 
 export const toYearTW = (val) => val - 1911
 export const toMonthTW = (en) =>  {

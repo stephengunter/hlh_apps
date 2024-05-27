@@ -5,7 +5,7 @@ import axios from 'axios'
 import {
    FETCH_JUDGEBOOKFILES, UPLOAD_JUDGEBOOKFILES, DOWNLOAD_JUDGEBOOKFILE,
    EDIT_JUDGEBOOKFILE, UPDATE_JUDGEBOOKFILE, REMOVE_JUDGEBOOKFILE, FETCH_JUDGEBOOK_TYPES,
-   REVIEW_JUDGEBOOKFILES, SUBMIT_REVIEW_JUDGEBOOKFILES
+   REVIEW_JUDGEBOOKFILES, SUBMIT_REVIEW_JUDGEBOOKFILES, REPORT_JUDGEBOOKFILES, SUBMIT_REPORT_JUDGEBOOKFILES
 } from '@/store/actions.type'
 
 import { SET_JUDGEBOOKFILES_ADMIN_MODEL, SET_JUDGEBOOKFILES_PARAMS, SET_JUDGEBOOKFILE_UPLOAD_RESULTS, SET_JUDGEBOOK_TYPES,
@@ -24,7 +24,7 @@ const initialState = {
       fileNumber: '檔案號',
       courtType: '案類',
       year: '年度',
-      category: '字號',
+      category: '字別',
       num: '案號',
       ps: '備註',
       createdAtText: '建檔日期',
@@ -36,6 +36,7 @@ const initialState = {
 		typeId: 0,
 		fileNumber: '',
 		courtType: '',
+      originType: '',
 		year: '',
 		category: '',
 		num: '',
@@ -142,6 +143,24 @@ const actions = {
       return new Promise((resolve, reject) => {
          JudgebooksService.review(ids)
          .then(list => resolve(list))
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
+   [REPORT_JUDGEBOOKFILES](context, params) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         JudgebooksService.reports(params)
+         .then(list => resolve(list))
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
+   [SUBMIT_REPORT_JUDGEBOOKFILES](context, model) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         JudgebooksService.submit_reports(model)
+         .then(model => resolve(model))
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })

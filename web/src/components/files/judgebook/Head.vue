@@ -4,10 +4,10 @@ import { ref, reactive, computed, watch, onBeforeMount, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { useVuelidate } from '@vuelidate/core'
-import { required, numeric, helpers } from '@vuelidate/validators'
+import { helpers } from '@vuelidate/validators'
 import Errors from '@/common/errors'
 import { isEmptyObject, deepClone , copyFromQuery, areObjectsEqual, reviewedOptions,
-	resolveErrorData, onErrors, onSuccess, setValues, badRequest, is400, showAlert
+	setValues, badRequest
 } from '@/utils'
 import JudgebookFile from '@/models/files/judgebook'
 
@@ -16,11 +16,19 @@ const store = useStore()
 const route = useRoute()
 const router = useRouter()
 const props = defineProps({
+	origin_types: {
+      type: Array,
+      default: () => []
+   },
    can_review: {
       type: Boolean,
       default: false
    },
 	disable_review: {
+      type: Boolean,
+      default: false
+   },
+	disable_reports: {
       type: Boolean,
       default: false
    }
@@ -37,6 +45,7 @@ const initialState = {
 		typeId: 0,
 		fileNumber: '',
 		courtType: '',
+		originType: '',
 		year: '',
 		category: '',
 		num: '',
@@ -87,6 +96,14 @@ const type_options = computed(() => {
 
 const courtTypesOptions = computed(() => {
 	let options = store.state.files_judgebooks.courtTypes.slice()
+	options.splice(0, 0, {
+		value: '', title: '全部'
+	})
+	return options
+})
+
+const origin_types_options = computed(() => {
+	let options = props.origin_types.slice()
 	options.splice(0, 0, {
 		value: '', title: '全部'
 	})
@@ -198,6 +215,7 @@ function onReview() {
 	emit('review')
 }
 
+
 </script>
 
 <template>
@@ -221,7 +239,13 @@ function onReview() {
             @update:modelValue="onParamsChanged"
 				/>
 			</v-col>
-			<v-col cols="3">
+			<v-col cols="1">
+				<v-select :label="labels['originType']" density="compact" 
+            :items="origin_types_options" v-model="state.params.originType"
+            @update:modelValue="onParamsChanged"
+				/>
+			</v-col>
+			<v-col cols="2">
 				<v-text-field :label="labels['fileNumber']"  density="compact" :clearable="true"
 				v-model="state.params.fileNumber"
             :error-messages="v$.fileNumber.$errors.map(e => e.$message)"                     
@@ -237,7 +261,7 @@ function onReview() {
 				@blur="v$.year.$touch"
 				/>
 			</v-col>
-			<v-col cols="2">
+			<v-col cols="1">
 				<v-text-field :label="labels['category']"  density="compact" clearable        
 				v-model="state.params.category"
             :error-messages="v$.category.$errors.map(e => e.$message)"                     
@@ -267,16 +291,19 @@ function onReview() {
 			<v-col cols="1">
 				<v-tooltip v-if="props.can_review" :disabled="props.disable_review" text="審核選取的項目">
 					<template v-slot:activator="{ props }">
-						<v-btn :disabled="disable_review" class="float-left" v-bind="props" color="warning"
+						<v-btn class="float-right" 
+						v-bind="props" icon="mdi-check"  size="small" color="warning"
+						:disabled="disable_review"  
 						@click.prevent="onReview"
-						>
-						審核
-						</v-btn>
+						/>
 					</template>
 				</v-tooltip>
+			</v-col>
+			<v-col cols="1">
 				<v-tooltip text="上傳">
 					<template v-slot:activator="{ props }">
-						<v-btn :disabled="state.params.reviewed === 1" class="float-right" icon="mdi-upload" v-bind="props" size="small" color="info"
+						<v-btn class="float-right" :disabled="state.params.reviewed === 1" 
+						icon="mdi-upload" v-bind="props" size="small" color="info"
 						@click.prevent="onUpload"
 						/>
 					</template>
