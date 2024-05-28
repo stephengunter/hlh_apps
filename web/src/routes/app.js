@@ -3,6 +3,7 @@ import { isNullOrEmpty, upperFirstLetter, pluralization } from '@/utils'
 import Page from '@/models/page'
 
 const JUDGEBOOKFILE = ENTITY_TYPES.JUDGEBOOKFILE
+const EVENT = ENTITY_TYPES.EVENT
 
 const applinks = [
 new Page({
@@ -37,7 +38,7 @@ new Page({
    name: ROUTE_NAMES.JUDGEBOOKFILES,
    path: '/files/judgebooks',
    view: 'files/judgebooks/Index',
-   icon: 'mdi-folder-upload', 
+   icon: 'mdi-briefcase-outline', 
    title: `${JUDGEBOOKFILE.title}管理`,
    menus: [MENUS.MAIN],
    alias: '/'
@@ -46,7 +47,7 @@ new Page({
    name: `upload-${ROUTE_NAMES.JUDGEBOOKFILES}`,
    path: '/files/judgebooks/upload',
    view: 'files/judgebooks/Upload',
-   icon: 'mdi-briefcase-outline',
+   icon: 'mdi-folder-upload',
    title: `${JUDGEBOOKFILE.title}上傳`,
    menus: [MENUS.MAIN],
    parent: ROUTE_NAMES.JUDGEBOOKFILES
@@ -59,6 +60,16 @@ new Page({
    title: `${JUDGEBOOKFILE.title}報表`,
    menus: [MENUS.MAIN],
    parent: ROUTE_NAMES.JUDGEBOOKFILES
+}),
+
+
+new Page({
+   name: ROUTE_NAMES.EVENTS,
+   path: `/${pluralization(ROUTE_NAMES.EVENTS)}/:key?`,
+   view: `${upperFirstLetter(pluralization(ROUTE_NAMES.EVENTS))}`,
+   icon: 'mdi-calendar', 
+   title: `${EVENT.title}`,
+   menus: [MENUS.MAIN]
 }),
 ]
 

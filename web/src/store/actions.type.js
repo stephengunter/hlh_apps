@@ -32,3 +32,11 @@ export const SUBMIT_REPORT_JUDGEBOOKFILES = 'submitReportJudgebookFiles'
 export const SUBMIT_REVIEW_JUDGEBOOKFILES = 'submitReviewJudgebookFiles'
 export const REMOVE_JUDGEBOOKFILE = 'removeJudgebookFile'
 export const FETCH_JUDGEBOOK_TYPES = 'fetchJudgebookTypes'
+
+
+//Events
+export const FETCH_EVENTS = 'fetchEvents'
+export const EDIT_EVENT = 'editEvent'
+export const UPDATE_EVENT = 'updateEvent'
+export const REMOVE_EVENT = 'removeEvent'
+export const FETCH_EVENT_CATEGORIES = 'fetchEventCategories'

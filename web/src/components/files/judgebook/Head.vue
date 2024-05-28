@@ -168,11 +168,6 @@ function init() {
 		return 
 	}
 	
-	if(errors.any()) {
-		badRequest('BAD_REQUEST ', '錯誤的查詢參數', errors.getAll())
-		return 
-	}
-	
 	emit('submit', state.params)
 	
 }

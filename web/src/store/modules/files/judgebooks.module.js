@@ -14,6 +14,7 @@ import { SET_JUDGEBOOKFILES_ADMIN_MODEL, SET_JUDGEBOOKFILES_PARAMS, SET_JUDGEBOO
 
 
 const initialState = {
+   allowEmptyJudgeDate: true,
    types: [],
    courtTypes: getListFromObj(COURT_TYPES),
    originTypes: getListFromObj(ORIGIN_TYPES),

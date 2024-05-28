@@ -5,15 +5,18 @@ export const ROUTE_TYPES = {
    ADMIN_ONLY: 'adminOnly'   
 }
 export const ROUTE_NAMES = {
-   DASHBOARDS: 'dashboards',
    LOGIN: 'login',
+   DASHBOARDS: 'dashboards',
+   ARTICLE_INDEX: 'articles',
+   ARTICLE_EDIT: 'article-edit',   
    AUTHTOKEN: 'authtoken',
-   JUDGEBOOKFILES: 'judgebookfiles',
    DEPARTMENTS: 'departments',
+   EVENTS: 'events',
+   JUDGEBOOKFILES: 'judgebookfiles',
+   
    USER_DETAILS: 'user-details',
    JOB_DETAILS: 'job-details',
-   ARTICLE_INDEX: 'articles',
-   ARTICLE_EDIT: 'article-edit',
+   
    NOT_FOUND: '404',
    CLOSE: 'close'
 }

@@ -144,7 +144,7 @@ const headers = [{
    sortable: false,
    key: 'fileName',
 },{
-   title: labels.value['createdAtText'],
+   title: '上傳日期',
    align: 'start',
    width: '8%',
    sortable: false,

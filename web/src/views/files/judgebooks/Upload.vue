@@ -39,6 +39,7 @@ const state = reactive(deepClone(initialState))
 const file_upload = ref(null)
 
 const params = computed(() => store.state.files_judgebooks.params)
+const allowEmptyJudgeDate = computed(() => store.state.files_judgebooks.allowEmptyJudgeDate)
 
 const types = computed(() => store.state.files_judgebooks.types)
 const courtTypes = computed(() => store.state.files_judgebooks.courtTypes)
@@ -130,7 +131,7 @@ function check(model, key) {
    } 
 	else if(key === 'judgeDate') {
       if(model[key]) valid = JudgebookFile.checkJudgeDate(model[key])
-      else valid = false
+      else valid = allowEmptyJudgeDate.value
    } 
    else if(key === 'year') valid = JudgebookFile.checkYear(model[key])
    else if(key === 'category') valid = !isNumeric(model[key])
@@ -232,7 +233,7 @@ function onFind(id) {
                   <th class="text-center" style="width: 10%;">
                      {{ labels['num'] }}
                   </th>
-                  <th class="text-center" style="width: 10%;">
+                  <th class="text-center" style="width: 12%;">
                      {{ labels['judgeDate'] }}
                   </th>
                   <th class="text-center" >
@@ -288,9 +289,10 @@ function onFind(id) {
                   </td>
                   <td>
                      <CommonPickerRocDate class_name="pt-3"
-                     :clearable="false" label=""
+                     :clearable="allowEmptyJudgeDate" label=""
                      :error_message="model.errors.get('judgeDate')"
                      :value="model.judgeDateModel.model.value"
+                     @ready="(date) => onDateSelected(model, date)"
                      @selected="(date) => onDateSelected(model, date)"
                      />
                   </td>

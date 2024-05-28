@@ -3,9 +3,9 @@ import { MqResponsive } from 'vue3-mq'
 import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { FETCH_JUDGEBOOKFILES, UPLOAD_JUDGEBOOKFILES, DOWNLOAD_JUDGEBOOKFILE,
+import { FETCH_JUDGEBOOKFILES, DOWNLOAD_JUDGEBOOKFILE,
 	EDIT_JUDGEBOOKFILE, UPDATE_JUDGEBOOKFILE, REMOVE_JUDGEBOOKFILE, FETCH_JUDGEBOOK_TYPES,
-	REVIEW_JUDGEBOOKFILES, SUBMIT_REVIEW_JUDGEBOOKFILES, REPORT_JUDGEBOOKFILES 
+	REVIEW_JUDGEBOOKFILES, SUBMIT_REVIEW_JUDGEBOOKFILES 
 } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS, SET_JUDGEBOOKFILES_PARAMS } from '@/store/mutations.type'
 import { isEmptyObject, deepClone , downloadFile,

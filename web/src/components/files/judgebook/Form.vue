@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed, onBeforeMount } from 'vue'
+import { ref, reactive, computed, onBeforeMount, nextTick } from 'vue'
 import { useStore } from 'vuex'
 import { useVuelidate } from '@vuelidate/core'
 import { required, numeric, helpers } from '@vuelidate/validators'
@@ -7,6 +7,7 @@ import { CLEAR_ERRORS } from '@/store/mutations.type'
 import { VALIDATE_MESSAGES, WIDTH, HEIGHT, ACTION_TYPES, ENTITY_TYPES } from '@/consts'
 import { setValues, showConfirm, hideConfirm, deepClone, isEmptyObject } from '@/utils'
 import JudgebookFile from '@/models/files/judgebook'
+import { el } from 'date-fns/locale'
 
 
 const name = 'FilesJudgebookForm'
@@ -30,7 +31,6 @@ const props = defineProps({
 })
 const emit = defineEmits([ACTION_TYPES.SUBMIT.name, ACTION_TYPES.CANCEL.name, ACTION_TYPES.REMOVE.name])
 const store = useStore()
-
 const entity = ENTITY_TYPES.JUDGEBOOKFILE
 const initialState = {
    form: {
@@ -67,6 +67,8 @@ const type_options = computed(() => {
 	}))
 })
 
+const allowEmptyJudgeDate = computed(() => store.state.files_judgebooks.allowEmptyJudgeDate)
+
 // const user_can_review = computed(() => {
 //    const actions = props.actions
 //    if(!actions.length) return false
@@ -81,7 +83,8 @@ const type_options = computed(() => {
 
 const state = reactive(deepClone(initialState))
 const rules = computed(() => {
-	return {
+	const items = 
+	{
 		fileNumber: {
 			isValid: helpers.withMessage(`${labels.value['fileNumber']}不正確`, checkFileNumber)
 		},
@@ -98,6 +101,7 @@ const rules = computed(() => {
 			isValid: helpers.withMessage(`${labels.value['num']}不正確`, checkNum)
 		}
 	}
+	return items
 })
 
 const labels = computed(() => store.state.files_judgebooks.labels)
@@ -125,7 +129,7 @@ function init() {
 function onSubmit() {
 	v$.value.$validate().then(valid => {
 		if(!valid) return
-		if(!JudgebookFile.checkJudgeDate(state.form.judgeDate)) {
+		if(!checkJudgeDate(state.form.judgeDate)) {
 			state.date.error_message = `${labels.value['judgeDate']}不正確`
 			return
 		}
@@ -151,7 +155,7 @@ function remove() {
 	hideConfirm()
 	emit(ACTION_TYPES.REMOVE.name)
 }
-function onInputChanged(val){
+function onInputChanged(val) {
    store.commit(CLEAR_ERRORS)
 }
 function checkFileNumber(val) {
@@ -169,6 +173,11 @@ function checkCategory(val) {
 function checkNum(val) {
    if(val) return JudgebookFile.isValidNum(val)
    return false
+}
+function checkJudgeDate(val) {
+   if(val) return JudgebookFile.checkJudgeDate(val)
+   return allowEmptyJudgeDate.value
+
 }
 function canDoAction(action) {
 	const actions = props.actions
@@ -193,11 +202,18 @@ function onDateSelected({ date, model }) {
 	if(model) {
 		state.date.model = deepClone(model)
 		state.form.judgeDate = model.num
-		state.date.error_message = ''
+		
 	}else {
 		state.form.judgeDate = 0
 		entry.judgeDateModel = deepClone(JudgebookFile.iniJudgeDateModel())
 	}
+
+	if(checkJudgeDate(state.form.judgeDate)) {
+		state.date.error_message = ''
+	}else {
+		state.date.error_message = `${labels.value['judgeDate']}不正確`
+	}
+
 }
 function onFileNumberChanged(val) {
 	if($externalResults.value.hasOwnProperty('fileNumber')) {
@@ -256,9 +272,11 @@ function checkOnReviewed() {
 				/>
 			</v-col>
 			<v-col cols="3">
-				<CommonPickerRocDate :clearable="false" :label="labels['judgeDate']"
+				<CommonPickerRocDate :label="labels['judgeDate']"
+				:clearable="allowEmptyJudgeDate"
 				:error_message="state.date.error_message"
 				:value="state.date.value"
+				@ready="onDateSelected"
 				@selected="onDateSelected"
 				/>
 			</v-col>
