@@ -41,7 +41,8 @@ new Page({
    view: `calendar/Index`,
    icon: 'mdi-calendar', 
    title: `行事曆`,
-   menus: [MENUS.MAIN]
+   menus: [MENUS.MAIN],
+   alias: '/'
 }),
 ]
 

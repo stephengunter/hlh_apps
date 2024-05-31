@@ -30,6 +30,7 @@ const LOCATION = ENTITY_TYPES.LOCATION
 
 const tree_AB = ref(null)
 const tree_CB = ref(null)
+const tree_TD = ref(null)
 const locations = computed(() => store.state.locations.all)
 const roots  = computed(() => store.state.locations.roots)
 const parent_options = computed(() => locations.value.map(item => ({ value: item.id, text: item.getFullText(locations.value) })))
@@ -47,6 +48,7 @@ function fetchData() {
 function init() {
 	tree_AB.value.init()
 	tree_CB.value.init()
+	tree_TD.value.init()
 }
 function getRoot(key) {
 	if(roots.value && roots.value.length) return  roots.value.find(item => item.key === key)
@@ -196,15 +198,21 @@ function onImport() {
 			</v-col>
 		</v-row>
 		<v-row dense>
-			<v-col cols="6">
+			<v-col cols="4">
 				<LocationTree ref="tree_AB"
 				:root="getRoot('AB')"
 				@select="edit" @add="onAdd" @orders="onOrders"
 				/>
 			</v-col>
-			<v-col cols="6">
+			<v-col cols="4">
 				<LocationTree ref="tree_CB"
 				:root="getRoot('CB')"
+				@select="edit" @add="onAdd" @orders="onOrders"
+				/>
+			</v-col>
+			<v-col cols="4">
+				<LocationTree ref="tree_TD"
+				:root="getRoot('TD')"
 				@select="edit" @add="onAdd" @orders="onOrders"
 				/>
 			</v-col>
