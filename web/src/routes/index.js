@@ -23,6 +23,8 @@ const routes = appRoutes.map(item => {
 			component: () => import(`@/views/${parts[0]}/${parts[1]}.vue`)
 		}
 	}else {
+		const path = `@/views/${item.view}.vue`
+		console.log('path', path)
 		return { 
 			...item, 
 			component: () => import(`@/views/${item.view}.vue`)
@@ -34,9 +36,6 @@ const routes = appRoutes.map(item => {
 const redirect = (next, route) => next(route)
 
 const authDone = (next, to, auth = false) => {
-	// if(to.name === ROUTE_NAMES.JUDGEBOOKFILES) {
-	// 	store.commit(TOGGLE_USER_MENU, false)
-	// }else store.commit(TOGGLE_USER_MENU, true)
 	store.dispatch(GET_MENUS, auth)
 	return next()
 }

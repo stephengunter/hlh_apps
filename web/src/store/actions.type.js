@@ -20,22 +20,12 @@ export const SHOW_MODIFY_RECORDS = 'showModifyRecords'
 
 //NEW
 
-//Judgebooks
-export const FETCH_JUDGEBOOKFILES = 'fetchJudgebookFiles'
-export const UPLOAD_JUDGEBOOKFILES = 'uploadJudgebookFiles'
-export const DOWNLOAD_JUDGEBOOKFILE = 'downloadJudgebookFile'
-export const EDIT_JUDGEBOOKFILE = 'editJudgebookFile'
-export const UPDATE_JUDGEBOOKFILE = 'updateJudgebookFile'
-export const REVIEW_JUDGEBOOKFILES = 'reviewJudgebookFiles'
-export const REPORT_JUDGEBOOKFILES = 'reportJudgebookFiles'
-export const SUBMIT_REPORT_JUDGEBOOKFILES = 'submitReportJudgebookFiles'
-export const SUBMIT_REVIEW_JUDGEBOOKFILES = 'submitReviewJudgebookFiles'
-export const REMOVE_JUDGEBOOKFILE = 'removeJudgebookFile'
-export const FETCH_JUDGEBOOK_TYPES = 'fetchJudgebookTypes'
+
+//Calendars
+export const FETCH_CALENDAR_CATEGORIES = 'fetchCalendarCategories'
 
 
 //Events
-export const FETCH_EVENTS_CALENDAR = 'fetchEventsCalendar'
 export const FETCH_EVENTS = 'fetchEvents'
 export const EDIT_EVENT = 'editEvent'
 export const UPDATE_EVENT = 'updateEvent'

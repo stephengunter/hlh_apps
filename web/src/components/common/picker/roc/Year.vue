@@ -91,7 +91,7 @@ function isEnabled(target, lower, upper) {
 </script>
 
 <template>
-	<Popup
+	<Popup :roc="roc"
 	:columnCount="3"
 	:leftDisabled="leftDisabled"
 	:rightDisabled="rightDisabled"

@@ -34,42 +34,14 @@ new Page({
 
 const userlinks = [
 // groups
-new Page({
-   name: ROUTE_NAMES.JUDGEBOOKFILES,
-   path: '/files/judgebooks',
-   view: 'files/judgebooks/Index',
-   icon: 'mdi-briefcase-outline', 
-   title: `${JUDGEBOOKFILE.title}管理`,
-   menus: [MENUS.MAIN],
-   alias: '/'
-}),
-new Page({
-   name: `upload-${ROUTE_NAMES.JUDGEBOOKFILES}`,
-   path: '/files/judgebooks/upload',
-   view: 'files/judgebooks/Upload',
-   icon: 'mdi-folder-upload',
-   title: `${JUDGEBOOKFILE.title}上傳`,
-   menus: [MENUS.MAIN],
-   parent: ROUTE_NAMES.JUDGEBOOKFILES
-}),
-new Page({
-   name: `reports-${ROUTE_NAMES.JUDGEBOOKFILES}`,
-   path: '/files/judgebooks/reports',
-   view: 'files/judgebooks/Reports',
-   icon: 'mdi-file-export',
-   title: `${JUDGEBOOKFILE.title}報表`,
-   menus: [MENUS.MAIN],
-   parent: ROUTE_NAMES.JUDGEBOOKFILES
-}),
-
 
 new Page({
-   name: ROUTE_NAMES.EVENTS,
-   path: `/${pluralization(ROUTE_NAMES.EVENTS)}/:key?`,
-   view: `${upperFirstLetter(pluralization(ROUTE_NAMES.EVENTS))}`,
+   name: 'canlendar-index',
+   path: `/canlendar`,
+   view: `calendar/Index`,
    icon: 'mdi-calendar', 
-   title: `${EVENT.title}`,
-   menus: []
+   title: `行事曆`,
+   menus: [MENUS.MAIN]
 }),
 ]
 

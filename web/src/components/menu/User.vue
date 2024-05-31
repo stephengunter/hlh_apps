@@ -18,12 +18,9 @@ const store = useStore()
 
 const initialState = {
    pictureError: false,
-   items: []
-   // items: [{
-   //    title: '登出', name: LOGOUT, icon: 'mdi-logout-variant'
-   // },{
-   //    title: ENTITY_TYPES.PROFILES.title, name: ENTITY_TYPES.PROFILES.name, icon: 'mdi-account'
-   // }] 
+   items: [{
+      title: '登出', name: LOGOUT, icon: 'mdi-logout-variant'
+   }] 
 }
 
 const noPicture = computed(() => {
