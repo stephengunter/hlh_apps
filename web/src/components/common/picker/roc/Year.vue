@@ -32,6 +32,10 @@ const props = defineProps({
 	upperLimit: {
 		type: Date,
 		required: false,
+	},
+	roc: {
+      type: Boolean,
+		default: false
 	}
 })
 const emit = defineEmits(['update:pageDate', 'select'])
@@ -54,7 +58,9 @@ const years = computed(() =>
 const heading = computed(() => {
 	const start = getYear(from.value)
 	const end = getYear(to.value)
-	return `${toYearTW(start)} - ${toYearTW(end)}`
+	if(props.roc) return `${toYearTW(start)} - ${toYearTW(end)}`
+	return `${start} - ${end}`
+	
 })
 
 const leftDisabled = computed(() =>

@@ -2,7 +2,7 @@
 import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { isEmptyObject, deepClone, isNumeric, tryParseInt, onSuccess, onErrors } from '@/utils'
+import { isEmptyObject, deepClone, isNumeric, tryParseInt, onSuccess, onErrors, rocNumToDate } from '@/utils'
 import JudgebookFile from '@/models/files/judgebook'
 import { VALIDATE_MESSAGES, WIDTH, ROUTE_NAMES, ENTITY_TYPES } from '@/consts'
 import { FETCH_JUDGEBOOK_TYPES, UPLOAD_JUDGEBOOKFILES } from '@/store/actions.type'
@@ -39,7 +39,20 @@ const state = reactive(deepClone(initialState))
 const file_upload = ref(null)
 
 const params = computed(() => store.state.files_judgebooks.params)
+const ad_dpts = computed(() => store.state.files_judgebooks.ad_dpts)
+const dptOptions = computed(() => {
+	let options = []
+	if(ad_dpts.value) {
+		ad_dpts.value.forEach(dpt => {
+			if(options.findIndex(item => item.value === dpt) < 0) {
+				options.push({ value: dpt, title: `${dpt}股`  })
+			}
+		})
+	}
+	return options
+})
 const allowEmptyJudgeDate = computed(() => store.state.files_judgebooks.allowEmptyJudgeDate)
+const allowEmptyFileNumber = computed(() => store.state.files_judgebooks.allowEmptyFileNumber)
 
 const types = computed(() => store.state.files_judgebooks.types)
 const courtTypes = computed(() => store.state.files_judgebooks.courtTypes)
@@ -94,7 +107,11 @@ function resolveModel(file, type, judgeDate, courtType, originType) {
 			category = parts[1]
          num = JudgebookFile.checkNum(parts[2])
 			if(JudgebookFile.checkYear(parts[0])) year = parts[0]
-			if(parts.length > 3) ps = parts[3]
+			if(parts.length > 3) {
+            const date = rocNumToDate(tryParseInt(parts[3]))
+            if(date) judgeDate = tryParseInt(parts[3])
+            else ps = parts[3].toString()
+         }
 		}
 		return new JudgebookFile(type, judgeDate, fileNumber, originType, courtType, year, category ,num, file, ps)
 	}
@@ -103,6 +120,7 @@ function resolveModel(file, type, judgeDate, courtType, originType) {
 function onFileAdded(files) {
    const type = isEmptyObject(state.type) ? types.value[0] : state.type
    const courtType = isEmptyObject(state.courtType) ? courtTypes.value[0].value : state.courtType.value
+   const dpt = ad_dpts.value.length ? ad_dpts.value[0] : ''
    const originType = originTypes.value[0].value
    const judgeDate = 0
    let id = -1
@@ -115,8 +133,8 @@ function onFileAdded(files) {
          check(model, 'year')
          check(model, 'category')
          check(model, 'num')
-
          model.id = id
+         model.dpt = dpt
          state.models.push(model)
          id -= 1
       } 
@@ -127,7 +145,7 @@ function check(model, key) {
    let valid = false
    if(key === 'fileNumber') {
       if(model[key]) valid = JudgebookFile.checkFileNumber(model[key])
-      else valid = false
+      else valid = allowEmptyFileNumber.value
    } 
 	else if(key === 'judgeDate') {
       if(model[key]) valid = JudgebookFile.checkJudgeDate(model[key])
@@ -149,7 +167,9 @@ function check(model, key) {
 }
 
 function onDateSelected(entry, { date, model }) {
-   if(model) {
+   if(date) {
+      entry.judgeDateModel.date = date
+      entry.judgeDateModel.value = model.text_cn
       entry.judgeDateModel.model = deepClone(model)
       entry.judgeDate = model.num
    }else {
@@ -218,13 +238,13 @@ function onFind(id) {
                   <th class="text-center" style="width: 10%;">
                      {{ labels['courtType'] }}
                   </th>
-                  <th class="text-center" style="width: 10%;">
-                     {{ labels['originType'] }}
-                  </th>
+                  <!-- <th v-show="dptOptions.length" class="text-center" style="width: 10%;">
+                     {{ labels['dpt'] }}
+                  </th> -->
                   <th class="text-center" style="width: 20%;">
                      {{ labels['fileNumber'] }}
                   </th>
-                  <th class="text-center" style="width: 8%;">
+                  <th class="text-center" style="width: 10%;">
                      {{ labels['year'] }}
                   </th>
                   <th class="text-center" style="width: 12%;">
@@ -258,11 +278,16 @@ function onFind(id) {
                      :items="courtTypes" v-model="model.courtType"
                      />
                   </td>
-                  <td>
+                  <!--  <td v-show="dptOptions.length">
+                     <v-select class="mt-3" :label="labels['dpt']" density="compact" variant="outlined"
+                     :items="dptOptions" v-model="model.dpt"
+                     />
+                  </td>
+                 <td>
                      <v-select class="mt-3" :label="labels['originType']" density="compact" variant="outlined"
                      :items="originTypes" v-model="model.originType"
                      />
-                  </td>
+                  </td> -->
                   <td>
                      <v-text-field variant="outlined" class="pt-3" density="compact"
                      v-model="model.fileNumber" :error-messages="model.errors.get('fileNumber')" 
@@ -291,7 +316,7 @@ function onFind(id) {
                      <CommonPickerRocDate class_name="pt-3"
                      :clearable="allowEmptyJudgeDate" label=""
                      :error_message="model.errors.get('judgeDate')"
-                     :value="model.judgeDateModel.model.value"
+                     :date="model.judgeDateModel.date" :value="model.judgeDateModel.value"
                      @ready="(date) => onDateSelected(model, date)"
                      @selected="(date) => onDateSelected(model, date)"
                      />

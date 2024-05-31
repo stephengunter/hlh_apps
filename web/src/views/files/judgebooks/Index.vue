@@ -45,8 +45,20 @@ const initialState = {
 
 
 const state = reactive(deepClone(initialState))
+const isFilesManager = computed(() => store.state.files_judgebooks.isFilesManager)
 const params = computed(() => store.state.files_judgebooks.params)
-
+const ad_dpts = computed(() => store.state.files_judgebooks.ad_dpts)
+const dptOptions = computed(() => {
+	let options = []
+	if(ad_dpts.value) {
+		ad_dpts.value.forEach(dpt => {
+			if(options.findIndex(item => item.value === dpt) < 0) {
+				options.push({ value: dpt, title: `${dpt}股`  })
+			}
+		})
+	}
+	return options
+})
 const types = computed(() => store.state.files_judgebooks.types)
 const courtTypes = computed(() => store.state.files_judgebooks.courtTypes)
 const originTypes = computed(() => store.state.files_judgebooks.originTypes)
@@ -203,9 +215,8 @@ function remove() {
 
 <template>
 	<div>
-		<FilesJudgebookHead ref="head"
+		<FilesJudgebookHead ref="head" :dpt_options="dptOptions"
 		:can_review="can_review" :disable_review="!can_submit_review" 
-		:origin_types="originTypes"
 		@submit="fetchData" @upload="onUpload(true)"
 		@review="onReview"
 		/>
@@ -228,7 +239,7 @@ function remove() {
 				<v-card-text>
 					<div style="padding-right: 10px;">
 						<FilesJudgebookForm v-if="state.form.action === UPDATE_JUDGEBOOKFILE"
-						:types="originTypes"
+						:types="originTypes" :dpt_options="dptOptions"
 						:origin_types="originTypes" :court_types="courtTypes"
 						:model="state.form.model" :actions="state.form.actions"
 						@submit="update" @remove="remove"

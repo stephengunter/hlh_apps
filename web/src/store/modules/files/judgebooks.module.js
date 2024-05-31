@@ -1,7 +1,8 @@
 import JudgebooksService from '@/services/files/judgebooks.service'
-import { resolveErrorData, deepClone, isEmptyObject, getListFromObj } from '@/utils'
+import { resolveErrorData, deepClone, isEmptyObject, getListFromObj, 
+   appendFormData, isFilesManager } from '@/utils'
 import { COURT_TYPES, ORIGIN_TYPES  } from '@/consts'
-import axios from 'axios'
+import JwtService from '@/services/jwt.service'
 import {
    FETCH_JUDGEBOOKFILES, UPLOAD_JUDGEBOOKFILES, DOWNLOAD_JUDGEBOOKFILE,
    EDIT_JUDGEBOOKFILE, UPDATE_JUDGEBOOKFILE, REMOVE_JUDGEBOOKFILE, FETCH_JUDGEBOOK_TYPES,
@@ -9,12 +10,14 @@ import {
 } from '@/store/actions.type'
 
 import { SET_JUDGEBOOKFILES_ADMIN_MODEL, SET_JUDGEBOOKFILES_PARAMS, SET_JUDGEBOOKFILE_UPLOAD_RESULTS, SET_JUDGEBOOK_TYPES,
-   SET_LOADING 
+   SET_LOADING, SET_USER 
 } from '@/store/mutations.type'
 
-
 const initialState = {
+   ad_dpts:[],
+   isFilesManager: false,
    allowEmptyJudgeDate: true,
+   allowEmptyFileNumber: true,
    types: [],
    courtTypes: getListFromObj(COURT_TYPES),
    originTypes: getListFromObj(ORIGIN_TYPES),
@@ -24,6 +27,7 @@ const initialState = {
       originType: '原/正本',
       fileNumber: '檔案號',
       courtType: '案類',
+      dpt: '股別',
       year: '年度',
       category: '字別',
       num: '案號',
@@ -37,7 +41,6 @@ const initialState = {
 		typeId: 0,
 		fileNumber: '',
 		courtType: '',
-      originType: '',
 		year: '',
 		category: '',
 		num: '',
@@ -126,9 +129,9 @@ const actions = {
    },
    [UPDATE_JUDGEBOOKFILE](context, { id, model, file }) {
       const formData = new FormData()
-      for (const key in model) {
-         formData.append(key, model[key]);
-      }
+      Object.keys(model).forEach(key => {
+         appendFormData(formData, model[key], key)
+      })
       if(file) formData.append('file', file, file.name)
       
       context.commit(SET_LOADING, true)
@@ -188,7 +191,20 @@ const actions = {
 
 
 const mutations = {
+   [SET_USER](state, user) {
+      state.isFilesManager = isFilesManager(user)
+      if(state.isFilesManager) {
+
+      }else {
+         let token = JwtService.getToken()  
+         let claims = JwtService.resolveClaims(token)
+         if(claims.ad_dpts) state.ad_dpts = claims.ad_dpts.split(',')
+         else state.ad_dpts = []
+      }
+   },
    [SET_JUDGEBOOKFILES_ADMIN_MODEL](state, model) {
+      state.allowEmptyFileNumber = model.allowEmptyFileNumber
+      state.allowEmptyJudgeDate = model.allowEmptyJudgeDate
       state.params = model.request
       state.actions = model.actions
       state.pagedList = model.pagedList

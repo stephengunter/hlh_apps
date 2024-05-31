@@ -22,3 +22,5 @@ export const randomItem = (arr) => {
    const randomIndex = Math.floor(Math.random() * arr.length)
    return arr[randomIndex];
 }
+
+export const hasNonEmptyString = (arr) => arr.some(item => !isNullOrEmpty(item))

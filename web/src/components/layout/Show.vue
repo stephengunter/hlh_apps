@@ -4,13 +4,15 @@ import { useStore } from 'vuex'
 import { deepClone, onErrors } from '@/utils'
 import { SHOW_MODIFY_RECORDS, FETCH_MODIFY_RECORDS } from '@/store/actions.type'
 import { WIDTH, ENTITY_TYPES } from '@/consts'
+import { el } from 'date-fns/locale'
 
 const name = 'LayoutShow'
 const store = useStore()
 
 const initialState = {
    active: false,
-   width: WIDTH.M
+   width: WIDTH.M,
+   title: ''
 }
 
 const state = reactive(deepClone(initialState))
@@ -23,10 +25,13 @@ Bus.on(SHOW_MODIFY_RECORDS, showModifyRecords)
 function showModifyRecords({type, id, action, title, width}) {
    state.title = title
    state.width = width ? width : WIDTH.M + 200
-   store.dispatch(FETCH_MODIFY_RECORDS, { type, id, action })
-   .then(() => state.active = true)
-	.catch(error => console.log(error))
-   
+   if(type && id) {
+      store.dispatch(FETCH_MODIFY_RECORDS, { type, id, action })
+      .then(() => state.active = true)
+      .catch(error => console.log(error))
+   }else {
+      state.active = true
+   }
 }
 function onCancel() {
    state.active = false

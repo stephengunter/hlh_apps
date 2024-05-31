@@ -106,6 +106,7 @@ const actions = {
          if(token) {
             BaseService.setHeader(token)
             let claims = JwtService.resolveClaims(token)
+            
             let user = resolveUserFromClaims(claims)
             if(user) {
                context.commit(SET_USER, user) 

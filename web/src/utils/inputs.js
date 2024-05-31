@@ -29,5 +29,3 @@ export const formatNumberWithLeadingZeros = (num, len) => {
    return paddedStr;
 }
 
-
-export const hasNonEmptyString = (arr) => arr.some(item => !isNullOrEmpty(item))

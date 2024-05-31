@@ -3,11 +3,11 @@ import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } fr
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import date from '@/plugins/date'
-import { deepClone, getRocDatePickerModel, 
+import { deepClone, getDatePickerModel, showModifyRecords,
    onSuccess, onErrors, dateToText, getMimeType, downloadFile, bytesToBinary } from '@/utils'
-import { VALIDATE_MESSAGES, WIDTH, ROUTE_NAMES, ENTITY_TYPES } from '@/consts'
+import { VALIDATE_MESSAGES, WIDTH, ROUTE_NAMES, ENTITY_TYPES, ACTION_TYPES } from '@/consts'
 import { REPORT_JUDGEBOOKFILES, SUBMIT_REPORT_JUDGEBOOKFILES } from '@/store/actions.type'
-import { CLEAR_ERRORS } from '@/store/mutations.type'
+import { SET_MODIFY_RECORDS } from '@/store/mutations.type'
 
 
 const name = 'FilesJudgebooksReportsView'
@@ -31,8 +31,11 @@ const initialState = {
    judgeDates:[],
    datePicker: {
       roc: false,
-      values: [],
       labels: [],
+
+      dates: [],
+      values: [],
+      
       required_start: false,
       required_end: false,
       allow_same: true,
@@ -61,22 +64,24 @@ function init() {
    const end = dateAdapter.endOfMonth(today)
    state.createdDates.push({
       text: dateToText(start),
-      date: start
+      date: start,
+      model: getDatePickerModel(start)
    })
    state.createdDates.push({
       text: dateToText(end),
-      date: end
+      date: end,
+      model: getDatePickerModel(end)
    })
 
    state.judgeDates.push({
       text: '',
       date: null,
-      model: getRocDatePickerModel()
+      model: getDatePickerModel()
    })
    state.judgeDates.push({
       text: '',
       date: null,
-      model: getRocDatePickerModel()
+      model: getDatePickerModel()
    })
 
   
@@ -108,41 +113,39 @@ function selectDate(key) {
    }
    if(key === 'createdAt') {
       state.datePicker.roc = false
+      state.datePicker.dates = state.createdDates.map(item => item.date)
       state.datePicker.values = state.createdDates.map(item => item.text)
       state.datePicker.labels = ['起始日期', '截止日期']
-
-      state.datePicker.key = key
 		state.datePicker.title = `選擇${labels.value['createdAtText']}區間`
-		state.datePicker.active = true
       
    }else if(key === 'judgeDate') {
       state.datePicker.roc = true
+      state.datePicker.dates = state.judgeDates.map(item => item.date)
       state.datePicker.values = state.judgeDates.map(item => item.text)
       state.datePicker.labels = ['起始日期', '截止日期']
-
-      state.datePicker.key = key
 		state.datePicker.title = `選擇${labels.value['judgeDate']}區間`
-		state.datePicker.active = true
-      console.log(state.datePicker)
    }
+  
+   state.datePicker.key = key
+   state.datePicker.active = true
+   console.log(state.datePicker)
 }
 function onRangeSelected() {
    const dates = period_picker.value.getDates()
+   console.log(dates)
   
    const key = state.datePicker.key
    if(key === 'createdAt') {
-      //{ date, text }
-      state.createdDates = dates.slice(0)
+      state.createdDates = dates.map(item => ({
+         date: item.date,
+         text: item.model.text,
+         model: deepClone(item.model)
+      }))
    }else if(key === 'judgeDate') {
-       //{ date, text, text_cn, num }
       state.judgeDates = dates.map(item => ({
          date: item.date,
-         text: item.text,
-         model: {
-            text: item.text,
-            text_cn: item.text_cn,
-            num: item.num
-         }
+         text: item.model.text_cn,
+         model: deepClone(item.model)
       }))
    }
   
@@ -154,10 +157,23 @@ function fetchData() {
    state.comments = ''
 	store.dispatch(REPORT_JUDGEBOOKFILES, state.params)
 	.then(list => {
+      console.log(list)
       state.list = list
       state.comments = `合計： ${list.length} 件`
 	})
 	.catch(error => onErrors(error))
+}
+
+function checkReviewRecords(id) {
+   showModifyRecords({
+      type: JUDGEBOOKFILE.name, id: id, 
+      action: ACTION_TYPES.REVIEW.name, title: `${ACTION_TYPES.REVIEW.title}紀錄`, width: WIDTH.L
+   })
+}
+function checkDownloadRecords(item) {
+   console.log(item.modifyRecords)
+   store.commit(SET_MODIFY_RECORDS, item.modifyRecords)
+   showModifyRecords({ title: '下載紀錄', width: WIDTH.L})
 }
 
 function onReports() {
@@ -225,6 +241,12 @@ function onReports() {
                   <th style="width: 25%;">
                      {{ labels['fileNumber'] }}
                   </th>
+                  <th style="width: 10%;">
+                     {{ labels['createdAtText'] }}
+                  </th>
+                  <th style="width: 10%;">
+                     下載紀錄
+                  </th>
                </tr>
             </thead>
             <tbody>
@@ -244,6 +266,24 @@ function onReports() {
                   <td class="font-weight-bold">
                      {{ item.fileNumber }}
                   </td>
+                  <td class="font-weight-bold">
+                     <v-tooltip text="查看審核紀錄">
+                        <template v-slot:activator="{ props }">
+                           <a href="#" v-bind="props" @click.prevent="checkReviewRecords(item.id)">
+                              {{ item.reviewdAtText }}
+                           </a>
+                        </template>
+                     </v-tooltip>
+                  </td>
+                  <td class="font-weight-bold">
+                     <v-tooltip text="查看下載紀錄" v-if="item.modifyRecords && item.modifyRecords.length">
+                        <template v-slot:activator="{ props }">
+                           <a class="pl-3" href="#" v-bind="props" @click.prevent="checkDownloadRecords(item)">
+                              {{ item.modifyRecords.length }}
+                           </a>
+                        </template>
+                     </v-tooltip>
+                  </td>
                </tr>
             </tbody>
          </v-table>
@@ -260,8 +300,9 @@ function onReports() {
 			<v-card-text>
             <v-row>
                <v-col cols="12">
-                  <CommonPickerPeriod ref="period_picker" :roc="state.datePicker.roc" 
-                  :values="state.datePicker.values" :labels="state.datePicker.labels" 
+                  <CommonPickerPeriod ref="period_picker" 
+                  :roc="state.datePicker.roc" :labels="state.datePicker.labels"
+                  :dates="state.datePicker.dates"  :values="state.datePicker.values"  
                   />
                </v-col>
             </v-row>

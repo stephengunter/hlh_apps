@@ -3,7 +3,7 @@ import { MqResponsive } from 'vue3-mq'
 import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { FETCH_EVENTS, EDIT_EVENT, UPDATE_EVENT, REMOVE_EVENT, FETCH_EVENT_CATEGORIES
+import { FETCH_EVENTS_CALENDAR, EDIT_EVENT, UPDATE_EVENT, REMOVE_EVENT, FETCH_EVENT_CATEGORIES
    
 } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS, SET_EVENTS_PARAMS } from '@/store/mutations.type'
@@ -41,7 +41,7 @@ function init() {
 }
 function fetchData({ key, params }) {
 	store.commit(CLEAR_ERRORS)
-	store.dispatch(FETCH_EVENTS, { key, params })
+	store.dispatch(FETCH_EVENTS_CALENDAR, { key, params })
 	.then(() => {
 		
 	})

@@ -3,6 +3,7 @@ import { ref, reactive, computed, watch, onBeforeMount, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { isEmptyObject } from '@/utils'
 import { ENTITY_TYPES } from '@/consts'
+import ModifyRecord from '@/models/modifyRecord'
 
 const name = 'ModifyRecordTable'
 const store = useStore()
@@ -42,18 +43,15 @@ const headers = [{
    sortable: false,
    key: 'remoteIP',
 }]
-
-const list = computed(() => store.state.modify_records.list)
+const list = computed(() => store.state.modify_records.list.map(model => new ModifyRecord(model)))
 
 </script>
-
-
 <template>
    <v-table density="compact">
       <thead>
 			<tr>
 				<th style="width: 10%;">
-					Type
+					
 				</th>
 				<th style="width: 10%;">
 					Id
@@ -73,24 +71,24 @@ const list = computed(() => store.state.modify_records.list)
 			</tr>
 		</thead>
 		<tbody>
-			<tr v-for="item in list" :key="item.id">
+			<tr v-for="(model, index) in list" :key="index">
 				<td>
-					{{ item.entityType }}
+					{{ model.typeTitle() }}
 				</td>
 				<td>
-					{{ item.entityId }}
+					{{ model.entityId() }}
 				</td>
 				<td>
-					{{ item.action }}
+					{{ model.actionTitle() }}
 				</td>
 				<td>
-					{{ item.dateTimeText }}
+					{{ model.dateTimeText() }}
 				</td>
 				<td>
-					{{ item.userName }}
+					{{ model.getUserName() }}
 				</td>
 				<td>
-					{{ item.remoteIP }}
+					{{ model.remoteIP() }}
 				</td>
 			</tr>
 		</tbody>

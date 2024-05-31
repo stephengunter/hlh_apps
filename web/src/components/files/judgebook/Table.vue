@@ -95,13 +95,20 @@ const headers = [{
    sortable: false,
    key: 'courtType',
 },
-{
-   title: labels.value['originType'],
-   align: 'start',
-   width: '5%',
-   sortable: false,
-   key: 'originType',
-},
+// {
+//    title: labels.value['dpt'],
+//    align: 'start',
+//    width: '5%',
+//    sortable: false,
+//    key: 'dpt',
+// },
+// {
+//    title: labels.value['originType'],
+//    align: 'start',
+//    width: '5%',
+//    sortable: false,
+//    key: 'originType',
+// },
 {
    title: labels.value['fileNumber'],
    align: 'start',
@@ -167,7 +174,10 @@ const table_headers = computed(() => {
 })
 
 const list = computed(() => isEmptyObject(props.model) ? [] : props.model.viewList)
-
+const modify_record_actions = computed(() => {
+   const actions = [ACTION_TYPES.CREATE, ACTION_TYPES.UPDATE, ACTION_TYPES.REVIEW]
+   return actions.map(item => item.name)
+})
 function select(id) {
    emit('select', id)
 }
@@ -260,9 +270,9 @@ function onCheckAll(val) {
       <template v-slot:item.courtType="{ item }">
          {{ getCourtTypeTitle(item.courtType) }}
       </template>
-      <template v-slot:item.originType="{ item }">
+      <!-- <template v-slot:item.originType="{ item }">
          {{ getOriginTypeTitle(item.originType) }}
-      </template>
+      </template> -->
       <template v-slot:item.judgeDate="{ item }">
          {{ rocNumToDateText(item.judgeDate, true) }}
       </template>
@@ -276,6 +286,7 @@ function onCheckAll(val) {
       </template>
       <template v-slot:item.createdAtText="{ item }">
          <ModifyRecordButton :type="entity_type" 
+         :action="modify_record_actions.join()"
          tooltip="查看編修紀錄" title="編修紀錄"
          :id="item.id.toString()"
          :text="item.createdAtText" 

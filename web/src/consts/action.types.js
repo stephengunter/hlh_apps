@@ -23,6 +23,10 @@ export const ACTION_TYPES = {
       name: 'review',
       title: '審核'
    },
+   DOWNLOAD: {
+      name: 'download',
+      title: '下載'
+   },
    SAVE: {
       name: 'save',
       title: '存檔'

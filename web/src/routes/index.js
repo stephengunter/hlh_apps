@@ -34,9 +34,9 @@ const routes = appRoutes.map(item => {
 const redirect = (next, route) => next(route)
 
 const authDone = (next, to, auth = false) => {
-	if(to.name === ROUTE_NAMES.JUDGEBOOKFILES) {
-		store.commit(TOGGLE_USER_MENU, false)
-	}else store.commit(TOGGLE_USER_MENU, true)
+	// if(to.name === ROUTE_NAMES.JUDGEBOOKFILES) {
+	// 	store.commit(TOGGLE_USER_MENU, false)
+	// }else store.commit(TOGGLE_USER_MENU, true)
 	store.dispatch(GET_MENUS, auth)
 	return next()
 }

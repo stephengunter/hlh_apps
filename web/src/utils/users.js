@@ -28,6 +28,22 @@ export const isDev = (user) => {
    if(user.roles && user.roles.length) return user.roles.includes(ROLE_TYPES.DEV)
    return false
 }
+export const isIT = (user) => {
+   if(user.roles && user.roles.length) return user.roles.includes(ROLE_TYPES.IT)
+   return false
+}
+export const isClerk = (user) => {
+   if(user.roles && user.roles.length) return user.roles.includes(ROLE_TYPES.CLERK)
+   return false
+}
+export const isRecorder = (user) => {
+   if(user.roles && user.roles.length) return user.roles.includes(ROLE_TYPES.RECORDER)
+   return false
+}
+export const isFilesManager = (user) => {
+   if(user.roles && user.roles.length) return user.roles.includes(ROLE_TYPES.FILES)
+   return false
+}
 
 
 export const isAdmin = (user) => {

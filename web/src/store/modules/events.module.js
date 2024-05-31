@@ -1,6 +1,6 @@
 import EventService from '@/services/events.service'
-import { resolveErrorData, deepClone, isEmptyObject, getListFromObj } from '@/utils'
-import { FETCH_EVENTS, EDIT_EVENT, UPDATE_EVENT, REMOVE_EVENT, FETCH_EVENT_CATEGORIES
+import { resolveErrorData, deepClone, now, isEmptyObject, getListFromObj } from '@/utils'
+import { FETCH_EVENTS_CALENDAR, FETCH_EVENTS, EDIT_EVENT, UPDATE_EVENT, REMOVE_EVENT, FETCH_EVENT_CATEGORIES
    
 } from '@/store/actions.type'
 
@@ -16,8 +16,8 @@ const initialState = {
       createdAtText: '建檔日期',
    },
    params: {
-		start: '',
-      end: ''
+		year: now(),
+      month: ''
 	},
    actions: []
 }
@@ -30,6 +30,19 @@ const getters = {
 
 
 const actions = {
+   [FETCH_EVENTS_CALENDAR](context, { key, params }) {
+      console.log('state', state)
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         EventService.calendar({ key, params })
+            .then(model => {
+               context.commit(SET_EVENTS_MODEL, model)
+               resolve(model)
+            })
+            .catch(error => reject(error))
+            .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
    [FETCH_EVENTS](context, { key, params }) {
       
       context.commit(SET_LOADING, true)

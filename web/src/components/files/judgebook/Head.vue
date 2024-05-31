@@ -16,19 +16,15 @@ const store = useStore()
 const route = useRoute()
 const router = useRouter()
 const props = defineProps({
-	origin_types: {
+   dpt_options: {
       type: Array,
       default: () => []
    },
-   can_review: {
+	can_review: {
       type: Boolean,
       default: false
    },
 	disable_review: {
-      type: Boolean,
-      default: false
-   },
-	disable_reports: {
       type: Boolean,
       default: false
    }
@@ -45,7 +41,6 @@ const initialState = {
 		typeId: 0,
 		fileNumber: '',
 		courtType: '',
-		originType: '',
 		year: '',
 		category: '',
 		num: '',
@@ -84,6 +79,8 @@ function checkNum(val) {
 const state = reactive(deepClone(initialState))
 const ready = computed(() => store.state.files_judgebooks.pagedList != null)
 const params = computed(() => store.state.files_judgebooks.params)
+const isFilesManager = computed(() => store.state.files_judgebooks.isFilesManager)
+const ad_dpts = computed(() => store.state.files_judgebooks.ad_dpts)
 const type_options = computed(() => {
 	let options = store.state.files_judgebooks.types.map(item => ({
 		value: item.id, title: item.title
@@ -101,14 +98,23 @@ const courtTypesOptions = computed(() => {
 	})
 	return options
 })
-
-const origin_types_options = computed(() => {
-	let options = props.origin_types.slice()
-	options.splice(0, 0, {
-		value: '', title: '全部'
-	})
+const dptOptions = computed(() => {
+	let options = props.dpt_options.slice()
+	if(options.length > 1) {
+		options.splice(0, 0, {
+			value: '', title: '全部'
+		})
+	}
 	return options
 })
+
+// const origin_types_options = computed(() => {
+// 	let options = props.origin_types.slice()
+// 	options.splice(0, 0, {
+// 		value: '', title: '全部'
+// 	})
+// 	return options
+// })
 const labels = computed(() => store.state.files_judgebooks.labels)
 
 
@@ -143,10 +149,13 @@ watch(params, (new_value) => {
 	setParams(new_value)
 })
 
-function init() {
-   if(!state.params.typeId) state.params.typeId = type_options.value[0].value
-	
+function initParams() {
+	if(!state.params.typeId) state.params.typeId = type_options.value[0].value
 	if(!state.params.courtType) state.params.courtType = courtTypesOptions.value[0].value
+}
+
+function init() {
+   initParams()
 
 	if(isEmptyObject(route.query)) {
 		router.push({ path: route.path, query: { ...state.params } })
@@ -154,8 +163,7 @@ function init() {
 	}
 
 	copyFromQuery(state.params, route.query)
-	if(!state.params.typeId) state.params.typeId = type_options.value[0].value
-	if(!state.params.courtType) state.params.courtType = courtTypesOptions.value[0].value
+	initParams()
 
 	if(!query_match_params.value) {
 		router.push({ path: route.path, query: { ...state.params } })
@@ -234,13 +242,19 @@ function onReview() {
             @update:modelValue="onParamsChanged"
 				/>
 			</v-col>
-			<v-col cols="1">
+			<!-- <v-col cols="1">
+				<v-select :label="labels['dpt']" density="compact" 
+            :items="dptOptions" v-model="state.params.dpt"
+            @update:modelValue="onParamsChanged"
+				/>
+			</v-col> -->
+			<!-- <v-col cols="1">
 				<v-select :label="labels['originType']" density="compact" 
             :items="origin_types_options" v-model="state.params.originType"
             @update:modelValue="onParamsChanged"
 				/>
-			</v-col>
-			<v-col cols="2">
+			</v-col> -->
+			<v-col cols="2" v-show="isFilesManager" v-if="props.can_review">
 				<v-text-field :label="labels['fileNumber']"  density="compact" :clearable="true"
 				v-model="state.params.fileNumber"
             :error-messages="v$.fileNumber.$errors.map(e => e.$message)"                     
@@ -283,8 +297,8 @@ function onReview() {
 					</template>
 				</v-tooltip>
 			</v-col>
-			<v-col cols="1">
-				<v-tooltip v-if="props.can_review" :disabled="props.disable_review" text="審核選取的項目">
+			<v-col cols="1" v-if="props.can_review">
+				<v-tooltip :disabled="props.disable_review" text="審核選取的項目">
 					<template v-slot:activator="{ props }">
 						<v-btn class="float-right" 
 						v-bind="props" icon="mdi-check"  size="small" color="warning"

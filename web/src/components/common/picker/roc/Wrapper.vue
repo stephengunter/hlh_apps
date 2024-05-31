@@ -104,10 +104,24 @@ const props = defineProps({
 		required: false,
 		default: false,
 	},
+	roc: {
+      type: Boolean,
+		default: false
+	},
 	minimumView: {
 		type: String,
 		required: false,
 		default: 'day'
+	},
+	hours_allow: {
+		type: Array,
+		required: false,
+		default: () => []
+	},
+	minutes_allow: {
+		type: Array,
+		required: false,
+		default: () => []
 	}
 })
 
@@ -278,18 +292,23 @@ function launch() {
 </script>
 <template>
 	<div class="v3dp__datepicker" :style="variables($attrs.style)">
-		<Year v-show="viewShown === 'year'" :pageDate="pageDate" @update:pageDate="(v) => updatePageDate('year', v)"
-			:selected="modelValue" :lowerLimit="lowerLimit" :upperLimit="upperLimit" @select="selectYear" />
-		<Month v-show="viewShown === 'month'" :pageDate="pageDate" @update:pageDate="(v) => updatePageDate('month', v)"
+		<Year :roc="roc" v-show="viewShown === 'year'" :pageDate="pageDate" @update:pageDate="(v) => updatePageDate('year', v)"
+			:selected="modelValue" :lowerLimit="lowerLimit" :upperLimit="upperLimit" @select="selectYear" 
+		/>
+		<Month :roc="roc" v-show="viewShown === 'month'" :pageDate="pageDate" @update:pageDate="(v) => updatePageDate('month', v)"
 			:selected="modelValue" @select="selectMonth" :lowerLimit="lowerLimit" :upperLimit="upperLimit"
-			:format="monthListFormat" :locale="locale" @back="viewShown = 'year'" />
-		<Day v-show="viewShown === 'day'" :pageDate="pageDate" @update:pageDate="(v) => updatePageDate('day', v)"
+			:format="monthListFormat" :locale="locale" @back="viewShown = 'year'" 
+		/>
+		<Day :roc="roc" v-show="viewShown === 'day'" :pageDate="pageDate" @update:pageDate="(v) => updatePageDate('day', v)"
 			:selected="modelValue" :weekStartsOn="weekStartsOn" :lowerLimit="lowerLimit" :upperLimit="upperLimit"
 			:headingFormat="dayPickerHeadingFormat" :disabledDates="disabledDates" :locale="locale"
 			:weekdayFormat="weekdayFormat" :allow-outside-interval="allowOutsideInterval" :format="dayFormat"
-			@select="selectDay" @back="viewShown = 'month'" />
-		<Time v-show="viewShown === 'time'" :pageDate="pageDate" :visible="viewShown === 'time'" :selected="modelValue"
-			:disabledTime="disabledTime" @select="selectTime" @back="goBackFromTimepicker" />
+			@select="selectDay" @back="viewShown = 'month'" 
+		/>
+		<Time :roc="roc" v-show="viewShown === 'time'" :pageDate="pageDate" :visible="viewShown === 'time'" :selected="modelValue"
+			:hours_allow="hours_allow" :minutes_allow="minutes_allow" 
+			:disabledTime="disabledTime" @select="selectTime" @back="goBackFromTimepicker" 
+		/>
 	</div>
 </template>
  

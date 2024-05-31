@@ -20,6 +20,10 @@ const props = defineProps({
 		type: Array,
 		default: () => []
 	},
+	dpt_options: {
+      type: Array,
+      default: () => []
+   },
 	court_types: {
       type: Array,
       default: () => []
@@ -37,7 +41,6 @@ const initialState = {
 		id: 0,
 		typeId: 0,
 		judgeDate: 0,
-		originType: '',
 		fileNumber: '',
 		courtType: '',
 		year: '',
@@ -48,6 +51,7 @@ const initialState = {
 		reviewed: false
    },
 	date: {
+		date: null,
 		value: '',
 		model: {
 			text: '',
@@ -68,6 +72,7 @@ const type_options = computed(() => {
 })
 
 const allowEmptyJudgeDate = computed(() => store.state.files_judgebooks.allowEmptyJudgeDate)
+const allowEmptyFileNumber = computed(() => store.state.files_judgebooks.allowEmptyFileNumber)
 
 // const user_can_review = computed(() => {
 //    const actions = props.actions
@@ -129,10 +134,12 @@ function init() {
 function onSubmit() {
 	v$.value.$validate().then(valid => {
 		if(!valid) return
+		
 		if(!checkJudgeDate(state.form.judgeDate)) {
 			state.date.error_message = `${labels.value['judgeDate']}不正確`
 			return
 		}
+		
 		// const errors = {
 		// 	fileNumber: [`${labels.value['fileNumber']}不正確`]
 		// }
@@ -160,7 +167,8 @@ function onInputChanged(val) {
 }
 function checkFileNumber(val) {
    if(val) return  JudgebookFile.checkFileNumber(val)
-   return false
+	if(state.form.reviewed) return false
+   return allowEmptyFileNumber.value
 }
 function checkYear(val) {
    if(val) return  JudgebookFile.checkYear(val)
@@ -198,14 +206,16 @@ function onFileAdded(files) {
 	}
 }
 
-function onDateSelected({ date, model }) {
-	if(model) {
+function onDateSelected({ date, model }, selected = true) {
+	if(date) {
+		state.date.date = date
 		state.date.model = deepClone(model)
-		state.form.judgeDate = model.num
-		
+		state.date.value = model.text_cn
+
+		state.form.judgeDate = model.num		
 	}else {
+		state.date = deepClone(JudgebookFile.iniJudgeDateModel())
 		state.form.judgeDate = 0
-		entry.judgeDateModel = deepClone(JudgebookFile.iniJudgeDateModel())
 	}
 
 	if(checkJudgeDate(state.form.judgeDate)) {
@@ -218,11 +228,6 @@ function onDateSelected({ date, model }) {
 function onFileNumberChanged(val) {
 	if($externalResults.value.hasOwnProperty('fileNumber')) {
 		$externalResults.value['fileNumber'] = []
-	}
-}
-function checkOnReviewed() {
-	if(state.form.reviewed) {
-		//check 
 	}
 }
 </script>
@@ -256,28 +261,32 @@ function checkOnReviewed() {
 			</v-col>
 		</v-row>
 		<v-row dense>
-			<v-col cols="3">
+			<v-col cols="4">
 				<v-select :label="labels['typeId']" density="compact" variant="outlined"
 				:items="type_options" v-model="state.form.typeId"
 				/>
 			</v-col>
-			<v-col cols="3">
+			<v-col cols="4">
 				<v-select :label="labels['courtType']" density="compact" variant="outlined"
 				:items="court_types" v-model="state.form.courtType"
 				/>
 			</v-col>
-			<v-col cols="3">
+			<!-- <v-col cols="3">
+				<v-select :label="labels['dpt']" density="compact" variant="outlined"
+				:items="props.dpt_options" v-model="state.form.dpt"
+				/>
 				<v-select :label="labels['originType']" density="compact" variant="outlined"
 				:items="props.origin_types" v-model="state.form.originType"
-				/>
-			</v-col>
-			<v-col cols="3">
+				/> 
+			</v-col>-->
+			<v-col cols="4">
+
 				<CommonPickerRocDate :label="labels['judgeDate']"
 				:clearable="allowEmptyJudgeDate"
 				:error_message="state.date.error_message"
-				:value="state.date.value"
-				@ready="onDateSelected"
-				@selected="onDateSelected"
+				:date="state.date.date" :value="state.date.value"
+				@ready="(model) => onDateSelected(model, false)"
+				@selected="(model) => onDateSelected(model, true)"
 				/>
 			</v-col>
 		</v-row>
@@ -329,7 +338,7 @@ function checkOnReviewed() {
 			<v-col cols="12" v-if="canDoAction(ACTION_TYPES.REVIEW.name)">
 				<v-switch :label="review_status" hide-details inset color="success"
 				v-model="state.form.reviewed"
-				@update:modelValue="checkOnReviewed"
+				@update:modelValue="() => { v$.fileNumber.$touch }"
 				/>
 			</v-col>
 		</v-row>

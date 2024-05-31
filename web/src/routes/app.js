@@ -69,7 +69,7 @@ new Page({
    view: `${upperFirstLetter(pluralization(ROUTE_NAMES.EVENTS))}`,
    icon: 'mdi-calendar', 
    title: `${EVENT.title}`,
-   menus: [MENUS.MAIN]
+   menus: []
 }),
 ]
 

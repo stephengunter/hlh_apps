@@ -75,6 +75,10 @@ const props = defineProps({
 		type: Boolean,
 		required: false,
 		default: false,
+	},
+	roc: {
+      type: Boolean,
+		default: false
 	}
 })
 
@@ -139,9 +143,8 @@ const days = computed(() => {
 const heading = computed(() => {
 	let value = format.value(props.headingFormat)(props.pageDate)
 	const year = props.pageDate.getFullYear()
-	const month = month_list[props.pageDate.getMonth()]
-	const year_cn = toYearTW(year)
-	return `${year_cn} 年 ${month.cn}`
+	const month = props.pageDate.getMonth()
+	return props.roc ? `${toYearTW(year)} 年 ${month_list[month].cn}` : `${year} 年 ${month_list[month].cn}`
 })
     
 const leftDisabled = computed(() =>

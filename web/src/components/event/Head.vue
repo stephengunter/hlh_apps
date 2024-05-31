@@ -25,8 +25,8 @@ defineExpose({
 const initialState = {
 	key: '',
 	params: {
-		start: '',
-		end: ''
+		year: '',
+		month: ''
 	}
 }
 
@@ -53,6 +53,7 @@ const category_options = computed(() => {
 	return []
 })
 const labels = computed(() => event_module.labels)
+const title = computed(() => selected_category.value ? `${selected_category.title}` : '')
 
 
 const rules = computed(() => {
@@ -76,6 +77,7 @@ watch(params, (new_value) => {
 })
 
 function init() {
+
 	if(!route.params.key) {
 		state.key = categories.value[0].key 
 		router.push({ name: ROUTE_NAMES.EVENTS, params: { key: state.key }, query: route.query })
@@ -116,6 +118,7 @@ function checkParams() {
 	return errors
 }
 function setParams(model) {
+	console.log('setParams', model)
    setValues(model, state.params)
 }
 function getParams() {
@@ -141,7 +144,7 @@ function selectCategory(key) {
 <template>
    <form @submit.prevent="onSubmit">
 		<v-row dense>
-			<v-col cols="3">
+			<v-col cols="2">
 				<v-menu v-if="selected_category">
 					<template v-slot:activator="{ props }">
 						<v-btn color="primary" v-bind="props">
@@ -160,11 +163,36 @@ function selectCategory(key) {
 					</v-list>
 				</v-menu>
 			</v-col>
-			<v-col cols="3">
-				
+			<v-col cols="3" class="text-right">
+				<span class="text-h4" v-if="selected_category">{{ selected_category.title }}</span>
 			</v-col>
-			<v-col cols="6">
-				
+			<v-col cols="3">
+				<v-row dense>
+					<v-col cols="3">
+						<v-tooltip text="上個月">
+							<template v-slot:activator="{ props }">
+								<v-btn  class="float-right"
+								v-bind="props" icon="mdi-chevron-left"  size="small" color="info"
+								/>
+							</template>
+						</v-tooltip>
+					</v-col>
+					<v-col cols="6" class="text-center">
+						<span class="text-h5">113 年 4 月</span>
+					</v-col>
+					<v-col cols="3">
+						<v-tooltip text="上個月">
+							<template v-slot:activator="{ props }">
+								<v-btn class="float-left"
+								v-bind="props" icon="mdi-chevron-right"  size="small" color="info"
+								/>
+							</template>
+						</v-tooltip>
+					</v-col>
+				</v-row>
+			</v-col>
+			<v-col cols="3">
+
 			</v-col>
 		</v-row>
 	</form>

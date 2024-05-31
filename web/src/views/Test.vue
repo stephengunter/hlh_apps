@@ -1,30 +1,38 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, computed, onBeforeMount } from 'vue'
+import { deepClone, dateToText, textToDate, now } from '@/utils'
 
-import { deepClone } from '@/utils'
+import { VALIDATE_MESSAGES } from '@/consts'
+import Errors from '@/common/errors'
+import date from '@/plugins/date'
+const dateAdapter = new date.adapter({ locale: date.locale.zhTW })
 
 const initialState = {
-	active: false,
+	
 	date: {
+		roc: false,
+		date: null,
 		value: '',
-		model: {
-			text: '',
-			text_cn: '',
-			num: 0
-		},
-		error_message: ''
-	}
+		model: {}
+	},
+	
+	errors: new Errors()
 }
+
 const state = reactive(deepClone(initialState))
 
-function onDateSelected(model) {
-	if (model) {
-		state.date.model = deepClone(model)
-		state.date.value = model.text
-	} else {
-		state.date = deepClone(initialState.date)
-	}
+const hours_allow = computed(() => [...Array(24).keys()].filter(num => num >= 6 && num <= 22))
+const minutes_allow = computed(() => [...Array(60).keys()].filter(num => num % 5 === 0))
 
+onBeforeMount(() => {
+	console.log('year', dateAdapter.getYear(now()))
+})
+function onDateSelected({ date, model }, selected = true) {	
+	state.date.date = date
+	state.date.value = state.date.roc ? model.text_cn : model.text
+	state.date.model = deepClone(model)
+
+	console.log(state.date)
 }
 </script>
 
@@ -32,50 +40,24 @@ function onDateSelected(model) {
 	<div>
 		<v-row>
 			<v-col cols="6">
-				<!-- <v-menu :close-on-content-click="false" v-model="state.active">
-					<template v-slot:activator="{ props }">
-						<v-text-field label="日期" readonly v-bind="props" clearable />
-					</template>
-					<CommonPickerRocWrapper />
-				</v-menu> -->
+				<!-- <CommonPickerRocDate :roc="true"
+				:date="state.date.date" :value="state.date.value"
+				:error_message="state.errors.get('date')"
+				@ready="(model) => onDateSelected(model, false)"
+				@selected="(model) => onDateSelected(model)"
+				/> -->
+				<CommonPickerRocDate :roc="state.date.roc"
+				:date="state.date.date" :value="state.date.value"
+				:error_message="state.errors.get('date')"
+				@ready="(model) => onDateSelected(model, false)"
+				@selected="(model) => onDateSelected(model)"
+				/>
 
 			</v-col>
 			<v-col cols="6">
-				
 			
 			</v-col>
 		</v-row>
-		<v-row>
-
-		</v-row>
-		<!-- <v-dialog persistent v-model="state.datePicker.active" :width="WIDTH.S + 50">
-			<v-card style="padding-right: 100px;" v-if="state.datePicker.active" :max-width="WIDTH.S">
-				<CommonCardTitle :title="state.datePicker.title" @cancel="selectDate" />
-				<v-card-text>
-					<v-row>
-						<v-col cols="6">
-							<CommonPickerRocDate :clearable="true" label="起始日" :upper_limit="state.datePicker.upper_limit"
-								:error_message="state.datePicker.dates[0].error_message" :value="state.datePicker.dates[0].value"
-								@selected="(model) => onDateSelected(0, model)" />
-						</v-col>
-						<v-col cols="6">
-							<CommonPickerRocDate :clearable="true" label="截止日" :lower_limit="state.datePicker.lower_limit"
-								:error_message="state.datePicker.dates[1].error_message" :value="state.datePicker.dates[1].value"
-								@selected="(model) => onDateSelected(1, model)" />
-						</v-col>
-						<v-col cols="6">
-						</v-col>
-					</v-row>
-					<v-row dense>
-						<v-col cols="12">
-							<v-btn @click.prevent="onRangeSelected" color="success" :disabled="has_error">
-								確定
-							</v-btn>
-						</v-col>
-					</v-row>
-				</v-card-text>
-			</v-card>
-		</v-dialog> -->
 
 	</div>
 </template>

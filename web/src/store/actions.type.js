@@ -35,6 +35,7 @@ export const FETCH_JUDGEBOOK_TYPES = 'fetchJudgebookTypes'
 
 
 //Events
+export const FETCH_EVENTS_CALENDAR = 'fetchEventsCalendar'
 export const FETCH_EVENTS = 'fetchEvents'
 export const EDIT_EVENT = 'editEvent'
 export const UPDATE_EVENT = 'updateEvent'

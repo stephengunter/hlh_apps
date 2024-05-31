@@ -1,15 +1,23 @@
 <script setup>
 import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue'
-import { deepClone, dateToText, textToDate, isValidDate, tryParseInt } from '@/utils'
+import { deepClone, dateToText, textToDate, isValidDate, tryParseInt, getDatePickerModel } from '@/utils'
 import Wrapper from './Wrapper.vue'
 import { WIDTH, ROUTE_NAMES, VALIDATE_MESSAGES, ACTION_TYPES, ENTITY_TYPES } from '@/consts'
 
 
-const name = 'CommonPickerDate'
+const name = 'CommonPickerRocDate'
 const props = defineProps({
+	roc: {
+      type: Boolean,
+		default: true
+	},
    value: {
       type: String,
 		default: ''
+	},
+	date: {
+      type: Date,
+		default: null
 	},
    label: {
       type: String,
@@ -34,19 +42,28 @@ const props = defineProps({
 	class_name: {
       type: String,
 		default: ''
+	},
+	minimum_view: {
+      type: String,
+		default: 'day'
+	},
+	hours_allow: {
+		type: Array,
+		required: false,
+		default: () => []
+	},
+	minutes_allow: {
+		type: Array,
+		required: false,
+		default: () => []
 	}
 })
 const emit = defineEmits(['ready', 'selected'])
 
 const initialState = {
 	active: false,
-	action: '',
 	date: null,
-	model: {
-		text: '',
-		text_cn: '',
-		num: 0
-	}
+	model: {}
 }
 const state = reactive(deepClone(initialState))
 
@@ -54,53 +71,43 @@ const errorMessages = computed(() => props.error_message ? [props.error_message]
 
 onMounted(init)
 
-watch(() => props.value, init, {
+// watch(() => props.value, init, {
+// 	deep: false
+// })
+watch(() => props.date, (new_date, old_date) => {
+	if(new_date && old_date) {
+		if(new_date.getTime() === old_date.getTime()) return
+	}
+	init()
+}, {
 	deep: false
 })
 
-function init() {
-	if (props.value) {
-		let parts = props.value.split('-')
-		if (parts.length === 3) {
-			const date = textToDate(props.value)
-			if (date) {
-				state.model.text = props.value
-				parts[0] = tryParseInt(parts[0]) - 1911
-				state.model.text_cn = `${parts[0]}-${parts[1]}-${parts[2]}`
-				state.model.num = tryParseInt(`${parts[0]}${parts[1]}${parts[2]}`)
-
-				state.date = date
-			}
-		}
+const model_text = computed({
+	get() {
+		return  props.value
+	},
+	set(val) {
 		
-	}else {
-		state.date = null
-		state.model = deepClone(initialState.model)
 	}
-	emit('ready', { date: state.date, model: state.model })
-}
+})
 
-function resolve(date) {
-	let text = ''
-	let text_cn = ''
-	let num = 0
-	if(date) {
-		text = dateToText(date)
-		let parts = text.split('-')
-		parts[0] = tryParseInt(parts[0]) - 1911
-		text_cn = `${parts[0]}-${parts[1]}-${parts[2]}`
-		num = tryParseInt(`${parts[0]}${parts[1]}${parts[2]}`)
-	}
-	return { text, text_cn, num }
+function init() {
+	if(props.date) state.date = deepClone(props.date)
+	else state.date = null
+
+	let model = getDatePickerModel(state.date, props.roc)
+	state.model = model
+	emit('ready', { date: state.date, model })
 }
 
 function onSelected(date) {
 	if(date) state.date = date
 	else state.date = null
 
-	let model = resolve(date)
+	let model = getDatePickerModel(state.date, props.roc)
 	state.model = model
-	emit('selected', { date: state.date, model: deepClone(model) })
+	emit('selected', { date: state.date, model })
 
 	state.active = false
 }
@@ -112,13 +119,15 @@ function onSelected(date) {
          <v-text-field :class="class_name"  readonly v-bind="props"
 			density="compact" variant="outlined"
 			:label="label" :clearable="clearable"
-         :model-value="state.model.text_cn"
+         :model-value="model_text"
 			:error-messages="errorMessages"
 			@click:clear="onSelected(null)"
          />
       </template>
-      <Wrapper :auto_show="true"
+      <Wrapper :auto_show="true" :roc="roc"
 		:lowerLimit="lower_limit" :upperLimit="upper_limit"
+		:minimumView="minimum_view"
+		:hours_allow="hours_allow" :minutes_allow="minutes_allow" 
 		:modelValue="state.date" 
 		@update:modelValue="onSelected"
 		/>

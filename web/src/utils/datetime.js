@@ -3,9 +3,11 @@ import moment from 'moment'
 
 const adapter = new date.adapter({ locale: date.locale.zhTW })
 
+export const now = () => adapter.date()
+
 export const textToDate = (val) => adapter.date(val)
 
-export const dateToText = (date) => adapter.format(date, "fullDate")
+export const dateToText = (date, opt = 'fullDate') => adapter.format(date, opt)
 
 export const isValidDate = (val) => adapter.isValid(val)
 
@@ -38,7 +40,6 @@ export const weekdays_list = [
    { en: 'Fri', cn: '五' },
    { en: 'Sat', cn: '六' }
 ] 
-
 
 
 export const rocNumToDate = (num) => {
@@ -74,12 +75,11 @@ export const dateTextToRoc = (text) => {
    return ''
 }
 
-
-export const getRocDatePickerModel = (date) => {
+export const getDatePickerModel = (date, roc = false) => {
    if(date) {
       let text = dateToText(date)
       let text_cn =  dateTextToRoc(text)
-      let num = dateToNumber(date, true)
+      let num = dateToNumber(date, roc)
       return {
          text,
          text_cn,

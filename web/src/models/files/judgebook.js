@@ -37,7 +37,8 @@ class JudgebookFile {
       if(text) {
          const text_cn = dateTextToRoc(text)
          return {
-            value: text,
+            date: rocNumToDate(num),
+            value: text_cn,
             model: {
                text,
                text_cn,
@@ -47,6 +48,7 @@ class JudgebookFile {
          }
       } 
       return {
+         date: null,
          value: '',
          model: {
             text: '',

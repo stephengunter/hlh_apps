@@ -29,7 +29,7 @@ const drawer = computed({
 const current = computed(() => store.state.app.route.to)
 
 function onSelected(item) {
-   router.push({ path: item.path })
+   router.push({ name: item.name })
 }  
 
 </script>

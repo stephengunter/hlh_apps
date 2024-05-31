@@ -80,3 +80,18 @@ export const isEmptyObject = (obj) => {
 
    return true;
 }
+
+export const appendFormData = (formData, data, parentKey) => {
+   if (data === null || data === undefined) {
+     // If data is null or undefined, you can decide to either skip it or append an empty string
+     formData.append(parentKey, '')
+   } else if (data && typeof data === 'object' && !(data instanceof File)) {
+     // Handle nested objects
+     Object.keys(data).forEach(key => {
+       appendFormData(formData, data[key], parentKey ? `${parentKey}[${key}]` : key)
+     })
+   } else {
+     // Handle all other types (including File)
+     formData.append(parentKey, data)
+   }
+}

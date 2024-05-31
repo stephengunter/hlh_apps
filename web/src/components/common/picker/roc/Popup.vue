@@ -29,12 +29,16 @@ const props = defineProps({
 	viewMode: {
 		type: String,
 		required: true
+	},
+	roc: {
+      type: Boolean,
+		default: false
 	}
 })
 const emit = defineEmits(['elementClick', 'left','right','heading'])
 
 function getDisplayStyle(item) {
-	if (props.viewMode === 'year') return toYearTW(parseInt(item.display.toString()))
+	if (props.viewMode === 'year') return props.roc ? toYearTW(parseInt(item.display.toString())) : item.display.toString()
 	if (props.viewMode === 'month') return toMonthTW(item.display)
 	return item.display
 }

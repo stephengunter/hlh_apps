@@ -50,6 +50,7 @@ function init() {
          errors: new Errors()
       }
       setValues(item, model)
+      check(model)
       state.models.push(model)
    })
 }
@@ -85,7 +86,9 @@ function judgeDate(model) {
    return rocNumToDateText(model.judgeDate, roc)
    
 }
-
+function check(model) {
+   checkFileNumber(model)
+}
 
 function checkFileNumber(model) {
    const key = 'fileNumber'
