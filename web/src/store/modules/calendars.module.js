@@ -1,23 +1,23 @@
 import CalendarService from '@/services/calendars.service'
 import { resolveErrorData, deepClone, now, isEmptyObject, getListFromObj } from '@/utils'
-import { FETCH_CALENDAR_CATEGORIES } from '@/store/actions.type'
+import { FETCH_CALENDARS } from '@/store/actions.type'  
+
+import { SET_CALENDARS, SET_LOADING } from '@/store/mutations.type'
    
 
-import { SET_CALENDAR_CATEGORIES,
-   SET_LOADING 
-} from '@/store/mutations.type'
 
 
 const initialState = {
-   categories: [],
-   labels: {
-      ps: '備註',
-      createdAtText: '建檔日期',
-   },
+   list: [],
    params: {
-		year: now(),
-      month: ''
+      calendarId: 0,
+		year: 0,
+      month: 0
 	},
+   labels: {
+      year: '年度',
+      month: '月份'
+   },
    actions: []
 }
 
@@ -29,12 +29,12 @@ const getters = {
 
 
 const actions = {
-   [FETCH_CALENDAR_CATEGORIES](context) {
+   [FETCH_CALENDARS](context, params) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         CalendarService.categories()
-            .then(categories => {
-               context.commit(SET_CALENDAR_CATEGORIES, categories)
+         CalendarService.fetch(params)
+            .then(model => {
+               context.commit(SET_CALENDARS, model.list)
                resolve()
             })
             .catch(error => reject(error))
@@ -45,8 +45,8 @@ const actions = {
 
 
 const mutations = {
-   [SET_CALENDAR_CATEGORIES](state, categories) {
-      state.categories = categories
+   [SET_CALENDARS](state, list) {
+      state.list = list
    }
 }
 

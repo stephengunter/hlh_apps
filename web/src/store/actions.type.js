@@ -22,7 +22,7 @@ export const SHOW_MODIFY_RECORDS = 'showModifyRecords'
 
 
 //Calendars
-export const FETCH_CALENDAR_CATEGORIES = 'fetchCalendarCategories'
+export const FETCH_CALENDARS = 'fetchCalendars'
 
 
 //Events

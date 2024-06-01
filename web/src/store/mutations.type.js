@@ -26,7 +26,7 @@ export const SET_MODIFY_RECORDS = 'setModifyRecords'
 
 
 //Calendars
-export const SET_CALENDAR_CATEGORIES = 'setCalendarCategories'
+export const SET_CALENDARS = 'setCalendars'
 
 
 //Events

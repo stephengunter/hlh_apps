@@ -15,7 +15,8 @@ const name = 'EventHead'
 const store = useStore()
 const route = useRoute()
 const router = useRouter()
-const ENTITY_TYPE = ENTITY_TYPES.EVENT
+const ENTITY_TYPE = ENTITY_TYPES.CALENDAR
+const module_state = store.state[ROUTE_NAMES.CALENDARS]
 
 const emit = defineEmits(['submit', 'add'])
 defineExpose({
@@ -23,37 +24,31 @@ defineExpose({
 })
 
 const initialState = {
-	key: '',
 	params: {
-		year: '',
-		month: ''
+		calendarId: 0,
+		year: 0,
+      month: 0
 	}
 }
-
-const event_module = store.state.events
-
-onBeforeMount(() => {
-	//if(params.value) setParams(params.value)
-})
-
 const state = reactive(deepClone(initialState))
-const params = computed(() => event_module.params)
-const categories = computed(() => event_module.categories)
-const selected_category = computed(() => {
-	if(state.key && categories.value.length) {
-		return categories.value.find(item => item.key.toUpperCase() === state.key.toUpperCase())
+
+const params = computed(() => module_state.params)
+const calendars = computed(() => module_state.list)
+const selected_calendar = computed(() => {
+	if(state.params.calendarId && calendars.value.length) {
+		return calendars.value.find(item => item.id === state.params.calendarId)
 	}
 	return null
 })
-const category_options = computed(() => {
-	if(selected_category.value) {
-		const key = selected_category.value.key
-		return categories.value.filter(c => c.key !== key).map(item => ({ title: item.title, value: item.id, key: item.key}))
+const calendar_options = computed(() => {
+	if(selected_calendar.value) {
+		const id = selected_calendar.value.id
+		return calendars.value.filter(c => c.id !== id).map(item => ({ title: item.title, value: item.id }))
 	}
 	return []
 })
-const labels = computed(() => event_module.labels)
-const title = computed(() => selected_category.value ? `${selected_category.title}` : '')
+const labels = computed(() => module_state.labels)
+const title = computed(() => selected_calendar.value ? `${selected_calendar.title}` : '')
 
 
 const rules = computed(() => {
@@ -70,16 +65,12 @@ const query_match_params = computed(() => {
 
 const v$ = useVuelidate(rules, state.params)
 
-watch(route, init)
-
-watch(params, (new_value) => {
-	setParams(new_value)
-})
 
 function init() {
-
+	console.log('init')
+	return
 	if(!route.params.key) {
-		state.key = categories.value[0].key 
+		state.key = calendars.value[0].key 
 		router.push({ name: ROUTE_NAMES.EVENTS, params: { key: state.key }, query: route.query })
 		return
 	}
@@ -106,6 +97,8 @@ function init() {
 	emit('submit', { key: state.key, params: state.params})
 	
 }
+
+
 
 function checkParams() {
 	let errors = new Errors()
@@ -134,7 +127,7 @@ function onParamsChanged() {
 	onSubmit()
 }
 
-function selectCategory(key) {
+function selectcalendar(key) {
 	//router.push({ name: ROUTE_NAMES.EVENTS, params: { key }, query: route.query })
 }
 
@@ -145,26 +138,26 @@ function selectCategory(key) {
    <form @submit.prevent="onSubmit">
 		<v-row dense>
 			<v-col cols="2">
-				<v-menu v-if="selected_category">
+				<v-menu v-if="selected_calendar">
 					<template v-slot:activator="{ props }">
 						<v-btn color="primary" v-bind="props">
-							{{ selected_category.title }}
+							{{ selected_calendar.title }}
 						</v-btn>
 					</template>
 					<v-list>
 						<v-list-item
-						v-for="category in category_options"
-						:key="category.key"
-						:value="category.key"
-						@click.prevent="selectCategory(category.key)"
+						v-for="calendar in calendar_options"
+						:key="calendar.key"
+						:value="calendar.key"
+						@click.prevent="selectcalendar(calendar.key)"
 						>
-							<v-list-item-title>{{ category.title }}</v-list-item-title>
+							<v-list-item-title>{{ calendar.title }}</v-list-item-title>
 						</v-list-item>
 					</v-list>
 				</v-menu>
 			</v-col>
 			<v-col cols="3" class="text-right">
-				<span class="text-h4" v-if="selected_category">{{ selected_category.title }}</span>
+				<span class="text-h4" v-if="selected_calendar">{{ selected_calendar.title }}</span>
 			</v-col>
 			<v-col cols="3">
 				<v-row dense>

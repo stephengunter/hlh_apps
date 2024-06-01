@@ -3,6 +3,7 @@ import { isNullOrEmpty, upperFirstLetter, pluralization } from '@/utils'
 import Page from '@/models/page'
 
 const JUDGEBOOKFILE = ENTITY_TYPES.JUDGEBOOKFILE
+const CALENDAR = ENTITY_TYPES.CALENDAR
 const EVENT = ENTITY_TYPES.EVENT
 
 const applinks = [
@@ -36,11 +37,11 @@ const userlinks = [
 // groups
 
 new Page({
-   name: 'canlendar-index',
-   path: `/canlendar`,
-   view: `calendar/Index`,
+   name: ROUTE_NAMES.CALENDARS,
+   path: `/${ROUTE_NAMES.CALENDARS}`,
+   view: `${ROUTE_NAMES.CALENDARS}/Index`,
    icon: 'mdi-calendar', 
-   title: `行事曆`,
+   title: CALENDAR.title,
    menus: [MENUS.MAIN],
    alias: '/'
 }),

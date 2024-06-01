@@ -24,7 +24,6 @@ const routes = appRoutes.map(item => {
 		}
 	}else {
 		const path = `@/views/${item.view}.vue`
-		console.log('path', path)
 		return { 
 			...item, 
 			component: () => import(`@/views/${item.view}.vue`)
