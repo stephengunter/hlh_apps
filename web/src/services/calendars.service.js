@@ -3,7 +3,7 @@ import { API_URL } from '@/config'
 
 const source =`${API_URL}/api/calendars`
 
-const fetch = (params) => BaseService.fetch(`${source}`, params)
+const fetch = () => BaseService.fetch(`${source}`)
 
 
 export default { fetch }

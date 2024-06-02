@@ -5,50 +5,79 @@ import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { useVuelidate } from '@vuelidate/core'
 import { helpers } from '@vuelidate/validators'
+import date from '@/plugins/date'
 import Errors from '@/common/errors'
 import { isEmptyObject, deepClone , copyFromQuery, areObjectsEqual, reviewedOptions,
-	setValues, badRequest
+	setValues, badRequest, toYearTW
 } from '@/utils'
 import { ROUTE_NAMES, ENTITY_TYPES } from '@/consts'
 
-const name = 'EventHead'
+const name = 'CalendarHead'
 const store = useStore()
 const route = useRoute()
 const router = useRouter()
-const ENTITY_TYPE = ENTITY_TYPES.CALENDAR
-const module_state = store.state[ROUTE_NAMES.CALENDARS]
+const dateAdapter = new date.adapter({ locale: date.locale.zhTW })
 
 const emit = defineEmits(['submit', 'add'])
 defineExpose({
    init, setParams, getParams
 })
 
+const props = defineProps({
+   calendars: {
+      type: Array,
+      default: () => []
+   },
+	labels: {
+      type: Object,
+      default: null
+   }
+})
+
 const initialState = {
 	params: {
-		calendarId: 0,
+		calendar: '',
 		year: 0,
       month: 0
-	}
+	},
+	date: {
+      roc: true,
+		date: null,
+      model: null,
+   },
 }
 const state = reactive(deepClone(initialState))
 
-const params = computed(() => module_state.params)
-const calendars = computed(() => module_state.list)
+const params = computed(() => store.state.events.params)
 const selected_calendar = computed(() => {
-	if(state.params.calendarId && calendars.value.length) {
-		return calendars.value.find(item => item.id === state.params.calendarId)
+	if(state.params.calendar && props.calendars.length) {
+		return props.calendars.find(item => item.key.toLowerCase() === state.params.calendar.toLowerCase())
 	}
 	return null
 })
 const calendar_options = computed(() => {
 	if(selected_calendar.value) {
-		const id = selected_calendar.value.id
-		return calendars.value.filter(c => c.id !== id).map(item => ({ title: item.title, value: item.id }))
+		const key = selected_calendar.value.key
+		return props.calendars.filter(c => c.key.toLowerCase() !== key.toLowerCase()).map(item => ({ title: item.title, value: item.key }))
 	}
 	return []
 })
-const labels = computed(() => module_state.labels)
 const title = computed(() => selected_calendar.value ? `${selected_calendar.title}` : '')
+const the_date = computed(() => {
+	if(state.params.year && state.params.month) {
+		let patter = `${state.params.year}-${state.params.month}-1`
+		return dateAdapter.date(patter)
+	}
+	return null	
+})
+const year_month = computed(() => {
+	if(the_date.value) {
+		const year = toYearTW(the_date.value.getFullYear())
+		const month = the_date.value.getMonth() + 1
+		return `${year} 年 ${month} 月`
+	}
+	return ''
+})
 
 
 const rules = computed(() => {
@@ -57,9 +86,9 @@ const rules = computed(() => {
 	}
 })
 
-const query_match_params = computed(() => {
-	if(route.query) {
-		return areObjectsEqual(state.params, route.query, true)
+const params_are_match = computed(() => {
+	if(route.params) {
+		return areObjectsEqual(state.params, route.params, true)
 	} return false
 })
 
@@ -67,68 +96,40 @@ const v$ = useVuelidate(rules, state.params)
 
 
 function init() {
-	console.log('init')
-	return
-	if(!route.params.key) {
-		state.key = calendars.value[0].key 
-		router.push({ name: ROUTE_NAMES.EVENTS, params: { key: state.key }, query: route.query })
-		return
-	}
-	state.key = route.params.key
+	if(params.value) state.params = deepClone(params.value)
+	if(route.params) copyFromQuery(state.params, route.params)
 	
-	if(isEmptyObject(route.query)) {
-		router.push({ name: ROUTE_NAMES.EVENTS, params: { key: state.key },  query: { ...state.params } })
-		return
-	}
+	if(!state.params.calendar) state.params.calendar = props.calendars[0].key
+	const today = dateAdapter.date()
+	if(!state.params.year) state.params.year = today.getFullYear()
+	if(!state.params.month) state.params.month = today.getMonth() + 1
 
-	copyFromQuery(state.params, route.query)
-
-	if(!query_match_params.value) {
-		router.push({ name: ROUTE_NAMES.EVENTS, params: { key: state.key }, query: { ...state.params } })
-		return
-	}
-
-	const errors = checkParams()
-	if(errors.any()) {
-		badRequest('BAD_REQUEST ', '錯誤的查詢參數', errors.getAll())
-		return 
-	}
-	console.log('state.params', state.params)
-	emit('submit', { key: state.key, params: state.params})
-	
-}
-
-
-
-function checkParams() {
-	let errors = new Errors()
-	// const year = state.params.year
-   // if(!checkYear(year)) errors.set('year', [`錯誤的${labels['year']}`])
-
-   // const num = state.params.num
-   // if(!checkNum(num)) errors.set('num', [`錯誤的${labels['num']}`])
-
-	return errors
+	onParamsChanged()
 }
 function setParams(model) {
-	console.log('setParams', model)
    setValues(model, state.params)
 }
 function getParams() {
    return state.params
 }
-
-function onSubmit() {
-	if(query_match_params.value) emit('submit', state.params)
-	else router.push({ path: route.path, query: { ...state.params } })	
+function addMonth(val) {
+	const result = dateAdapter.addMonths(the_date.value, val)
+	state.params.year = result.getFullYear()
+	state.params.month = result.getMonth() + 1
+	onParamsChanged()
 }
-
 function onParamsChanged() {
 	onSubmit()
 }
+function onSubmit() {
+	if(params_are_match.value) emit('submit', { ...state.params })
+	else router.push({ name: ROUTE_NAMES.CALENDARS, params: state.params })
+}
 
-function selectcalendar(key) {
-	//router.push({ name: ROUTE_NAMES.EVENTS, params: { key }, query: route.query })
+
+function selectCalendar(key) {
+	state.params.calendar = key
+	onParamsChanged()
 }
 
 
@@ -146,12 +147,12 @@ function selectcalendar(key) {
 					</template>
 					<v-list>
 						<v-list-item
-						v-for="calendar in calendar_options"
-						:key="calendar.key"
-						:value="calendar.key"
-						@click.prevent="selectcalendar(calendar.key)"
+						v-for="co in calendar_options"
+						:key="co.value"
+						:value="co.value"
+						@click.prevent="selectCalendar(co.value)"
 						>
-							<v-list-item-title>{{ calendar.title }}</v-list-item-title>
+							<v-list-item-title>{{ co.title }}</v-list-item-title>
 						</v-list-item>
 					</v-list>
 				</v-menu>
@@ -160,24 +161,26 @@ function selectcalendar(key) {
 				<span class="text-h4" v-if="selected_calendar">{{ selected_calendar.title }}</span>
 			</v-col>
 			<v-col cols="3">
-				<v-row dense>
+				<v-row dense v-show="year_month">
 					<v-col cols="3">
 						<v-tooltip text="上個月">
 							<template v-slot:activator="{ props }">
 								<v-btn  class="float-right"
 								v-bind="props" icon="mdi-chevron-left"  size="small" color="info"
+								@click.prevent="addMonth(-1)"
 								/>
 							</template>
 						</v-tooltip>
 					</v-col>
 					<v-col cols="6" class="text-center">
-						<span class="text-h5">113 年 4 月</span>
+						<div class="pt-1 text-h5" v-text="year_month"></div>
 					</v-col>
 					<v-col cols="3">
 						<v-tooltip text="上個月">
 							<template v-slot:activator="{ props }">
 								<v-btn class="float-left"
 								v-bind="props" icon="mdi-chevron-right"  size="small" color="info"
+								@click.prevent="addMonth(1)"
 								/>
 							</template>
 						</v-tooltip>

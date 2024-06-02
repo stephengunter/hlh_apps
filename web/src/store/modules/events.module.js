@@ -1,8 +1,8 @@
-import CalendarService from '@/services/calendars.service'
+import EventsService from '@/services/events.service'
 import { resolveErrorData, deepClone, now, isEmptyObject, getListFromObj } from '@/utils'
-import { FETCH_CALENDARS } from '@/store/actions.type'  
+import { FETCH_EVENTS } from '@/store/actions.type'  
 
-import { SET_CALENDARS, SET_LOADING } from '@/store/mutations.type'
+import { SET_EVENTS_LIST, SET_LOADING } from '@/store/mutations.type'
    
 
 
@@ -10,7 +10,7 @@ import { SET_CALENDARS, SET_LOADING } from '@/store/mutations.type'
 const initialState = {
    list: [],
    params: {
-      calendarId: 0,
+		calendar: '',
 		year: 0,
       month: 0
 	},
@@ -29,12 +29,13 @@ const getters = {
 
 
 const actions = {
-   [FETCH_CALENDARS](context) {
+   [FETCH_EVENTS](context, params) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         CalendarService.fetch()
+         EventsService.fetch(params)
             .then(list => {
-               context.commit(SET_CALENDARS, list)
+               
+               context.commit(SET_EVENTS_LIST, list)
                resolve()
             })
             .catch(error => reject(error))
@@ -45,7 +46,7 @@ const actions = {
 
 
 const mutations = {
-   [SET_CALENDARS](state, list) {
+   [SET_EVENTS_LIST](state, list) {
       state.list = list
    }
 }

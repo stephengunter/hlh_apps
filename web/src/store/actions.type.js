@@ -26,8 +26,8 @@ export const FETCH_CALENDARS = 'fetchCalendars'
 
 
 //Events
-// export const FETCH_EVENTS = 'fetchEvents'
-// export const EDIT_EVENT = 'editEvent'
-// export const UPDATE_EVENT = 'updateEvent'
-// export const REMOVE_EVENT = 'removeEvent'
-// export const FETCH_EVENT_CATEGORIES = 'fetchEventCategories'
+export const FETCH_EVENTS = 'fetchEvents'
+export const EDIT_EVENT = 'editEvent'
+export const UPDATE_EVENT = 'updateEvent'
+export const REMOVE_EVENT = 'removeEvent'
+export const FETCH_EVENT_CATEGORIES = 'fetchEventCategories'

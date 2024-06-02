@@ -272,6 +272,33 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fullcalendar/core@npm:^6.1.13":
+  version: 6.1.13
+  resolution: "@fullcalendar/core@npm:6.1.13"
+  dependencies:
+    preact: ~10.12.1
+  checksum: 582fb8f5f68a9a85f0db14756041bf3fcf2d5182d7d3a453cd1d891516a9177ea8c63573e65731d262b5436576a7abe06ec16ad2b3c2e1f2ad149f053a19fe09
+  languageName: node
+  linkType: hard
+
+"@fullcalendar/daygrid@npm:^6.1.13":
+  version: 6.1.13
+  resolution: "@fullcalendar/daygrid@npm:6.1.13"
+  peerDependencies:
+    "@fullcalendar/core": ~6.1.13
+  checksum: 725380d57523ad9a4d2e2ca63a1ab3f51bad2cbc18496cd8f5186cc09fd1236ef29c0cfb33de93802def4b49ddce6196b4ed0f8ad846c4589fcc2703313251c5
+  languageName: node
+  linkType: hard
+
+"@fullcalendar/interaction@npm:^6.1.13":
+  version: 6.1.13
+  resolution: "@fullcalendar/interaction@npm:6.1.13"
+  peerDependencies:
+    "@fullcalendar/core": ~6.1.13
+  checksum: 320a8afd3660f87e9476e43703c937f7261272befa175e7e83919b9ae9a3bd6e9f01e79c0fd58b8252d2a48ca151e94d05b7363d944887f4b9f00fbfcc547113
+  languageName: node
+  linkType: hard
+
 "@humanwhocodes/config-array@npm:^0.11.14":
   version: 0.11.14
   resolution: "@humanwhocodes/config-array@npm:0.11.14"
@@ -2594,6 +2621,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"preact@npm:~10.12.1":
+  version: 10.12.1
+  resolution: "preact@npm:10.12.1"
+  checksum: 0de99f477563ab7f94a0f964952ad216375973c0dcd9eb49881f8eb5effc5ed6948da062548c87d5bb0d82f1a1e516b649020e760eab3a0503dfdd8e64d34a26
+  languageName: node
+  linkType: hard
+
 "prelude-ls@npm:^1.2.1":
   version: 1.2.1
   resolution: "prelude-ls@npm:1.2.1"
@@ -3514,6 +3548,9 @@ __metadata:
   resolution: "web@workspace:."
   dependencies:
     "@date-io/date-fns": ^3.0.0
+    "@fullcalendar/core": ^6.1.13
+    "@fullcalendar/daygrid": ^6.1.13
+    "@fullcalendar/interaction": ^6.1.13
     "@mdi/font": 7.0.96
     "@tiptap/pm": ^2.1.13
     "@tiptap/starter-kit": ^2.1.13
