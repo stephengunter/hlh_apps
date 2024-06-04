@@ -11,8 +11,8 @@ const initialState = {
    list: [],
    params: {
       calendarId: 0,
-		year: 0,
-      month: 0
+		start: '',
+      end: ''
 	},
    labels: {
       year: '年度',

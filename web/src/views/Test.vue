@@ -1,19 +1,36 @@
 <script setup>
 import { reactive, ref, computed, onBeforeMount } from 'vue'
+import zh_tw from '@fullcalendar/core/locales/zh-tw'
+import FullCalendar from '@fullcalendar/vue3'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import interactionPlugin from '@fullcalendar/interaction'
 import { deepClone, dateToText, textToDate, now } from '@/utils'
 
 import { VALIDATE_MESSAGES } from '@/consts'
 import Errors from '@/common/errors'
 import date from '@/plugins/date'
 const dateAdapter = new date.adapter({ locale: date.locale.zhTW })
+const calendar = ref(null)
 
 const initialState = {
-	
 	date: {
 		roc: false,
 		date: null,
 		value: '',
 		model: {}
+	},
+	calendarOptions: {
+		plugins: [dayGridPlugin, interactionPlugin],
+		locale: zh_tw,
+		initialView: 'dayGridMonth',
+		weekends: true,
+		dateClick: (val) => {
+			console.log('dateclick', val)
+		},
+		events: [
+			{ title: 'event 1', date: '2024-04-01' },
+			{ title: 'event 2', date: '2024-04-02' }
+		]
 	},
 	
 	errors: new Errors()
@@ -39,23 +56,10 @@ function onDateSelected({ date, model }, selected = true) {
 <template>
 	<div>
 		<v-row>
-			<v-col cols="6">
-				<!-- <CommonPickerRocDate :roc="true"
-				:date="state.date.date" :value="state.date.value"
-				:error_message="state.errors.get('date')"
-				@ready="(model) => onDateSelected(model, false)"
-				@selected="(model) => onDateSelected(model)"
-				/> -->
-				<CommonPickerRocDate :roc="state.date.roc"
-				:date="state.date.date" :value="state.date.value"
-				:error_message="state.errors.get('date')"
-				@ready="(model) => onDateSelected(model, false)"
-				@selected="(model) => onDateSelected(model)"
+			<v-col cols="12">
+				<FullCalendar ref="calendar" 
+				:options='state.calendarOptions' 
 				/>
-
-			</v-col>
-			<v-col cols="6">
-			
 			</v-col>
 		</v-row>
 

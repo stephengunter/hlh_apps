@@ -3,7 +3,7 @@ import { API_URL } from '@/config'
 
 const source =`${API_URL}/api/events`
 
-const fetch = (params) => BaseService.fetch(`${source}/${params.calendar}/${params.year}/${params.month}`)
+const fetch = (params) => BaseService.fetch(`${source}/${params.calendar}/${params.start}/${params.end}`)
 
 const get = (id) => BaseService.fetch(`${source}/${id}`)
 

@@ -74,6 +74,13 @@ export const dateTextToRoc = (text) => {
    }
    return ''
 }
+export const dateToRocFormat = (date) => {
+   
+   const year = toYearTW(date.getFullYear())
+   const month = date.getMonth() + 1
+   const day = date.getDate()
+   return `${year}年${month}月${day}日`
+}
 
 export const getDatePickerModel = (date, roc = false) => {
    if(date) {
