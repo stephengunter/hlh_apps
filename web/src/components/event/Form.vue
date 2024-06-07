@@ -1,0 +1,127 @@
+<script setup>
+import { MqResponsive } from 'vue3-mq'
+import { ref, reactive, computed, watch, onBeforeMount, nextTick } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useStore } from 'vuex'
+import { useVuelidate } from '@vuelidate/core'
+import { required, numeric, helpers } from '@vuelidate/validators'
+import Errors from '@/common/errors'
+import { isEmptyObject, deepClone , copyFromQuery, areObjectsEqual, reviewedOptions,
+	setValues, badRequest
+} from '@/utils'
+import { VALIDATE_MESSAGES, ROUTE_NAMES, ENTITY_TYPES, ACTION_TYPES } from '@/consts'
+
+const name = 'EventForm'
+const store = useStore()
+const route = useRoute()
+const router = useRouter()
+const ENTITY_TYPE = ENTITY_TYPES.EVENT
+
+const props = defineProps({
+   model: {
+		type: Object,
+		default: null
+	},
+	labels: {
+		type: Object,
+		default: () => {}
+	},
+	job_titles: {
+		type: Array,
+		default: () => []
+	},
+	role_options: {
+		type: Array,
+		default: () => []
+	}
+})
+const emit = defineEmits(['submit', 'cancel', 'remove'])
+
+const initialState = {
+	form: {
+		id: 0,
+		jobTitleId: 0,
+		departmentId: null,
+		role: 0,
+		tel: '',
+		subTel: '',
+		ps: '',
+      active: true
+   },
+	errors: {
+		'title': false
+	}
+}
+
+const state = reactive(deepClone(initialState))
+
+const canRemove = computed(() => {
+	if(!props.model.id) return false
+	if(props.model.active) return false
+	return true
+})
+
+const rules = computed(() => {
+	return {
+		title: { 
+			required: helpers.withMessage(VALIDATE_MESSAGES.REQUIRED(props.labels['title']), required)
+		}
+	}
+})
+
+const v$ = useVuelidate(rules, state.params)
+
+onBeforeMount(init)
+
+function init() {
+	setValues(props.model, state.form)
+}
+
+
+
+function onSubmit() {
+	v$.value.$validate().then(valid => {
+		if(!valid) return
+		emit('submit', state.form)
+	})
+}
+function onRemove() {
+	emit('remove')
+}
+function onInputChanged(){
+   store.commit(CLEAR_ERRORS)
+}
+
+
+</script>
+
+<template>
+   <form @submit.prevent="onSubmit" @input="onInputChanged">
+		<v-row>
+			<v-col cols="12">
+				<v-text-field :label="labels['title']"           
+				v-model="state.form.title"
+				:error-messages="v$.title.$errors.map(e => e.$message)"                     
+				@input="v$.title.$touch"
+				@blur="v$.title.$touch"
+				/>
+			</v-col>
+			
+		</v-row>
+		<v-col cols="12">
+			<CommonErrorsList />
+		</v-col> 
+		<v-row>
+			<v-col cols="12">
+				<v-btn v-if="canRemove"  class="float-left" color="error"
+				@click.prevent="onRemove" 
+				>
+					{{ ACTION_TYPES.REMOVE['title'] }}
+				</v-btn>
+				<v-btn type="submit" color="success" class="float-right">
+				{{ ACTION_TYPES.SAVE['title'] }}
+				</v-btn>
+			</v-col>
+		</v-row>
+	</form>
+</template>

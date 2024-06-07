@@ -3,7 +3,9 @@ import { API_URL } from '@/config'
 
 const source =`${API_URL}/api/events`
 
-const fetch = (params) => BaseService.fetch(`${source}/${params.calendar}/${params.start}/${params.end}`)
+const fetch = ({ calendar, start, end }) => BaseService.fetch(`${source}/${calendar}/${start}/${end}`)
+
+const create = () => BaseService.fetch(`${source}/create`)
 
 const get = (id) => BaseService.fetch(`${source}/${id}`)
 
@@ -16,4 +18,4 @@ const remove = (id) => BaseService.remove(`${source}/${id}`)
 const fetch_categories = () => BaseService.fetch(`${source}/categories`)
 
 
-export default { fetch, get, edit, update, remove, fetch_categories }
+export default { fetch, create, get, edit, update, remove, fetch_categories }

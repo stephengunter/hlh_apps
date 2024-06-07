@@ -7,8 +7,8 @@ import { useVuelidate } from '@vuelidate/core'
 import { helpers } from '@vuelidate/validators'
 import date from '@/plugins/date'
 import Errors from '@/common/errors'
-import { isEmptyObject, deepClone , copyFromQuery, areObjectsEqual, reviewedOptions,
-	setValues, badRequest, toYearTW, dateToText, textToDate, isValidDate
+import { isEmptyObject, deepClone , copyFromQuery, areObjectsEqual, dateToRocFormat,
+	setValues, badRequest, toYearTW, dateToText, textToDate, isValidDate, tryParseInt
 } from '@/utils'
 import { ROUTE_NAMES, ENTITY_TYPES } from '@/consts'
 
@@ -20,7 +20,7 @@ const dateAdapter = new date.adapter({ locale: date.locale.zhTW })
 
 const emit = defineEmits(['submit', 'add', 'option_changed', 'next', 'prev'])
 defineExpose({
-   init, setParams, getParams, setTitle
+   init, setParams, getParams, setRange
 })
 
 const props = defineProps({
@@ -28,25 +28,17 @@ const props = defineProps({
       type: Array,
       default: () => []
    },
-	labels: {
-      type: Object,
-      default: null
-   },
 	current_date: {
       type: Date,
       default: null
-   },
-	week_title: {
-      type: String,
-      default: ''
    }
 })
 
 const initialState = {
 	params: {
 		calendar: '',
-		start: '',
-      end: ''
+		year: 0,
+      month: 0
 	},
 	date: {
       roc: true,
@@ -63,6 +55,7 @@ const initialState = {
 			title: '週曆'
 		}]
 	},
+	current_range: null,
 	calendar: {
 		viewMode: 'month'
 	}
@@ -70,7 +63,7 @@ const initialState = {
 
 const state = reactive(deepClone(initialState))
 
-const params = computed(() => store.state.events.params)
+const params = computed(() => store.state.calendars.params)
 const selected_calendar = computed(() => {
 	if(state.params.calendar && props.calendars.length) {
 		return props.calendars.find(item => item.key.toLowerCase() === state.params.calendar.toLowerCase())
@@ -84,16 +77,15 @@ const calendar_options = computed(() => {
 	}
 	return []
 })
-const title = computed(() => selected_calendar.value ? `${selected_calendar.title}` : '')
+const week_title = computed(() => {
+	if(state.current_range) {
+		const start = state.current_range.firstDay
+		const end = state.current_range.lastDay
+		return `${dateToRocFormat(start)} - ${end.getMonth() + 1}月${end.getDate()}日` 
+	}
+})
 const next_text = computed(() => state.viewMode.selected === 'week' ? '下一週' : '下個月')
 const prev_text = computed(() => state.viewMode.selected === 'week' ? '上一週' : '上個月')
-// const the_date = computed(() => {
-// 	if(state.params.year && state.params.month) {
-// 		let patter = `${state.params.year}-${state.params.month}-1`
-// 		return dateAdapter.date(patter)
-// 	}
-// 	return null	
-// })
 const year_month = computed(() => {
 	if(props.current_date) {
 		const year = toYearTW(props.current_date.getFullYear())
@@ -120,66 +112,64 @@ const v$ = useVuelidate(rules, state.params)
 
 
 function init() {
-	if(params.value) state.params = deepClone(params.value)
 	if(route.params) copyFromQuery(state.params, route.params)
 	
 	if(!state.params.calendar) state.params.calendar = props.calendars[0].key
-
-	if(isValidDate(state.params.start) && isValidDate(state.params.end)) {
-		let startDate = textToDate(state.params.start)
-		let endDate = textToDate(state.params.end)
-		if(dateAdapter.isAfter(endDate, startDate)) {
-			if(state.viewMode.selected === 'month') {
-				let last = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0)
-				if(startDate.getDate() === 1 && dateAdapter.isSameDay(last, endDate)) {
-					onParamsChanged()
-					return
-				}else {
-					onParamsChanged()
-					return
-				}
-			}
-		}
+	if(!checkParams()) {
+		const today = dateAdapter.date()
+		const year = toYearTW(today.getFullYear())
+		const month = today.getMonth() + 1
+		state.params.year = year
+		state.params.month = month
 	}
-
-	const today = dateAdapter.date()
-	let firstDay = new Date(today.getFullYear(), today.getMonth(), 1)
-	let lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0)
-   state.params.start = dateToText(firstDay)
-	state.params.end = dateToText(lastDay)
 
 	onParamsChanged()
 }
-function setTitle() {
-	console.log('setTitle', props.current_date)
+function checkParams() {
+	const year = state.params.year ? parseInt(state.params.year) : 0
+	if(year < 100 || year > 150) return false
+
+	const month = state.params.month ? parseInt(state.params.month) : 0
+	if(month < 1 || month > 12) return false
+	
+	return true
 }
 function setParams(model) {
    setValues(model, state.params)
+	onParamsChanged()
 }
 function getParams() {
    return state.params
 }
 function next() {
 	if(state.viewMode.selected === 'month') {
-		addMonth(1)
-		emit('next')
+		let year = state.params.year
+		let month = state.params.month + 1
+		if(month > 12) {
+			month = 1
+			year += 1
+		} 
+		state.params.year = year
+		state.params.month = month
+		onParamsChanged()
 	} 
+	else emit('next')
 	
 }
 function prev() {
 	if(state.viewMode.selected === 'month') {
-		addMonth(-1)
-		emit('prev')
-	} 
+		let year = state.params.year
+		let month = state.params.month - 1
+		if(month < 1) {
+			month = 12
+			year -= 1
+		} 
+		state.params.year = year
+		state.params.month = month
+		onParamsChanged()
+	}  
+	else emit('prev')
 	
-}
-function addMonth(val) {
-	let firstDay = dateAdapter.addMonths(props.current_date, val)
-	let lastDay = new Date(firstDay.getFullYear(), firstDay.getMonth() + 1, 0)
-   state.params.start = dateToText(firstDay)
-	state.params.end = dateToText(lastDay)
-
-	onParamsChanged()
 }
 function onParamsChanged() {
 	onSubmit()
@@ -189,7 +179,6 @@ function onSubmit() {
 	else router.push({ name: ROUTE_NAMES.CALENDARS, params: state.params })
 }
 
-
 function selectCalendar(key) {
 	state.params.calendar = key
 	onParamsChanged()
@@ -198,6 +187,12 @@ function selectCalendar(key) {
 function onViewModeChanged(val) {
 	const key = 'view_mode'
 	emit('option_changed', { key, val })
+}
+function setRange({ firstDay, lastDay }) {
+	state.current_range = { firstDay, lastDay }
+}
+function create() {
+	emit('add')
 }
 
 
@@ -259,7 +254,7 @@ function onViewModeChanged(val) {
 			<v-col cols="2">
 				<v-btn-toggle 
 				v-model="state.viewMode.selected"  variant="outlined" divided
-				color="info" group
+				color="info" mandatory
 				@update:modelValue="onViewModeChanged"
 				>
 					<v-btn v-for="option in state.viewMode.options" :value="option.value">
@@ -268,7 +263,9 @@ function onViewModeChanged(val) {
 				</v-btn-toggle>
 			</v-col>
 			<v-col cols="2">
-				
+				<CommonButtonCreate class_name="float-right" 
+				@create="create"
+				/>
 			</v-col>
 		</v-row>
 	</form>

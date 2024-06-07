@@ -30,6 +30,4 @@ export const SET_CALENDARS = 'setCalendars'
 
 
 //Events
-export const SET_EVENTS_LIST = 'setEventsList'
-export const SET_EVENTS_PARAMS = 'setEventsParams'
 export const SET_EVENT_CATEGORIES = 'setEventCategories'

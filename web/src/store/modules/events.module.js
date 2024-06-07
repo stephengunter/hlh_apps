@@ -1,22 +1,22 @@
 import EventsService from '@/services/events.service'
 import { resolveErrorData, deepClone, now, isEmptyObject, getListFromObj } from '@/utils'
-import { FETCH_EVENTS } from '@/store/actions.type'  
+import { FETCH_EVENTS, CREATE_EVENT } from '@/store/actions.type'  
 
-import { SET_EVENTS_LIST, SET_LOADING } from '@/store/mutations.type'
+import { SET_LOADING } from '@/store/mutations.type'
    
 
 
 
 const initialState = {
    list: [],
-   params: {
-		calendar: '',
-		start: '',
-      end: ''
-	},
    labels: {
-      year: '年度',
-      month: '月份'
+      'title': '標題',
+      'content': '內容',
+      'allDate': '全天',
+      'startDate': '專線',
+      'endDate': '分機',
+      'ps': '備註',
+      'active': '狀態'
    },
    actions: []
 }
@@ -29,26 +29,31 @@ const getters = {
 
 
 const actions = {
-   [FETCH_EVENTS](context, params) {
+   [FETCH_EVENTS](context, { calendar, start, end }) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         EventsService.fetch(params)
+         EventsService.fetch({ calendar, start, end })
             .then(list => {
-               
-               context.commit(SET_EVENTS_LIST, list)
-               resolve()
+               resolve(list)
             })
             .catch(error => reject(error))
             .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
+   [CREATE_EVENT](context) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         EventsService.create()
+         .then(model => resolve(model))
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
       })
    },
 }
 
 
 const mutations = {
-   [SET_EVENTS_LIST](state, list) {
-      state.list = list
-   }
+   
 }
 
 export default {

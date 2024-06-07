@@ -9,15 +9,6 @@ import { SET_CALENDARS, SET_LOADING } from '@/store/mutations.type'
 
 const initialState = {
    list: [],
-   params: {
-      calendarId: 0,
-		start: '',
-      end: ''
-	},
-   labels: {
-      year: '年度',
-      month: '月份'
-   },
    actions: []
 }
 

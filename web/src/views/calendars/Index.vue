@@ -9,12 +9,11 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import zh_tw from '@fullcalendar/core/locales/zh-tw'
 
-import { FETCH_CALENDARS, FETCH_EVENTS } from '@/store/actions.type'
+import { FETCH_CALENDARS, FETCH_EVENTS, CREATE_EVENT, UPDATE_EVENT } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
-import { isEmptyObject, deepClone , downloadFile, dateToRocFormat,
-	 onErrors, onSuccess, setValues, is400, 
-	resolveErrorData, isNumeric, textToDate,
-	buildQuery, bytesToBinary, getMimeType, showModifyRecords
+import FullEvent from '@/models/fullEvent'
+import { isEmptyObject, deepClone ,
+	 onErrors, onSuccess, setValues, is400, dateToText, toYearTW,
 } from '@/utils'
 import { WIDTH, ROUTE_NAMES, VALIDATE_MESSAGES, ACTION_TYPES, ENTITY_TYPES } from '@/consts'
 
@@ -22,6 +21,7 @@ import date from '@/plugins/date'
 
 
 const name = 'CalendarIndexView'
+const EVENT = ENTITY_TYPES.EVENT
 const store = useStore()
 const route = useRoute()
 const router = useRouter()
@@ -36,34 +36,35 @@ const initialState = {
 	viewMode: 'month',
 	week_title: '',
 	current_date: null,
+	range: [],
 	options: {
 		plugins: [dayGridPlugin, interactionPlugin],
 		locale: zh_tw,
-		//headerToolbar: false,
+		headerToolbar: false,
 		initialView: 'dayGridMonth',
 		weekends: true,
 		dateClick: (val) => {
 			console.log('dateclick', val)
 		},
-		events: [
-			{ title: 'event 1', date: '2024-06-01' },
-			{ title: 'event 2', date: '2024-06-12' }
-		]
+		events: [],
+		eventTimeFormat: { 
+			hour: '2-digit',
+			minute: '2-digit',
+			hour12: false
+		}
 	},
-	
-	events: [{
-		title: 'test title',
-		start: new Date(2024, 5, 17, 10, 0, 0),
-		end: new Date(2024, 5, 17, 11, 30, 0),
-		color: 'deep-purple',
-		allDay: false,
-	}]
+	form: {
+		title: '',
+		active: false,
+		model: {},
+		action: ''
+	}
 }
 
 const state = reactive(deepClone(initialState))
 
 const calendars = computed(() => store.state.calendars.list)
-const labels = computed(() => store.state.calendars.labels)
+const labels = computed(() => store.state.events.labels)
 const fullCalendarApi = computed(() => {
 	if(full_calendar.value) return full_calendar.value.getApi()
 	return null
@@ -72,6 +73,7 @@ const fullCalendarApi = computed(() => {
 watch(route, init)
 
 onMounted(init)
+
 
 function init() {
 	if(calendars.value.length) head.value.init()
@@ -83,20 +85,24 @@ function fetchCalendars() {
 	.then(() => nextTick(init))
 	.catch(error => onErrors(error))
 }
-function fetchEvents(params) {
-	console.log('fetchEvents', params)
+function onParamsChanged(params) {
+	const calendar = params.calendar
+	const year = params.year + 1911
+	const month = params.month - 1
+	const firstDay = new Date(year, month, 1)
+	const lastDay = new Date(year, month + 1, 0)
+
+	fetchEvents({ calendar, firstDay, lastDay })
+}
+function fetchEvents({ calendar, firstDay, lastDay }) {
 	store.commit(CLEAR_ERRORS)
-	store.dispatch(FETCH_EVENTS, params)
-	.then(() => {
+	store.dispatch(FETCH_EVENTS, { calendar, start: dateToText(firstDay), end: dateToText(lastDay) })
+	.then((list) => {
 		if(state.viewMode === 'month') {
-			const startDate = textToDate(params.start)
-			state.current_date = startDate
-			fullCalendarApi.value.gotoDate(startDate)
+			state.current_date = firstDay
+			fullCalendarApi.value.gotoDate(firstDay)
 		}
-		// let patter = `${params.year}-${params.month}-1`
-		// const date = dateAdapter.date(patter)
-		// 
-		// fullCalendarApi.value.gotoDate(date)		
+		state.options.events = list.map(model => new FullEvent(model))
 	})
 	.catch(error => onErrors(error))
 }
@@ -104,72 +110,107 @@ function onOptionChanged({ key, val }) {
 	if(key === 'view_mode') {
 		state.viewMode = val
 		if(val === 'week') {
-			
+			fullCalendarApi.value.changeView('dayGridWeek')
+			nextTick(getWeekData)
+		}else {
+			fullCalendarApi.value.changeView('dayGridMonth')
+			nextTick(() => {
+				const params = head.value.getParams()
+				const currentData = fullCalendarApi.value.currentData
+				const dateProfile = currentData.dateProfile
+				const currentRange = dateProfile.currentRange
+
+				const firstDay = currentRange.start
+				const calendar = params.calendar
+				const year = toYearTW(firstDay.getFullYear())
+				const month = firstDay.getMonth() + 1
+				head.value.setParams({ calendar, year, month })
+			})
 		}
-		// if(val === 'week') {
-		// 	fullCalendarApi.value.changeView('dayGridWeek')
-		// }else {
-		// 	fullCalendarApi.value.changeView('dayGridMonth')
-		// }
 	}
-	nextTick(getCurrentData)
+	
 }
 function next() {
-	fullCalendarApi.value.next()
-	nextTick(getCurrentData)
+	if(state.viewMode === 'week') {
+		fullCalendarApi.value.next()
+		nextTick(getWeekData)
+	}
 }
 function prev() {
-	fullCalendarApi.value.prev()
-	nextTick(getCurrentData)
-}
-function setWeekTitle(dateProfile) {
-	if(dateProfile) {
-		const start = dateProfile.currentRange.start
-		const end = dateProfile.currentRange.end
-		state.week_title = `${dateToRocFormat(start)} - ${end.getDate()}日` 
-	}
-	else state.week_title = ''
-}
-function getCurrentData() {
-	const currentData = fullCalendarApi.value.currentData
-	console.log('currentData', currentData)
 	if(state.viewMode === 'week') {
-		const dateProfile = fullCalendarApi.value.currentData.dateProfile
-		setWeekTitle(dateProfile)
-
-		const currentDate = currentData.currentDate
-		console.log('currentDate', currentDate)
+		fullCalendarApi.value.prev()
+		nextTick(getWeekData)
 	}
-	
-	
 }
-function gotoDate() {
-	fullCalendarApi.value.gotoDate( new Date(2024, 3, 17) )
-	nextTick(() => console.log(fullCalendarApi.value.currentData))
-} 
+function getWeekData() {
+	if(state.viewMode === 'week') {
+		const calendar = head.value.getParams().calendar
+
+		const currentData = fullCalendarApi.value.currentData
+		const dateProfile = currentData.dateProfile
+		const currentRange = dateProfile.currentRange
+
+		const firstDay = currentRange.start
+		const lastDay = dateAdapter.addDays(currentRange.end, -1)
+		fetchEvents({ calendar, firstDay, lastDay }) 
+
+		head.value.setRange({ firstDay, lastDay })
+		state.current_date = currentData.currentDate
+	}
+}
+function create() {
+	store.commit(CLEAR_ERRORS)
+	store.dispatch(CREATE_EVENT)
+	.then(model => {
+		state.form.model = deepClone(model)
+		state.form.active = true
+		state.form.title = `${ACTION_TYPES.CREATE['title']}${EVENT.title}`
+		state.form.action = UPDATE_EVENT
+	})
+	.catch(error => onErrors(error))
+}
+
+function onSubmit(form) {
+	setValues(form, state.form.model)
+	console.log('onSubmit', form)
+}
+function onRemove() {
+	const id = state.form.model.id
+	console.log('onRemove', id)
+}
+
+function onCancel() {
+	state.form = { ...initialState.form }
+}
 
 </script>
 
 <template>
    <CalendarHead ref="head" 
-	:current_date="state.current_date" :week_title="state.week_title"
-	:calendars="calendars" :labels="labels" 
+	:current_date="state.current_date"
+	:calendars="calendars" 
 	@option_changed="onOptionChanged"
 	@next="next" @prev="prev"
-	@submit="fetchEvents" 
+	@submit="onParamsChanged" @add="create"
 	/>
-	<v-row dense>
-		<v-col cols="3">
-			<a href="#" @click.prevent="gotoDate">0317</a>	
-		</v-col>
-		<v-col cols="9">
-		</v-col>
-	</v-row>
-	<v-row>
+	<v-row class="mt-1">
 		<v-col cols="12">
 			<FullCalendar ref="full_calendar" 
 			:options='state.options' 
 			/>
 		</v-col>
    </v-row>
+	<v-dialog persistent v-model="state.form.active" :width="WIDTH.M + 50">
+		<v-card v-if="state.form.active" :max-width="WIDTH.M">
+			<CommonCardTitle :title="state.form.title" 
+			@cancel="onCancel"  
+			/>
+			<v-card-text>
+				<EventForm :labels="labels"
+				:model="state.form.model" 
+				@submit="onSubmit"  @remove="onRemove"
+				/>
+			</v-card-text>
+		</v-card>
+	</v-dialog>
 </template>

@@ -38,7 +38,7 @@ const userlinks = [
 
 new Page({
    name: ROUTE_NAMES.CALENDARS,
-   path: `/${ROUTE_NAMES.CALENDARS}/:calendar?/:start?/:end?`,
+   path: `/${ROUTE_NAMES.CALENDARS}/:calendar?/:year?/:month?`,
    view: `${ROUTE_NAMES.CALENDARS}/Index`,
    icon: 'mdi-calendar', 
    title: CALENDAR.title,
