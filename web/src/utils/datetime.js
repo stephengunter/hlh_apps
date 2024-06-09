@@ -9,6 +9,22 @@ export const textToDate = (val) => adapter.date(val)
 
 export const dateToText = (date, opt = 'fullDate') => adapter.format(date, opt)
 
+export const getTimeString = (date) => {
+   let hour = '00'
+   let minutes = '00'
+   let h = date.getHours()
+   let m = date.getMinutes()
+   if(h) {
+      if(h < 10) hour = `0${h}`
+      else hour = h.toString()
+   }
+   if(m) {
+      if(m < 10) minutes = `0${m}`
+      else minutes = m.toString()
+   }
+   return `${hour}:${minutes}`
+}
+
 export const isValidDate = (val) => adapter.isValid(val)
 
 export const isSameOrAfter = (start, end) => moment(end).isSameOrAfter(start)

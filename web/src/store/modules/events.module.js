@@ -12,9 +12,9 @@ const initialState = {
    labels: {
       'title': '標題',
       'content': '內容',
-      'allDate': '全天',
-      'startDate': '專線',
-      'endDate': '分機',
+      'allDay': '全天',
+      'startDate': '開始日期',
+      'endDate': '結束日期',
       'ps': '備註',
       'active': '狀態'
    },

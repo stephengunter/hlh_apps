@@ -1,6 +1,6 @@
 <script setup>
-import { defineComponent, computed, ref, watch, nextTick } from 'vue'
-import { isSameHour, isSameMinute, isValid, set } from 'date-fns'
+import { defineComponent, computed, ref, watch, nextTick, onBeforeMount } from 'vue'
+import { isSameHour, isSameMinute, isValid, set, format } from 'date-fns'
 import Popup from './Popup.vue'
 import { it } from 'date-fns/locale';
 
@@ -33,20 +33,24 @@ const props = defineProps({
 	}
 	
 })
+onBeforeMount(() => {
+	if(props.selected) {
+		hours.value = props.selected.getHours()
+		minutes.value = props.selected.getMinutes()
+	}
+})
 
 const emit = defineEmits(['select', 'back'])
 const hoursListRef = ref(null)
 const minutesListRef = ref(null)
 
 const currentDate = computed(() => props.pageDate ?? props.selected)
-
-const hours = ref(currentDate.value.getHours())
-const minutes = ref(currentDate.value.getMinutes())
+const hours = ref(9)
+const minutes = ref(0)
 
 watch(
 	() => props.selected,
 	(value) => {
-		//console.log('selected date', value)
 		let newHours = 0
 		let newMinutes = 0
 
@@ -67,18 +71,6 @@ watch(
 		}
 	}
 )
-// const hoursList = computed(() =>
-// 	[...Array(24).keys()].map((value) => ({
-// 		value,
-// 		date: set(new Date(currentDate.value.getTime()), {
-// 			hours: value,
-// 			minutes: minutes.value,
-// 			seconds: 0,
-// 		}),
-// 		selected: hours.value === value,
-// 		ref: ref(null),
-// 	}))
-// )
 
 const hoursList = computed(() => {
 	let list = props.hours_allow.slice(0)
@@ -97,9 +89,6 @@ const hoursList = computed(() => {
 const minutesList = computed(() => {
 	let list = props.minutes_allow.slice(0)
 	if(!list.length) list = [...Array(60).keys()]
-	// let interval = props.min_interval
-	// let nums = [...Array(60).keys()]
-	//if(interval) nums = nums.filter(num => num % interval === 0 )
 	return list.map((value) => ({
 		value,
 		date: set(new Date(currentDate.value.getTime()), {
@@ -173,8 +162,7 @@ function scrollParentToChild(parent, child) {
 <template>
 	<Popup headingClickable :columnCount="2" :leftDisabled="true" :rightDisabled="true" viewMode="time"
 		@heading="$emit('back')">
-		<template #heading>{{ padStartZero(hours) }}:{{ padStartZero(minutes) }}</template>
-		<!-- <template #heading>{{ currentDate.getHours(0) }}</template> -->
+		<template #heading>{{ padStartZero(hours) }}:{{ padStartZero(minutes) }}</template>		
 		<template #body>
 			<div ref="hoursListRef" class="v3dp__column">
 				<button v-for="item in hoursList" :key="item.value" :ref="item.ref"

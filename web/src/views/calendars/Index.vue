@@ -6,6 +6,7 @@ import { useStore } from 'vuex'
 
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
+//import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import zh_tw from '@fullcalendar/core/locales/zh-tw'
 
@@ -42,9 +43,24 @@ const initialState = {
 		locale: zh_tw,
 		headerToolbar: false,
 		initialView: 'dayGridMonth',
-		weekends: true,
-		dateClick: (val) => {
-			console.log('dateclick', val)
+		editable: true,
+      selectable: true,
+        //selectMirror: true,
+       // dayMaxEvents: true,
+        weekends: true,
+      //   select: (val) => {
+		// 	console.log('select', val)
+		// },
+        
+		dateClick: (model) => {
+			console.log('date', model.date)
+		},
+		eventClick: (info) => {
+			const event = info.event
+			details(event.id)
+			// alert('Event: ' + info.event.title);
+			// alert('Coordinates: ' + info.jsEvent.pageX + ',' + info.jsEvent.pageY);
+			// alert('View: ' + info.view.type);
 		},
 		events: [],
 		eventTimeFormat: { 
@@ -169,7 +185,9 @@ function create() {
 	})
 	.catch(error => onErrors(error))
 }
-
+function details(id) {
+	console.log('details', id)
+}
 function onSubmit(form) {
 	setValues(form, state.form.model)
 	console.log('onSubmit', form)
@@ -200,8 +218,8 @@ function onCancel() {
 			/>
 		</v-col>
    </v-row>
-	<v-dialog persistent v-model="state.form.active" :width="WIDTH.M + 50">
-		<v-card v-if="state.form.active" :max-width="WIDTH.M">
+	<v-dialog persistent v-model="state.form.active" :width="WIDTH.L + 50">
+		<v-card v-if="state.form.active" :max-width="WIDTH.L">
 			<CommonCardTitle :title="state.form.title" 
 			@cancel="onCancel"  
 			/>

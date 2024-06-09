@@ -9,6 +9,7 @@ import Errors from '@/common/errors'
 import { isEmptyObject, deepClone , copyFromQuery, areObjectsEqual, reviewedOptions,
 	setValues, badRequest
 } from '@/utils'
+import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { VALIDATE_MESSAGES, ROUTE_NAMES, ENTITY_TYPES, ACTION_TYPES } from '@/consts'
 
 const name = 'EventForm'
@@ -46,8 +47,17 @@ const initialState = {
 		tel: '',
 		subTel: '',
 		ps: '',
-      active: true
+      active: true,
+		allDay: false
    },
+	range: {
+		roc: true,
+		dates: [],
+      values: [],
+		models: {},
+		hours_allow: [],
+		minutes_allow: []
+	},
 	errors: {
 		'title': false
 	}
@@ -69,11 +79,13 @@ const rules = computed(() => {
 	}
 })
 
-const v$ = useVuelidate(rules, state.params)
+const v$ = useVuelidate(rules, state.form)
 
 onBeforeMount(init)
 
 function init() {
+	state.range.hours_allow = [...Array(24).keys()].filter(num => num >= 6 && num <= 22)
+	state.range.minutes_allow = [...Array(60).keys()].filter(num => num % 5 === 0)
 	setValues(props.model, state.form)
 }
 
@@ -97,7 +109,7 @@ function onInputChanged(){
 
 <template>
    <form @submit.prevent="onSubmit" @input="onInputChanged">
-		<v-row>
+		<v-row dense>
 			<v-col cols="12">
 				<v-text-field :label="labels['title']"           
 				v-model="state.form.title"
@@ -106,8 +118,27 @@ function onInputChanged(){
 				@blur="v$.title.$touch"
 				/>
 			</v-col>
+			<v-col cols="4">
+				<v-switch :label="labels['allDay']"  
+				v-model="state.form.allDay"
+				color="success" 
+				/>
+			</v-col>
+			<v-col cols="4">
+
+			</v-col>
+			<v-col cols="4">
+
+			</v-col>
 			
 		</v-row>
+		<CommonPickerPeriod ref="period_picker" 
+		:roc="true" :allow_same="false" minimum_view="time"
+		:hours_allow="state.range.hours_allow" :minutes_allow="state.range.minutes_allow"
+		:required_start="true" :required_end="true" 
+		:dates="state.range.dates" 
+		@selected="(dates) => console.log(dates)"
+		/>
 		<v-col cols="12">
 			<CommonErrorsList />
 		</v-col> 

@@ -71,9 +71,6 @@ const errorMessages = computed(() => props.error_message ? [props.error_message]
 
 onMounted(init)
 
-// watch(() => props.value, init, {
-// 	deep: false
-// })
 watch(() => props.date, (new_date, old_date) => {
 	if(new_date && old_date) {
 		if(new_date.getTime() === old_date.getTime()) return
