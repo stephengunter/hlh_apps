@@ -20,7 +20,7 @@ const dateAdapter = new date.adapter({ locale: date.locale.zhTW })
 
 const emit = defineEmits(['submit', 'add', 'option_changed', 'next', 'prev'])
 defineExpose({
-   init, setParams, getParams, setRange
+   init, setParams, getParams, setRange, getSelectedCalendar
 })
 
 const props = defineProps({
@@ -140,6 +140,9 @@ function setParams(model) {
 }
 function getParams() {
    return state.params
+}
+function getSelectedCalendar() {
+	return selected_calendar.value
 }
 function next() {
 	if(state.viewMode.selected === 'month') {

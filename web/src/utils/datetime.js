@@ -27,6 +27,8 @@ export const getTimeString = (date) => {
 
 export const isValidDate = (val) => adapter.isValid(val)
 
+export const isSameDay = (start, end) => moment(end).isSame(start, 'day')
+
 export const isSameOrAfter = (start, end) => moment(end).isSameOrAfter(start)
 
 export const month_list = [

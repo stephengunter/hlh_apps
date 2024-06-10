@@ -13,7 +13,7 @@ import zh_tw from '@fullcalendar/core/locales/zh-tw'
 import { FETCH_CALENDARS, FETCH_EVENTS, CREATE_EVENT, UPDATE_EVENT } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import FullEvent from '@/models/fullEvent'
-import { isEmptyObject, deepClone ,
+import { isEmptyObject, deepClone , isSameDay,
 	 onErrors, onSuccess, setValues, is400, dateToText, toYearTW,
 } from '@/utils'
 import { WIDTH, ROUTE_NAMES, VALIDATE_MESSAGES, ACTION_TYPES, ENTITY_TYPES } from '@/consts'
@@ -37,6 +37,7 @@ const initialState = {
 	viewMode: 'month',
 	week_title: '',
 	current_date: null,
+	selected_dates: [],
 	range: [],
 	options: {
 		plugins: [dayGridPlugin, interactionPlugin],
@@ -47,14 +48,12 @@ const initialState = {
       selectable: true,
         //selectMirror: true,
        // dayMaxEvents: true,
-        weekends: true,
-      //   select: (val) => {
-		// 	console.log('select', val)
-		// },
+      weekends: true,
+   	select: onDatesSelected,
         
-		dateClick: (model) => {
-			console.log('date', model.date)
-		},
+		// dateClick: (model) => {
+		// 	console.log('date', model.date)
+		// },
 		eventClick: (info) => {
 			const event = info.event
 			details(event.id)
@@ -92,6 +91,7 @@ onMounted(init)
 
 
 function init() {
+	
 	if(calendars.value.length) head.value.init()
 	else fetchCalendars()
 }
@@ -115,8 +115,20 @@ function fetchEvents({ calendar, firstDay, lastDay }) {
 	store.dispatch(FETCH_EVENTS, { calendar, start: dateToText(firstDay), end: dateToText(lastDay) })
 	.then((list) => {
 		if(state.viewMode === 'month') {
-			state.current_date = firstDay
-			fullCalendarApi.value.gotoDate(firstDay)
+			const today = dateAdapter.date()
+			if(today.getMonth() === firstDay.getMonth()) {
+				state.current_date = today
+			}else {
+				const currentDate = fullCalendarApi.value.currentData.currentDate
+				const month = currentDate.getMonth()
+
+				if(month === firstDay.getMonth()) {
+					state.current_date = currentDate
+				}else {
+					state.current_date = firstDay
+				}
+			}
+			fullCalendarApi.value.gotoDate(state.current_date)
 		}
 		state.options.events = list.map(model => new FullEvent(model))
 	})
@@ -174,11 +186,34 @@ function getWeekData() {
 		state.current_date = currentData.currentDate
 	}
 }
+function onDatesSelected(model) {
+	const end = dateAdapter.addDays(model.end, -1)
+	const same = isSameDay(model.start, end)
+	if(same) state.selected_dates = [model.start]
+	else state.selected_dates = [model.start, end]
+	
+	
+}
 function create() {
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(CREATE_EVENT)
 	.then(model => {
 		state.form.model = deepClone(model)
+
+		const calendar = head.value.getSelectedCalendar()
+		state.form.model.calendarIds = [calendar.id]
+
+		if(state.selected_dates.length) {
+			state.form.model.startDate = state.selected_dates[0]
+			if(state.selected_dates.length > 1) {
+				state.form.model.endDate = state.selected_dates[1]
+			}
+			state.form.model.allDay = true
+		}else {
+			const d = state.current_date
+			state.form.model.startDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 10)
+			state.form.model.allDay = false
+		}
 		state.form.active = true
 		state.form.title = `${ACTION_TYPES.CREATE['title']}${EVENT.title}`
 		state.form.action = UPDATE_EVENT
@@ -225,7 +260,7 @@ function onCancel() {
 			/>
 			<v-card-text>
 				<EventForm :labels="labels"
-				:model="state.form.model" 
+				:model="state.form.model" :calendars="calendars"
 				@submit="onSubmit"  @remove="onRemove"
 				/>
 			</v-card-text>

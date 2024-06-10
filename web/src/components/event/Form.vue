@@ -6,8 +6,8 @@ import { useStore } from 'vuex'
 import { useVuelidate } from '@vuelidate/core'
 import { required, numeric, helpers } from '@vuelidate/validators'
 import Errors from '@/common/errors'
-import { isEmptyObject, deepClone , copyFromQuery, areObjectsEqual, reviewedOptions,
-	setValues, badRequest
+import { isEmptyObject, deepClone , areObjectsEqual, reviewedOptions,
+	setValues, badRequest, isValidDate
 } from '@/utils'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { VALIDATE_MESSAGES, ROUTE_NAMES, ENTITY_TYPES, ACTION_TYPES } from '@/consts'
@@ -27,11 +27,7 @@ const props = defineProps({
 		type: Object,
 		default: () => {}
 	},
-	job_titles: {
-		type: Array,
-		default: () => []
-	},
-	role_options: {
+	calendars: {
 		type: Array,
 		default: () => []
 	}
@@ -41,14 +37,14 @@ const emit = defineEmits(['submit', 'cancel', 'remove'])
 const initialState = {
 	form: {
 		id: 0,
-		jobTitleId: 0,
-		departmentId: null,
-		role: 0,
-		tel: '',
-		subTel: '',
+		title: '',
+		content: '',
 		ps: '',
       active: true,
-		allDay: false
+		allDay: false,
+		startDate: null,
+		endDate: null,
+		calendarIds: []
    },
 	range: {
 		roc: true,
@@ -58,8 +54,14 @@ const initialState = {
 		hours_allow: [],
 		minutes_allow: []
 	},
+	selected: {
+		calendars: {
+			active: false,
+			items: []
+		}
+	},
 	errors: {
-		'title': false
+		
 	}
 }
 
@@ -87,6 +89,9 @@ function init() {
 	state.range.hours_allow = [...Array(24).keys()].filter(num => num >= 6 && num <= 22)
 	state.range.minutes_allow = [...Array(60).keys()].filter(num => num % 5 === 0)
 	setValues(props.model, state.form)
+
+	state.range.dates[0] = state.form.startDate
+	state.range.dates[1] = state.form.endDate
 }
 
 
@@ -103,7 +108,14 @@ function onRemove() {
 function onInputChanged(){
    store.commit(CLEAR_ERRORS)
 }
-
+function onCalendarSelected(ids) {
+	let items = []
+	ids.forEach(id => {
+		const item = props.calendars.find(c => c.id === id)
+		items.push(item)
+	})
+	state.selected.calendars.items = items
+}
 
 </script>
 
@@ -124,18 +136,41 @@ function onInputChanged(){
 				color="success" 
 				/>
 			</v-col>
-			<v-col cols="4">
-
+			<v-col cols="8">
+				<div class="mt-3">
+					<span class="mt-1" >{{ ENTITY_TYPES.CALENDAR.title }} : </span>
+					<v-chip v-for="item in state.selected.calendars.items" class="ma-1" color="primary" variant="flat">
+						{{ item.title }}
+					</v-chip>
+					<v-menu :close-on-content-click="false" v-model="state.selected.calendars.active">
+						<template v-slot:activator="{ props }">
+							<a @click.prevent="() => state.selected.calendars.active = true" class="ma-3" href="#" v-bind="props">選擇其他..</a>
+						</template>
+						<v-card>
+							<v-card-text>
+								<v-row dense>
+									<v-checkbox v-for="calendar in calendars"
+									direction="horizontal" hide-details
+									v-model="state.form.calendarIds"
+									:label="calendar.title"
+									:value="calendar.id"
+									@update:modelValue="onCalendarSelected"
+									/>
+								</v-row>
+							</v-card-text>
+						</v-card>
+					</v-menu>
+				</div>	
 			</v-col>
 			<v-col cols="4">
 
 			</v-col>
 			
 		</v-row>
-		<CommonPickerPeriod ref="period_picker" 
-		:roc="true" :allow_same="false" minimum_view="time"
+		<CommonPickerPeriod :minimum_view="state.form.allDay ? 'day' : 'time'"
+		:roc="true" :allow_same="state.form.allDay" 
 		:hours_allow="state.range.hours_allow" :minutes_allow="state.range.minutes_allow"
-		:required_start="true" :required_end="true" 
+		:required_start="true" :required_end="!state.form.allDay" 
 		:dates="state.range.dates" 
 		@selected="(dates) => console.log(dates)"
 		/>
