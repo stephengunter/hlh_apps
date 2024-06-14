@@ -1,16 +1,16 @@
 <script setup>
 import { MqResponsive } from 'vue3-mq'
-import { ref, reactive, computed, watch, onBeforeMount, nextTick } from 'vue'
+import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { useVuelidate } from '@vuelidate/core'
 import { required, numeric, helpers } from '@vuelidate/validators'
 import Errors from '@/common/errors'
-import { isEmptyObject, deepClone , areObjectsEqual, reviewedOptions,
-	setValues, badRequest, isValidDate
+import { isEmptyObject, deepClone , areObjectsEqual, initByDate,
+	setValues, badRequest, isValidDate, datetimeText
 } from '@/utils'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
-import { VALIDATE_MESSAGES, ROUTE_NAMES, ENTITY_TYPES, ACTION_TYPES } from '@/consts'
+import { VALIDATE_MESSAGES, ROUTE_NAMES, ENTITY_TYPES, ACTION_TYPES, HEIGHT } from '@/consts'
 
 const name = 'EventForm'
 const store = useStore()
@@ -39,13 +39,12 @@ const initialState = {
 		id: 0,
 		title: '',
 		content: '',
-		ps: '',
-      active: true,
 		allDay: false,
 		startDate: null,
 		endDate: null,
 		calendarIds: []
    },
+	attachments: [],
 	range: {
 		roc: true,
 		dates: [],
@@ -60,12 +59,12 @@ const initialState = {
 			items: []
 		}
 	},
-	errors: {
-		
-	}
+	errors: new Errors()
 }
 
 const state = reactive(deepClone(initialState))
+const periodPicker = ref(null)
+const tiptap = ref(null)
 
 const canRemove = computed(() => {
 	if(!props.model.id) return false
@@ -90,15 +89,33 @@ function init() {
 	state.range.minutes_allow = [...Array(60).keys()].filter(num => num % 5 === 0)
 	setValues(props.model, state.form)
 
+	onCalendarSelected(state.form.calendarIds)
+
 	state.range.dates[0] = state.form.startDate
 	state.range.dates[1] = state.form.endDate
 }
 
-
+function checkCalendars() {
+	state.form.calendarIds = state.selected.calendars.items.map(c => c.id)
+	if(state.form.calendarIds.length) state.errors.clear('calendarIds')
+	else state.errors.set('calendarIds', [`請選擇至少一個${ENTITY_TYPES.CALENDAR.title}`])
+	
+	return !state.errors.has('calendarIds')
+}
 
 function onSubmit() {
 	v$.value.$validate().then(valid => {
 		if(!valid) return
+		checkCalendars()
+		if(!periodPicker.value.checkErrors()) return
+		let dates = periodPicker.value.getDates()
+		state.form.startDate = dates[0].date
+		state.form.endDate = dates[1].date
+		
+		var content = tiptap.value.getContent()
+		state.form.content = content
+
+		if(state.errors.any()) return
 		emit('submit', state.form)
 	})
 }
@@ -115,6 +132,21 @@ function onCalendarSelected(ids) {
 		items.push(item)
 	})
 	state.selected.calendars.items = items
+	checkCalendars()
+}
+function onAllDay(val) {
+	var dates = state.range.dates
+	if(val) {
+		dates.splice(0, 1, initByDate(dates[0]))
+		if(dates[1]) {
+			dates.splice(1, 1, null)
+		}
+		
+	}else {
+		const start = initByDate(dates[0], 10)
+		dates.splice(0, 1, start)
+		dates.splice(1, 1, initByDate(start, 11))
+	}
 }
 
 </script>
@@ -131,20 +163,24 @@ function onCalendarSelected(ids) {
 				/>
 			</v-col>
 			<v-col cols="4">
-				<v-switch :label="labels['allDay']"  
+				<v-switch :label="labels['allDay']"  color="success"
 				v-model="state.form.allDay"
-				color="success" 
+				@update:modelValue="onAllDay" 
 				/>
 			</v-col>
 			<v-col cols="8">
+				
 				<div class="mt-3">
 					<span class="mt-1" >{{ ENTITY_TYPES.CALENDAR.title }} : </span>
+					
 					<v-chip v-for="item in state.selected.calendars.items" class="ma-1" color="primary" variant="flat">
 						{{ item.title }}
 					</v-chip>
 					<v-menu :close-on-content-click="false" v-model="state.selected.calendars.active">
 						<template v-slot:activator="{ props }">
-							<a @click.prevent="() => state.selected.calendars.active = true" class="ma-3" href="#" v-bind="props">選擇其他..</a>
+							<a class="ma-3" href="#" v-bind="props" v-text="state.selected.calendars.items.length ? '選擇其他' : `選擇${ENTITY_TYPES.CALENDAR.title}`"
+							@click.prevent="() => state.selected.calendars.active = true" >
+							</a>
 						</template>
 						<v-card>
 							<v-card-text>
@@ -161,19 +197,32 @@ function onCalendarSelected(ids) {
 						</v-card>
 					</v-menu>
 				</div>	
+				<CommonErrorsMessages v-show="state.errors.has('calendarIds')" :messages="[state.errors.get('calendarIds')]" />
+				
 			</v-col>
 			<v-col cols="4">
 
 			</v-col>
 			
 		</v-row>
-		<CommonPickerPeriod :minimum_view="state.form.allDay ? 'day' : 'time'"
+		<CommonPickerPeriod ref="periodPicker" 
+		:minimum_view="state.form.allDay ? 'day' : 'time'"
 		:roc="true" :allow_same="state.form.allDay" 
 		:hours_allow="state.range.hours_allow" :minutes_allow="state.range.minutes_allow"
 		:required_start="true" :required_end="!state.form.allDay" 
-		:dates="state.range.dates" 
-		@selected="(dates) => console.log(dates)"
+		:dates="state.range.dates"
 		/>
+		<v-row v-show="false">
+			<v-col cols="12">
+				<p style="line-height: 2em;">
+					<span v-text="labels['content']"></span>
+					<span v-if="state.errors.content" class="text-red ml-2">{{ `*${VALIDATE_MESSAGES.REQUIRED(labels['content'])}`  }}</span>
+				</p>
+				<CommonEditorTiptap ref="tiptap"  :min_height="HEIGHT.S.toString()"
+				:content="state.form.content"
+				/>
+			</v-col>
+		</v-row>
 		<v-col cols="12">
 			<CommonErrorsList />
 		</v-col> 

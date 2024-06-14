@@ -61,14 +61,10 @@ class Errors {
     * @param {string|null} field
     */
    clear(field) {
-       
-		if (field) {
-			
+		if(field) {
 			delete this.errors[field]
-
 			return
 		}
-
 		this.errors = {}
    }
 

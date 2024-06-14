@@ -1,15 +1,21 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { useEditor, EditorContent } from '@tiptap/vue-3'
+import { useStore } from 'vuex'
+import { useEditor, EditorContent, BubbleMenu } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
+import Link from '@tiptap/extension-link'
 import TextAlign from '@tiptap/extension-text-align'
 import Underline from '@tiptap/extension-underline'
-import { DIALOG_MAX_WIDTH } from '@/config'
-import { photoCustomTag, emojiCustomTag, deepClone } from '@/utils'
+import { API_URL } from '@/config'
+import { WIDTH, VALIDATE_MESSAGES, ACTION_TYPES } from '@/consts'
+import { TEMP_ATTACHMENTS } from '@/store/actions.type'  
+import { onErrors, getSelectedText, photoCustomTag, emojiHtmlTag, emojiCustomTag, deepClone, extractUUIDFromBlobURL, 
+	isValidURL } from '@/utils'
 
 const name = 'EditorTiptap'
+const store = useStore()
 const props = defineProps({
    content: {
       type: String,
@@ -31,12 +37,23 @@ const initialState = {
 	content: '',
 	code: false,
 	image: {
-		active: false
+		uploads: []
+	},
+	picker: {
+		active: false,
+		key: '',
+		title: ''
+	},
+	link: {
+		url: '',
+		new_window: true
 	}
+	
 }
 const state = reactive(deepClone(initialState))
 
-const bubble = ref(null)
+//const bubble = ref(null)
+
 
 const editor = useEditor({
 	content: '',
@@ -48,14 +65,35 @@ const editor = useEditor({
 		Underline,
 		TextAlign.configure({
 			types: ['heading', 'paragraph'],
-		})
+		}),
+		Link.configure({
+			openOnClick: false,
+			defaultProtocol: 'https',
+		}),
+		getSelectedText
 	],
 	onUpdate({ editor }) {
+		return
 		onChanged()
+   },
+	onSelectionUpdate({ editor }) {
+		return
+		if(state.code) return
+		// const { from, to, empty } = editor.state.selection
+      // console.log('editor.state', editor.state)
+		// const text = editor.state.doc.textBetween(from, to, ' ')
+		// console.log(text)
+
+		console.log(editor.commands.getSelectedText())
+
+		//var rect = editor.state.selection.getRangeAt(0).getBoundingClientRect()
+		//console.log('rect', rect)
+		//var rect = sel.getRangeAt(0).getBoundingClientRect()
+		console.log('window.getSelection', window.getSelection().getRangeAt(0).getBoundingClientRect())
+		
    },
 })
 onMounted(() => {
-	window.addEventListener('mouseup', handleBubble)
 	state.content = props.content
 	editor.value.commands.setContent(state.content)
 	
@@ -64,7 +102,6 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
 	editor.value.destroy()
-	window.removeEventListener('mouseup', handleBubble)
 })
 
 function getContent() {
@@ -73,6 +110,7 @@ function getContent() {
 	}else {
 		state.content = editor.value.getHTML()
 	}
+
 	return state.content
 }
 
@@ -85,38 +123,78 @@ function code() {
 	state.code = !state.code
 }
 function onEmojiSelected({ key, value }) {
-	editor.value.commands.insertContent(emojiCustomTag({ key, value }))   
+	editor.value.commands.insertContent(emojiCustomTag({ key, value }))
 }
 function image(val) {
-	state.image.active = val
-}
-function onImageSelected(model) {
-	editor.value.commands.insertContent(photoCustomTag(model))
-	image(false)
-	emit('images')
-}
-
-function handleBubble() {
-	if(state.code) return
-	var sel = window.getSelection()	
-	if(sel && sel.toString().trim()) {
-		var rect = sel.getRangeAt(0).getBoundingClientRect()
-		let left = rect.left < 600 ? (rect.left + 30) : (rect.left - 360)
-		let top = rect.top - 90
-		bubble.value.style.left = `${left}px`
-		bubble.value.style.top = `${top}px`
-		bubble.value.style.display = 'block'
+	if(val) {
+		state.picker.title = '插入圖片'
+		state.picker.key = 'image'
+		state.picker.active = true
 	}else {
-		nextTick(() => {
-			bubble.value.style.display = 'none'	
-		})
+		state.picker = deepClone(initialState.picker)
 	}
 }
-function cancel_bubble() {
-	var sel = window.getSelection()// ? window.getSelection() : document.selection
-	if(sel) sel.removeAllRanges()
-	bubble.value.style.display = 'none'
+function onImageSelected(model) {
+	if(model.source === 'upload') {
+		store.dispatch(TEMP_ATTACHMENTS, model.files)
+		.then((models) => {
+			const path = models[0].path
+			editor.value.commands.setImage({ src: `${API_URL}/temp/${path}` })
+			image(false)
+		})
+		.catch(error => onErrors(error))
+	}
 }
+function setLink() {
+	const link = editor.value.getAttributes('link')
+	const previousUrl = link.href
+	if(previousUrl) {
+		state.picker.title = '編輯超連結'
+		state.link.url = previousUrl
+	}else {
+		state.picker.title = '插入超連結'
+		state.link.url = ''
+	}
+	
+	state.picker.key = 'link'
+	state.picker.active = true
+}
+function onLinkSubmit({ url, new_window }) {
+	editor.value.chain().focus()
+        .extendMarkRange('link')
+        .setLink({ href: url, target: new_window ? '_blank' : '_self' })
+        .run()
+	
+	state.picker = deepClone(initialState.picker)
+	state.link = deepClone(initialState.link)
+}
+
+// function handleBubble(text) {
+// 	if(state.code) return
+// 	var sel = window.getSelection()
+// 	const val = sel.toString().trim()
+	
+// 	if(sel && val) {
+// 		state.selection.text = val
+// 		const isUrl = isValidURL(val)
+// 		state.selection.isUrl = isUrl
+// 		var rect = sel.getRangeAt(0).getBoundingClientRect()
+// 		let left = rect.left < 600 ? (rect.left + 30) : (rect.left - 360)
+// 		let top = rect.top - 90
+// 		bubble.value.style.left = `${left}px`
+// 		bubble.value.style.top = `${top}px`
+// 		bubble.value.style.display = 'block'
+// 	}else {
+// 		nextTick(() => {
+// 			bubble.value.style.display = 'none'	
+// 		})
+// 	}
+// }
+// function cancel_bubble() {
+// 	var sel = window.getSelection()// ? window.getSelection() : document.selection
+// 	if(sel) sel.removeAllRanges()
+// 	bubble.value.style.display = 'none'
+// }
 function underline(active) {
 	if(active) editor.value.chain().focus().unsetUnderline().run()
 	else editor.value.chain().focus().setUnderline().run()
@@ -138,12 +216,16 @@ function onChanged() {
 				<v-btn icon="mdi-code-tags" @click.prevent="code" />
 			</div>
 			<div v-show="state.code === false">
-				<v-btn icon="mdi-image" @click.prevent="image(true)" />
-				<v-menu transition="scale-transition">
+				<v-btn icon="mdi-link" @click="setLink" :active="editor.isActive('link')" 
+				/>
+				<v-btn icon="mdi-link-off" @click="editor.chain().focus().unsetLink().run()" :disabled="!editor.isActive('link')"
+				/>
+				<v-btn icon="mdi-image" v-if="false" @click.prevent="image(true)" />
+				<v-menu v-if="false" transition="scale-transition">
 					<template v-slot:activator="{ props }">
 						<v-btn icon="mdi-emoticon-outline"  v-bind="props"/>
 					</template>
-					<PickerEmoji @selected="onEmojiSelected" />
+					<CommonPickerEmoji @selected="onEmojiSelected" />
 				</v-menu>
 				<v-btn icon="mdi-undo" @click="editor.chain().focus().undo().run()" 
 				:disabled="!editor.can().chain().focus().undo().run()" 
@@ -163,41 +245,52 @@ function onChanged() {
 			<editor-content v-show="!state.code" :editor="editor" />
     	</v-card-text>
 	</v-card>
-	<v-dialog v-model="state.image.active" :width="DIALOG_MAX_WIDTH" persistent>
-		<PickerImage 
-		@cancel="image(false)" 
-		@selected="onImageSelected" 
-		/>
+	<bubble-menu v-if="editor" :editor="editor" :tippy-options="{ duration: 100 }">
+		<div class="bubble-menu">
+			<v-toolbar flat density="compact">
+				<v-btn icon="mdi-format-bold" :active="editor.isActive('bold')" :disabled="!editor.can().chain().focus().toggleBold().run()"
+				@click="editor.chain().focus().toggleBold().run()" 
+				/>
+				<v-btn icon="mdi-format-italic" :active="editor.isActive('italic')"  :disabled="!editor.can().chain().focus().toggleItalic().run()"
+				@click="editor.chain().focus().toggleItalic().run()" 
+				/>
+				<v-btn icon="mdi-format-underline" :active="editor.isActive('underline')" 
+				@click="underline(editor.isActive('underline'))" 
+				/>
+				<v-btn icon="mdi-format-strikethrough" :active="editor.isActive('strike')"  :disabled="!editor.can().chain().focus().toggleStrike().run()" 
+				@click="editor.chain().focus().toggleStrike().run()" 
+				/>
+				<v-btn icon="mdi-format-align-left" :active="editor.isActive({ textAlign: 'left' })" :disabled="editor.isActive({ textAlign: 'left' })" 
+				@click="editor.chain().focus().setTextAlign('left').run()"
+				/>
+				<v-btn icon="mdi-format-align-center" :active="editor.isActive({ textAlign: 'center' })" :disabled="editor.isActive({ textAlign: 'center' })" 
+				@click="editor.chain().focus().setTextAlign('center').run()"
+				/>
+				<v-btn icon="mdi-format-align-right" :active="editor.isActive({ textAlign: 'right' })" :disabled="editor.isActive({ textAlign: 'right' })" 
+				@click="editor.chain().focus().setTextAlign('right').run()"
+				/>
+				<v-spacer />
+			</v-toolbar>
+		</div>
+   </bubble-menu>
+	<v-dialog persistent v-model="state.picker.active" :width="WIDTH.S + 50">
+		<v-card :max-width="WIDTH.S">
+			<CommonCardTitle  :title="state.picker.title" 
+			@cancel="() => state.picker = deepClone(initialState.picker)" 
+			/>
+			<v-card-text>
+				<CommonPickerImage v-if="state.picker.key ==='image'" 
+				:sources="['upload']" :auto_submit="true"
+				@selected="onImageSelected" 
+				/>
+				<CommonPickerLink v-if="state.picker.key ==='link'" 
+				:model="state.link" 
+				@submit="onLinkSubmit" 
+				/>
+			</v-card-text>
+		</v-card>
 	</v-dialog>
-	<div id="bubble" ref="bubble" class="custom-bubble">
-		<v-toolbar v-if="editor" flat density="compact">
-			<v-btn icon="mdi-format-bold" :active="editor.isActive('bold')" :disabled="!editor.can().chain().focus().toggleBold().run()"
-			@click="editor.chain().focus().toggleBold().run()" 
-			/>
-			<v-btn icon="mdi-format-italic" :active="editor.isActive('italic')"  :disabled="!editor.can().chain().focus().toggleItalic().run()"
-			@click="editor.chain().focus().toggleItalic().run()" 
-			/>
-			<v-btn icon="mdi-format-underline" :active="editor.isActive('underline')" 
-			@click="underline(editor.isActive('underline'))" 
-			/>
-			<v-btn icon="mdi-format-strikethrough" :active="editor.isActive('strike')"  :disabled="!editor.can().chain().focus().toggleStrike().run()" 
-			@click="editor.chain().focus().toggleStrike().run()" 
-			/>
-			<v-btn icon="mdi-format-align-left" :active="editor.isActive({ textAlign: 'left' })" :disabled="editor.isActive({ textAlign: 'left' })" 
-			@click="editor.chain().focus().setTextAlign('left').run()"
-			/>
-			<v-btn icon="mdi-format-align-center" :active="editor.isActive({ textAlign: 'center' })" :disabled="editor.isActive({ textAlign: 'center' })" 
-			@click="editor.chain().focus().setTextAlign('center').run()"
-			/>
-			<v-btn icon="mdi-format-align-right" :active="editor.isActive({ textAlign: 'right' })" :disabled="editor.isActive({ textAlign: 'right' })" 
-			@click="editor.chain().focus().setTextAlign('right').run()"
-			/>
-			<v-spacer />
-         <v-btn icon="mdi-window-close" variant="text" 
-         @click.prevent="cancel_bubble"
-         />
-		</v-toolbar>
-	</div>
+	
 </div>
   
 </template>
@@ -226,6 +319,15 @@ function onChanged() {
 	code {
 		background-color: rgba(#616161, 0.1);
 		color: #616161;
+	}
+	/* Link styles */
+	a {
+		color: #6a00f5;
+		cursor: pointer;
+
+		&:hover {
+			color: #5800CC;
+		}
 	}
 
 	pre {
@@ -267,14 +369,26 @@ function onChanged() {
 		}
 	}
 }
+.tiptap:focus {
+    outline: none;
+}
 .custom-bubble {
 	position: fixed;
-	display: none;
+	// display: none;
 	border: 1px solid;
 	border-color: black;
 	border-radius: 5px;
 	background: #EEE;
 	padding: 2px;
 	white-space: pre;
+}
+/* Bubble menu */
+.bubble-menu {
+	background: #EEE;
+	border-color: black;
+  border-radius: 0.7rem;
+  display: flex;
+  padding: 2px;
+  white-space: pre;
 }
 </style>

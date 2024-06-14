@@ -21,6 +21,9 @@ export const SHOW_MODIFY_RECORDS = 'showModifyRecords'
 //NEW
 
 
+//Attachments
+export const TEMP_ATTACHMENTS = 'tempAttachments'
+
 //Calendars
 export const FETCH_CALENDARS = 'fetchCalendars'
 
@@ -28,6 +31,7 @@ export const FETCH_CALENDARS = 'fetchCalendars'
 //Events
 export const FETCH_EVENTS = 'fetchEvents'
 export const CREATE_EVENT = 'createEvent'
+export const STORE_EVENT = 'storeEvent'
 export const EDIT_EVENT = 'editEvent'
 export const UPDATE_EVENT = 'updateEvent'
 export const REMOVE_EVENT = 'removeEvent'

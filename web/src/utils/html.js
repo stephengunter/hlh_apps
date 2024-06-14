@@ -2,6 +2,11 @@ export const photoCustomTag = (model) => `<PHOTO>${JSON.stringify(model)}</PHOTO
 
 export const emojiCustomTag = ({key, value}) => `<EMOJI>${key},${value}</EMOJI>`
 
+export const emojiHtmlTag = (value) => `<span style="display: inline-block;" class="qqface-wrapper">
+      <img src="/qqface.png" class="qqface qqface${value}" >
+      </span>
+      `
+
 export const matchPhotoes = (html) => html.match(/&lt;PHOTO&gt;(.*?)&lt;\/PHOTO&gt;/g)
 
 export const resolveImageModel = (photo) => JSON.parse(photo.replace(/&lt;PHOTO&gt;/g, '').replace(/&lt;\/PHOTO&gt;/g, ''))

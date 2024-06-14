@@ -10,10 +10,10 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import zh_tw from '@fullcalendar/core/locales/zh-tw'
 
-import { FETCH_CALENDARS, FETCH_EVENTS, CREATE_EVENT, UPDATE_EVENT } from '@/store/actions.type'
+import { FETCH_CALENDARS, FETCH_EVENTS, CREATE_EVENT, STORE_EVENT, UPDATE_EVENT } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import FullEvent from '@/models/fullEvent'
-import { isEmptyObject, deepClone , isSameDay,
+import { isEmptyObject, deepClone , isSameDay, initByDate,
 	 onErrors, onSuccess, setValues, is400, dateToText, toYearTW,
 } from '@/utils'
 import { WIDTH, ROUTE_NAMES, VALIDATE_MESSAGES, ACTION_TYPES, ENTITY_TYPES } from '@/consts'
@@ -191,8 +191,6 @@ function onDatesSelected(model) {
 	const same = isSameDay(model.start, end)
 	if(same) state.selected_dates = [model.start]
 	else state.selected_dates = [model.start, end]
-	
-	
 }
 function create() {
 	store.commit(CLEAR_ERRORS)
@@ -210,8 +208,8 @@ function create() {
 			}
 			state.form.model.allDay = true
 		}else {
-			const d = state.current_date
-			state.form.model.startDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 10)
+			state.form.model.startDate = initByDate(state.current_date, 10)
+			state.form.model.endDate = initByDate(state.current_date, 11)
 			state.form.model.allDay = false
 		}
 		state.form.active = true
@@ -225,7 +223,11 @@ function details(id) {
 }
 function onSubmit(form) {
 	setValues(form, state.form.model)
-	console.log('onSubmit', form)
+
+	store.commit(CLEAR_ERRORS)
+	store.dispatch(STORE_EVENT, state.form.model)
+	.then(model => {})
+	.catch(error => onErrors(error))
 }
 function onRemove() {
 	const id = state.form.model.id

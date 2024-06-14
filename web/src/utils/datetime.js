@@ -5,9 +5,13 @@ const adapter = new date.adapter({ locale: date.locale.zhTW })
 
 export const now = () => adapter.date()
 
+export const initByDate = (date, h = 0, m = 0) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), h, m)
+
 export const textToDate = (val) => adapter.date(val)
 
 export const dateToText = (date, opt = 'fullDate') => adapter.format(date, opt)
+
+export const datetimeText = (date) => moment(date).format('YYYY-MM-DD HH:MM:SS')
 
 export const getTimeString = (date) => {
    let hour = '00'

@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, computed, onBeforeMount, } from 'vue'
+import { reactive, computed, onBeforeMount, watch } from 'vue'
 import { deepClone, getDatePickerModel, getTimeString } from '@/utils'
 import { VALIDATE_MESSAGES } from '@/consts'
 import Errors from '@/common/errors'
@@ -52,7 +52,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['selected'])
 defineExpose({
-   getDates
+   checkErrors, getDates
 })
 
 const initialState = {
@@ -63,6 +63,10 @@ const initialState = {
 }
 
 const state = reactive(deepClone(initialState))
+watch(() => props.dates, init ,{
+   deep: true
+})
+
 const lower_limit  = computed(() => {
 	if(!state.dates[0]) return null
 	return state.dates[0]
@@ -83,7 +87,6 @@ function init() {
 }
 
 function onDateSelected(index, { date, model}, selected = true) {	
-	
 	state.dates[index] = date
 	state.models[index] = model
 	if(props.minimum_view === 'time') {
@@ -97,13 +100,11 @@ function onDateSelected(index, { date, model}, selected = true) {
 		state.values[index] = props.roc ? model.text_cn : model.text
 	}
 	
-	
 	if(selected) {
 		if(checkErrors()) {
 			emit('selected', getDates())
 		} 
 	}
-	
 }
 
 function checkErr(date, index) {
@@ -129,27 +130,33 @@ function checkErrors() {
 		if(state.dates[0]) state.errors.clear('start')
 		else state.errors.set('start', [`${VALIDATE_MESSAGES.REQUIRED(props.labels[0])}`]) 
 	}
+	
 	if(props.required_end) {
-		if(state.dates[1]) state.errors.clear('end')
-		else state.errors.set('end', [`${VALIDATE_MESSAGES.REQUIRED(props.labels[0])}`])
 		
+		if(state.dates[1]) state.errors.clear('end')
+		else state.errors.set('end', [`${VALIDATE_MESSAGES.REQUIRED(props.labels[1])}`])		
 	}
+
+	if(state.errors.any()) return false
 
 	const startDate = state.dates[0]
 	const err = checkErr(startDate, 0)
-	if(err) {
-		state.errors.set('start', [`錯誤的${props.labels[0]}`])
-	}
+	if(err) state.errors.set('start', [`錯誤的${props.labels[0]}`])
+	else state.errors.clear('start')
+
+	if(state.errors.any()) return false
+
+
 	const endDate = state.dates[1]
 	const errEnd = checkErr(endDate, 1)
-	if(errEnd) {
-		state.errors.set('start', [`錯誤的${props.labels[1]}`])
-	}
+	if(errEnd) state.errors.set('end', [`錯誤的${props.labels[1]}`])
+	else state.errors.clear('end')
+
 	return !state.errors.any()
 }
 
 function getDates() {
-	return state.dates.map((date, index) => ({date, model: state.models[index]}))
+	return state.dates.map((date, index) => ({ date, model: state.models[index] }))
 }
 </script>
 

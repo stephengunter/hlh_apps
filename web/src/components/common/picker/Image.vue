@@ -5,11 +5,22 @@ import { url, required, helpers } from '@vuelidate/validators'
 import { DIALOG_MAX_WIDTH } from '@/config'
 import { WIDTH, VALIDATE_MESSAGES, ACTION_TYPES } from '@/consts'
 import { deepClone } from '@/utils'
+import Upload from '../input/Upload.vue'
 
 const name = 'CommonPickerImage'
-const emit = defineEmits(['selected', 'cancel'])
+const props = defineProps({
+   sources: {
+      type: Array,
+      default: () => ['upload', 'link']
+   },
+   auto_submit: {
+      type: Boolean,
+      default: false
+   }
+})
+const emit = defineEmits(['selected'])
 
-const sources = [{ value: 1, text: '外部'}]
+const source_items = [{ value: 'upload', title: '上傳新圖片'},{ value: 'link', title: '外部連結'}]
 const labels = {
    'source':'來源', 
    'url':'Url',
@@ -19,13 +30,22 @@ const labels = {
 
 const initialState = {
 	form: {
-		source: 1,
+		source: '',
 	   url: '',
       title: '',
-      text: ''
-	}
+      text: '',
+      files: []
+	},
+   upload: {
+      source: 'upload',
+      files: [], 
+      thumbs: []
+   },
+   sources: []
 }
 const state = reactive(deepClone(initialState))
+
+const file_upload = ref(null)
 
 const rules = {
 	url: { 
@@ -38,7 +58,11 @@ const v$ = useVuelidate(rules, state.form)
 
 
 onBeforeMount(() => {
-   state.form.source = sources[0].value
+   props.sources.forEach(key => {
+      const item = source_items.find(x => x.value === key)
+      state.sources.push(item)
+   })
+   state.form.source = props.sources[0]
 })
 
 function onSubmit() {
@@ -46,35 +70,26 @@ function onSubmit() {
 		if(valid) emit('selected', state.form)
 	})
 }
-function cancel() {
-   emit('cancel')
+function onFileAdded({files, thumbs}) {
+   state.upload.files = files
+   state.upload.thumbs = thumbs
+   if(props.auto_submit) emit('selected', state.upload)
 }
-
 
 </script>
 <template>
-	<v-card :max-width="DIALOG_MAX_WIDTH">
-      <v-toolbar>
-			<v-card-title>
-				<span class="text-h5 font-weight-black">插入圖片</span>       
-			</v-card-title>
-			<template v-slot:append>
-				<v-tooltip :text="ACTION_TYPES.CANCEL.title">
-					<template v-slot:activator="{ props }">
-						<v-btn v-bind="props" icon="mdi-window-close" 
-						@click.prevent="cancel" 
-						/>
-					</template>
-				</v-tooltip>
-			</template>
-		</v-toolbar>
-      <v-card-text>
-         <form @submit.prevent="onSubmit">
+   <form  @submit.prevent="onSubmit">
+      <v-row dense v-show="state.sources.length > 1">
+         <v-col cols="12">
             <v-select 
-            :items="sources" item-title="text"
+            :items="state.sources" 
             :label="labels['source']"
             v-model="state.form.source"
             />
+         </v-col>
+      </v-row> 
+      <v-row dense v-show="state.form.source === 'link'">
+         <v-col cols="12">
             <v-text-field
             :label="labels['url']"
             v-model="state.form.url"
@@ -90,8 +105,20 @@ function cancel() {
             :label="labels['text']"
             v-model="state.form.text"
             />
+         </v-col>
+      </v-row> 
+      <v-row dense v-show="state.form.source === 'upload'">
+         <v-col cols="12">
+            <CommonInputUpload ref="file_upload" 
+            :is_media="true" :multiple="false" :show_button="true"
+            @file-added="onFileAdded" @file-removed="onFileAdded"
+            />
+         </v-col>
+      </v-row>
+      <v-row dense v-show="!props.auto_submit">
+         <v-col cols="12">
             <v-btn class="float-right" type="submit" color="success">確定</v-btn>
-         </form>
-    	</v-card-text>   
-   </v-card>
+         </v-col>
+      </v-row>
+   </form>
 </template>

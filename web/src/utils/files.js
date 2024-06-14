@@ -35,3 +35,13 @@ export const downloadFile = (blob, name) => {
    // Cleanup
    window.URL.revokeObjectURL(url)
 }
+
+export const extractUUIDFromBlobURL = (blobURL) => {
+   try {
+      const url = new URL(blobURL)
+      return url.pathname.replace(url.origin, '').substring(1)  // Remove the leading '/'
+   } catch (error) {
+      console.error('Invalid URL:', error)
+      return null
+   }
+}
