@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, computed, onBeforeMount, watch } from 'vue'
-import { deepClone, getDatePickerModel, getTimeString } from '@/utils'
+import { deepClone, getDatePickerModel, getTimeString, isValidDate } from '@/utils'
 import { VALIDATE_MESSAGES } from '@/consts'
 import Errors from '@/common/errors'
 import date from '@/plugins/date'
@@ -81,16 +81,17 @@ onBeforeMount(init)
 
 function init() {
 	state.dates = props.dates.slice(0)
-	
 	state.values = props.values.slice(0)
 	state.models = props.dates.map(date => getDatePickerModel(date, props.roc))	
+	
 }
 
 function onDateSelected(index, { date, model}, selected = true) {	
 	state.dates[index] = date
 	state.models[index] = model
+	
 	if(props.minimum_view === 'time') {
-		if(date) {
+		if(isValidDate(date)) {
 			const time = getTimeString(date)
 			const dateStr = props.roc ? model.text_cn : model.text
 			state.values[index] = `${dateStr}   ${time}`

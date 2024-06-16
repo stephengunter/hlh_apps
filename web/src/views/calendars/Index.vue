@@ -10,13 +10,13 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import zh_tw from '@fullcalendar/core/locales/zh-tw'
 
-import { FETCH_CALENDARS, FETCH_EVENTS, CREATE_EVENT, STORE_EVENT, UPDATE_EVENT } from '@/store/actions.type'
+import { FETCH_CALENDARS, FETCH_EVENTS, CREATE_EVENT, STORE_EVENT, EVENT_DETAILS, UPDATE_EVENT } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import FullEvent from '@/models/fullEvent'
 import { isEmptyObject, deepClone , isSameDay, initByDate,
 	 onErrors, onSuccess, setValues, is400, dateToText, toYearTW,
 } from '@/utils'
-import { WIDTH, ROUTE_NAMES, VALIDATE_MESSAGES, ACTION_TYPES, ENTITY_TYPES } from '@/consts'
+import { WIDTH, ROUTE_NAMES, CALENDAR_TYPES, ACTION_TYPES, ENTITY_TYPES } from '@/consts'
 
 import date from '@/plugins/date'
 
@@ -35,7 +35,6 @@ const full_calendar = ref(null)
 const initialState = {
    date: [new Date()],
 	viewMode: 'month',
-	week_title: '',
 	current_date: null,
 	selected_dates: [],
 	range: [],
@@ -71,6 +70,7 @@ const initialState = {
 	form: {
 		title: '',
 		active: false,
+		type: 'all',
 		model: {},
 		action: ''
 	}
@@ -192,9 +192,9 @@ function onDatesSelected(model) {
 	if(same) state.selected_dates = [model.start]
 	else state.selected_dates = [model.start, end]
 }
-function create() {
+function create(calendar_key) {
 	store.commit(CLEAR_ERRORS)
-	store.dispatch(CREATE_EVENT)
+	store.dispatch(CREATE_EVENT, { calendar: calendar_key})
 	.then(model => {
 		state.form.model = deepClone(model)
 
@@ -212,6 +212,8 @@ function create() {
 			state.form.model.endDate = initByDate(state.current_date, 11)
 			state.form.model.allDay = false
 		}
+		
+		state.form.type = calendar_key
 		state.form.active = true
 		state.form.title = `${ACTION_TYPES.CREATE['title']}${EVENT.title}`
 		state.form.action = UPDATE_EVENT
@@ -219,15 +221,32 @@ function create() {
 	.catch(error => onErrors(error))
 }
 function details(id) {
-	console.log('details', id)
+	store.dispatch(EVENT_DETAILS, id)
+	.then(model => {
+		state.form.model = model
+		state.form.active = true
+		state.form.title = ``
+		state.form.action = EVENT_DETAILS
+	})
+	.catch(error => onErrors(error))
+}
+function edit(id) {
+	console.log('edit', id)
 }
 function onSubmit(form) {
 	setValues(form, state.form.model)
-
+	console.log('model', state.form.model)
+return
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(STORE_EVENT, state.form.model)
-	.then(model => {})
+	.then(onEventUpdated)
 	.catch(error => onErrors(error))
+}
+function onEventUpdated() {
+	if(state.viewMode === 'week') getWeekData()
+	else onParamsChanged(head.value.getParams()) 
+
+	state.form = deepClone(initialState.form)
 }
 function onRemove() {
 	const id = state.form.model.id
@@ -261,10 +280,15 @@ function onCancel() {
 			@cancel="onCancel"  
 			/>
 			<v-card-text>
-				<EventForm :labels="labels"
+				<EventView v-if="state.form.action === EVENT_DETAILS" :labels="labels"
+				:model="state.form.model" :calendars="calendars"
+				@edit="edit"
+				/>
+				<EventForm v-else :type="state.form.type" :labels="labels"
 				:model="state.form.model" :calendars="calendars"
 				@submit="onSubmit"  @remove="onRemove"
 				/>
+				
 			</v-card-text>
 		</v-card>
 	</v-dialog>

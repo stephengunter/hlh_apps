@@ -1,5 +1,5 @@
 export * from './action.types'
-export * from './categories.types'
+export * from './calendar.types'
 export * from './claims.types'
 export * from './departments.types'
 export * from './dialog.types'

@@ -1,6 +1,6 @@
 <script setup>
 import { MqResponsive } from 'vue3-mq'
-import { ref, reactive, computed, watch, onBeforeMount, nextTick } from 'vue'
+import { ref, reactive, computed, watch, onBeforeMount, mergeProps } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { useVuelidate } from '@vuelidate/core'
@@ -195,7 +195,7 @@ function setRange({ firstDay, lastDay }) {
 	state.current_range = { firstDay, lastDay }
 }
 function create() {
-	emit('add')
+	emit('add', state.params.calendar)
 }
 
 
@@ -206,10 +206,15 @@ function create() {
 		<v-row dense>
 			<v-col cols="2">
 				<v-menu v-if="selected_calendar">
-					<template v-slot:activator="{ props }">
-						<v-btn color="primary" v-bind="props">
-							{{ selected_calendar.title }}
-						</v-btn>
+					<template v-slot:activator="{ props: menu }">
+						<v-tooltip location="top">
+							<template v-slot:activator="{ props: tooltip }">
+								<v-btn size="large" color="primary"  v-bind="mergeProps(menu, tooltip)">
+									{{ selected_calendar.title }}
+								</v-btn>
+							</template>
+							<span>I'm A Tooltip</span>
+						</v-tooltip>
 					</template>
 					<v-list>
 						<v-list-item
@@ -222,12 +227,13 @@ function create() {
 						</v-list-item>
 					</v-list>
 				</v-menu>
+				
 			</v-col>
 			<v-col cols="2" class="text-right">
-				<span class="text-h4" v-if="selected_calendar">{{ selected_calendar.title }}</span>
+				<span class="text-h4" v-show="false" v-if="selected_calendar">{{ selected_calendar.title }}</span>
 			</v-col>
-			<v-col cols="4">
-				<v-row dense v-show="year_month">
+			<v-col cols="4" class="mt-1">
+				<v-row  v-show="year_month">
 					<v-col cols="3">
 						<v-tooltip :text="prev_text">
 							<template v-slot:activator="{ props }">

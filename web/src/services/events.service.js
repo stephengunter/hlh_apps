@@ -5,11 +5,11 @@ const source =`${API_URL}/api/events`
 
 const fetch = ({ calendar, start, end }) => BaseService.fetch(`${source}/${calendar}/${start}/${end}`)
 
-const create = () => BaseService.fetch(`${source}/create`)
+const create = (params) => BaseService.fetch(`${source}/create`, params)
 
 const store = (model) => BaseService.post(`${source}`, model)
 
-const get = (id) => BaseService.fetch(`${source}/${id}`)
+const details = (id) => BaseService.fetch(`${source}/${id}`)
 
 const edit = (id) => BaseService.fetch(`${source}/edit/${id}`)
 
@@ -20,4 +20,4 @@ const remove = (id) => BaseService.remove(`${source}/${id}`)
 const fetch_categories = () => BaseService.fetch(`${source}/categories`)
 
 
-export default { fetch, create, store, get, edit, update, remove, fetch_categories }
+export default { fetch, create, store, details, edit, update, remove, fetch_categories }

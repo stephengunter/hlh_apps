@@ -5,6 +5,8 @@ const adapter = new date.adapter({ locale: date.locale.zhTW })
 
 export const now = () => adapter.date()
 
+export const addHours = (date, hours) => moment(date).add(hours, 'hours').toDate()
+
 export const initByDate = (date, h = 0, m = 0) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), h, m)
 
 export const textToDate = (val) => adapter.date(val)
@@ -30,6 +32,8 @@ export const getTimeString = (date) => {
 }
 
 export const isValidDate = (val) => adapter.isValid(val)
+
+export const isSameDate = (date, other) => moment(other).isSame(date)
 
 export const isSameDay = (start, end) => moment(end).isSame(start, 'day')
 
@@ -96,12 +100,13 @@ export const dateTextToRoc = (text) => {
    }
    return ''
 }
-export const dateToRocFormat = (date) => {
-   
+export const dateToRocFormat = (date, time = false) => {
    const year = toYearTW(date.getFullYear())
    const month = date.getMonth() + 1
    const day = date.getDate()
-   return `${year}年${month}月${day}日`
+   const dStr = `${year}年${month}月${day}日`
+   if(!time) return dStr
+   return `${dStr} ${getTimeString(date)}`
 }
 
 export const getDatePickerModel = (date, roc = false) => {
@@ -144,4 +149,11 @@ export const toMonthTW = (en) =>  {
 export const toWeekdayTW = (en) =>  {
    const weekday = weekdays_list.find(item => item.en === en)
    return weekday.cn
+}
+
+export const initRangeHoursMinutes = () => {
+   return {
+      hours_allow: [...Array(24).keys()].filter(num => num >= 6 && num <= 22),
+      minutes_allow: [...Array(60).keys()].filter(num => num % 5 === 0)
+   }
 }

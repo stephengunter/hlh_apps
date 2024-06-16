@@ -9,6 +9,12 @@ import { SET_CALENDARS, SET_LOADING } from '@/store/mutations.type'
 
 const initialState = {
    list: [],
+   ec_labels: {
+      courtType: '案類',
+      year: '年度',
+      category: '字別',
+      num: '案號'
+   },
    actions: []
 }
 
