@@ -24,20 +24,22 @@ const  period_picker = ref(null)
 const state = reactive(deepClone(initialState))
 
 onBeforeMount(() => {
-	var date = datetimeText(now())
-	console.log(date)
+	
 })
 function onDateSelected({ date, model }, selected = true) {	
 	
+}
+function create() {
+	console.log('create')
 }
 </script>
 
 <template>
 	<div>
-		
 		<v-row>
 			<v-col cols="12">
-				
+				<CommonButtonRemove
+				/>
 			</v-col>
 		</v-row>
 

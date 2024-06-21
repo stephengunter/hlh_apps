@@ -213,7 +213,7 @@ function create() {
 									{{ selected_calendar.title }}
 								</v-btn>
 							</template>
-							<span>I'm A Tooltip</span>
+							<span>切換行事曆</span>
 						</v-tooltip>
 					</template>
 					<v-list>

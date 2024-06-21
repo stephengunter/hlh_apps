@@ -42,7 +42,11 @@ const initialState = {
 }
 const state = reactive(deepClone(initialState))
 
-const accept = computed(() => props.is_media ? image_types.toString() : props.allow_types.toString())
+const accept = computed(() => {
+   if(props.is_media) return image_types.toString()
+   if(props.allow_types.length) return props.allow_types.toString()
+   return '*'
+})
 const names = computed(() => state.files.map(x => x.name))
 const button_disable = computed(() => {
    if(state.files.length) {
@@ -157,7 +161,7 @@ function isImage(type) {
       >
       </v-btn>
       <input ref="inputUpload" style="display: none;" type="file" 
-      :multiple="multiple" :accept="accept" 
+      :multiple="multiple" :accept="accept"
       @change="onFileChange" 
       > 
       <v-chip size="small" class="ma-2" v-for="file in state.files"

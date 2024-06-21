@@ -1,3 +1,4 @@
+import { FILE_TYPES } from '@/consts'
 export const getMimeType = (extension) => {
    switch (extension.toLowerCase().replace(/\./g, '')) {
       case 'pdf':
@@ -34,6 +35,22 @@ export const downloadFile = (blob, name) => {
 
    // Cleanup
    window.URL.revokeObjectURL(url)
+}
+
+export const previewClientFile = (file) => {
+	if(file.type === FILE_TYPES.PDF) {
+      const reader = new FileReader()
+      reader.onload = function(event) {
+         const data = event.target.result
+         const blob = new Blob([data], { type: 'application/pdf' })
+         const url = URL.createObjectURL(blob)
+         window.open(url, '_blank')
+      }
+      reader.onerror = function(event) {
+         console.error('Error reading file:', event.target.error)
+      }
+      reader.readAsArrayBuffer(file)
+   }
 }
 
 export const extractUUIDFromBlobURL = (blobURL) => {

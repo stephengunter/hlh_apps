@@ -1,4 +1,6 @@
 <script setup>
+import ButtonDefault from './Default.vue'
+
 const name = 'ButtonCreate'
 const props = defineProps({
    tooltip: {
@@ -13,34 +15,32 @@ const props = defineProps({
       type: String,
       default: ''
    },
+   color: {
+      type: String,
+      default: 'info'
+   },
    size: {
       type: String,
       default: 'small'
+   },
+   icon: {
+      type: String,
+      default: 'mdi-plus'
+   },
+   icon_only: {
+      type: Boolean,
+      default: false
    }
 })
+
 const emit = defineEmits(['create'])
-
-
-function create() {
-	emit('create')
-}
 </script>
 <template>
-   <v-tooltip v-if="tooltip" top>
-      <template v-slot:activator="{ props }">
-         <v-btn  v-bind="props" :size="size" color="info" icon="mdi-plus"
-         :class="class_name" 
-         :disabled="disabled" 
-         @click.prevent="create"  
-         >
-         </v-btn>
-      </template>
-      <span v-text="tooltip"></span>
-   </v-tooltip>
-   <v-btn v-else :size="size" color="info" icon="mdi-plus" 
-   :class="class_name" :disabled="disabled" 
-   @click.prevent="create" 
-   >
-   </v-btn>
+   <ButtonDefault :tooltip="tooltip"
+   :icon="icon" :color="color" :size="size"
+   :disabled="disabled" :class_name="class_name"
+   :icon_only="icon_only"
+   @click="() => emit('create')" 
+   />
   
 </template>

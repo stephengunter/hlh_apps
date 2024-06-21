@@ -9,6 +9,7 @@ export const ROUTE_NAMES = {
    ARTICLE_EDIT: 'article-edit',   
    AUTHTOKEN: 'authtoken',
    CALENDARS: 'calendars',
+   TASKS_INDEX: 'tasks',
    CLOSE: 'close',
 
    
@@ -16,8 +17,7 @@ export const ROUTE_NAMES = {
    
    DEPARTMENTS: 'departments',
    EVENTS: 'events',
-   JOB_DETAILS: 'job-details',   
-   JUDGEBOOKFILES: 'judgebookfiles',
+   JOB_DETAILS: 'job-details',
    
    LOGIN: 'login',
    NOT_FOUND: '404',

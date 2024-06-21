@@ -1,4 +1,5 @@
 <script setup>
+import ButtonDefault from './Default.vue'
 const name = 'CommonButtonRemove'
 const props = defineProps({
    tooltip: {
@@ -13,34 +14,31 @@ const props = defineProps({
       type: String,
       default: ''
    },
+   color: {
+      type: String,
+      default: 'error'
+   },
    size: {
       type: String,
       default: 'small'
+   },
+   icon: {
+      type: String,
+      default: 'mdi-trash-can'
+   },
+   icon_only: {
+      type: Boolean,
+      default: false
    }
 })
 const emit = defineEmits(['remove'])
-
-
-function remove() {
-	emit('remove')
-}
 </script>
 <template>
-   <v-tooltip v-if="tooltip" top>
-      <template v-slot:activator="{ props }">
-         <v-btn  v-bind="props" :size="size" color="error" icon="mdi-delete"
-         :class="class_name" 
-         :disabled="disabled" 
-         @click.prevent="remove"  
-         >
-         </v-btn>
-      </template>
-      <span v-text="tooltip"></span>
-   </v-tooltip>
-   <v-btn v-else :size="size" color="error" icon="mdi-delete" 
-   :class="class_name" :disabled="disabled" 
-   @click.prevent="remove" 
-   >
-   </v-btn>
+   <ButtonDefault :tooltip="tooltip"
+   :icon="icon" :color="color" :size="size"
+   :disabled="disabled" :class_name="class_name"
+   :icon_only="icon_only"
+   @click="() => emit('remove')" 
+   />
   
 </template>

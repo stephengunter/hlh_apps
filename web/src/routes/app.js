@@ -2,7 +2,7 @@ import { ROUTE_TYPES, ROUTE_NAMES, MENUS, ENTITY_TYPES } from '@/consts'
 import { isNullOrEmpty, upperFirstLetter, pluralization } from '@/utils'
 import Page from '@/models/page'
 
-const JUDGEBOOKFILE = ENTITY_TYPES.JUDGEBOOKFILE
+const TASK = ENTITY_TYPES.TASK
 const CALENDAR = ENTITY_TYPES.CALENDAR
 const EVENT = ENTITY_TYPES.EVENT
 
@@ -42,6 +42,15 @@ new Page({
    view: `${ROUTE_NAMES.CALENDARS}/Index`,
    icon: 'mdi-calendar', 
    title: CALENDAR.title,
+   menus: [MENUS.MAIN],
+   alias: '/'
+}),
+new Page({
+   name: ROUTE_NAMES.TASKS_INDEX,
+   path: `/${ROUTE_NAMES.TASKS_INDEX}`,
+   view: `${ROUTE_NAMES.TASKS_INDEX}/Index`,
+   icon: 'mdi-note-check-outline', 
+   title: TASK.title,
    menus: [MENUS.MAIN],
    alias: '/'
 }),

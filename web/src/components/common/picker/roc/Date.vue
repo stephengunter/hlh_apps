@@ -71,6 +71,9 @@ const errorMessages = computed(() => props.error_message ? [props.error_message]
 
 onMounted(init)
 
+// watch(() => props.value, init, {
+// 	deep: false
+// })
 watch(() => props.date, (new_date, old_date) => {
 	if(new_date && old_date) {
 		if(new_date.getTime() === old_date.getTime()) return
@@ -114,7 +117,6 @@ function onSelected(date) {
 	<v-menu :close-on-content-click="false" v-model="state.active">
       <template v-slot:activator="{ props }">
          <v-text-field :class="class_name"  readonly v-bind="props"
-			density="compact" variant="outlined"
 			:label="label" :clearable="clearable"
          :model-value="model_text"
 			:error-messages="errorMessages"

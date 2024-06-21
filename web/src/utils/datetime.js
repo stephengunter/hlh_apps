@@ -54,8 +54,8 @@ export const month_list = [
    { en: 'Oct', cn: '10月' },
    { en: 'Nov', cn: '11月' },
    { en: 'Dec', cn: '12月' }
-] 
-"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+]
+
 export const weekdays_list = [
    { en: 'Sun', cn: '日' },
    { en: 'Mon', cn: '一' },

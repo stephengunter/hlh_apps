@@ -37,3 +37,13 @@ export const EDIT_EVENT = 'editEvent'
 export const UPDATE_EVENT = 'updateEvent'
 export const REMOVE_EVENT = 'removeEvent'
 export const FETCH_EVENT_CATEGORIES = 'fetchEventCategories'
+
+
+//Tasks
+export const FETCH_TASKS = 'fetchTasks'
+export const CREATE_TASK = 'createTask'
+export const STORE_TASK = 'storeTask'
+export const TASK_DETAILS = 'taskDetails'
+export const EDIT_TASK = 'editTask'
+export const UPDATE_TASK = 'updateTask'
+export const REMOVE_TASK = 'removeTask'

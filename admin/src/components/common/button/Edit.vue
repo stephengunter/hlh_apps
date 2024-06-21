@@ -16,6 +16,10 @@ const props = defineProps({
    size: {
       type: String,
       default: 'small'
+   },
+   icon_only: {
+      type: Boolean,
+      default: false
    }
 })
 const emit = defineEmits(['edit'])
@@ -28,8 +32,8 @@ function edit() {
 <template>
    <v-tooltip v-if="tooltip" top>
       <template v-slot:activator="{ props }">
-         <v-btn  v-bind="props" :size="size" color="info" icon="mdi-pencil"
-         :class="class_name" 
+         <v-btn  v-bind="props" :size="size" :color="color" icon="mdi-pencil"
+         :class="class_name" variant=""
          :disabled="disabled" 
          @click.prevent="edit"  
          >
@@ -37,8 +41,8 @@ function edit() {
       </template>
       <span v-text="tooltip"></span>
    </v-tooltip>
-   <v-btn v-else :size="size" color="info" icon="mdi-pencil" 
-   :class="class_name" :disabled="disabled" 
+   <v-btn v-else :size="size" :color="color" icon="mdi-pencil" 
+   :class="class_name" :disabled="disabled"  variant=""
    @click.prevent="edit" 
    >
    </v-btn>

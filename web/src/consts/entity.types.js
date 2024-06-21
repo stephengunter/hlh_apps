@@ -7,6 +7,14 @@ export const ENTITY_TYPES = {
       name: 'event',
       title: '事件'
    },
+   TASK: {
+      name: 'task',
+      title: '任務'
+   },
+   REFERENCE: {
+      name: 'reference',
+      title: '參考資料'
+   },
    MODIFY_RECORD: {
       name: 'modifyRecord',
       title: '編修紀錄'
