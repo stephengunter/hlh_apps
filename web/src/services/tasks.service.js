@@ -3,7 +3,7 @@ import { API_URL } from '@/config'
 
 const source =`${API_URL}/api/tasks`
 
-const fetch = (params) => BaseService.fetch(params)
+const fetch = (query) => BaseService.fetch(source, query)
 
 const create = (params) => BaseService.fetch(`${source}/create`, params)
 

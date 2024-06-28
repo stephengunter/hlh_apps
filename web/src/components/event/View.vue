@@ -81,7 +81,7 @@ function edit() {
 			</v-col>
 			<v-col cols="4">
 				<span class="text-subtitle-2">地點：</span>
-				<div >
+				<div>
 					<span>簡報室</span>
 				</div>
 			</v-col>

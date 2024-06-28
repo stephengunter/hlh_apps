@@ -35,7 +35,7 @@ new Page({
 
 const userlinks = [
 // groups
-
+//CALENDARS
 new Page({
    name: ROUTE_NAMES.CALENDARS,
    path: `/${ROUTE_NAMES.CALENDARS}/:calendar?/:year?/:month?`,
@@ -45,15 +45,26 @@ new Page({
    menus: [MENUS.MAIN],
    alias: '/'
 }),
+
+
+//TASKS
 new Page({
    name: ROUTE_NAMES.TASKS_INDEX,
    path: `/${ROUTE_NAMES.TASKS_INDEX}`,
    view: `${ROUTE_NAMES.TASKS_INDEX}/Index`,
    icon: 'mdi-note-check-outline', 
    title: TASK.title,
-   menus: [MENUS.MAIN],
-   alias: '/'
+   menus: [MENUS.MAIN]
 }),
+new Page({
+   name: ROUTE_NAMES.TASK_DETAILS,
+   path: `/${ROUTE_NAMES.TASKS_INDEX}/:id`,
+   view: `${ROUTE_NAMES.TASKS_INDEX}/Details`,
+   icon: '', 
+   title: TASK.title,
+   parent: ROUTE_NAMES.TASKS_INDEX,
+   menus: []
+})
 ]
 
 

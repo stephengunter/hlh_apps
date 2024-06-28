@@ -56,6 +56,10 @@ function currentMain() {
       state.parent_active = true
       state.expand = true
       state.sub_active_name = ''
+   }else if(props.current.hasParent(props.item.name)) {
+      state.parent_active = true
+      state.expand = true
+      state.sub_active_name = props.current.name
    }else {
       state.parent_active = false
       state.expand = false
@@ -70,7 +74,7 @@ function select() {
 }
 </script>
 <template>
-   <v-list-item :prepend-icon="item.meta.icon" :active="state.parent_active" >
+   <v-list-item :prepend-icon="item.meta.icon" :active="state.parent_active">
       <template v-slot:title>
          <a href="#" @click.prevent="select" style="color: white;" class="text-decoration-none">
          {{ item.meta.title }}
@@ -86,7 +90,7 @@ function select() {
       <v-list-item style="margin-left : 45px"
       v-for="subItem in subMenuItems"  :key="subItem.name"
       :active="subItem.name === state.sub_active_name" 
-      color="info"
+      color="warning"
       :title="subItem.meta.title"
       :prepend-icon="subItem.meta.icon"
       :value="subItem.name"

@@ -42,6 +42,7 @@ const initialState = {
 
 const state = reactive(deepClone(initialState))
 const labels = computed(() => store.state.tasks.labels)
+const pagedList = computed(() => store.state.tasks.pagedList)
 
 watch(route, init)
 
@@ -50,14 +51,17 @@ onMounted(init)
 function init() {
 	head.value.init()
 }
-function onParamsChanged(params) {
-	fetchTasks(params)
+function onQueryChanged(query) {
+	fetchTasks(query)
 }
-function fetchTasks(params) {
-	return
+function onOptionChanged(option) {
+	head.value.setPageOption(option)
+}
+function fetchTasks(query) {
+	console.log(FETCH_TASKS, query)  
 	store.commit(CLEAR_ERRORS)
-	store.dispatch(FETCH_TASKS, params)
-	.then(list => {
+	store.dispatch(FETCH_TASKS, query)
+	.then(() => {
 		
 	})
 	.catch(error => onErrors(error))
@@ -73,23 +77,12 @@ function create() {
 	})
 	.catch(error => onErrors(error))
 }
-function details(id) {
-	store.dispatch(TASK_DETAILS, id)
-	.then(model => {
-		state.form.model = model
-		state.form.active = true
-		state.form.title = ``
-		state.form.action = TASK_DETAILS
-	})
-	.catch(error => onErrors(error))
-}
+
 function edit(id) {
 	console.log('edit', id)
 }
-function onSubmit(form) {
-	setValues(form, state.form.model)
-	console.log('model', state.form.model)
-return
+function onSubmit(model) {
+	setValues(model, state.form.model)
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(STORE_TASK, state.form.model)
 	.then(onTaskUpdated)
@@ -106,13 +99,25 @@ function onRemove() {
 function onCancel() {
 	state.form = { ...initialState.form }
 }
+function onSelect(id) {
+	router.push({ name: ROUTE_NAMES.TASK_DETAILS, params: { id } })
+}
 
 </script>
 
 <template>
    <TaskHead ref="head" 
-	@submit="onParamsChanged" @add="create"
+	@submit="onQueryChanged" @add="create"
 	/>
+	<v-row dense>
+		<v-col cols="12">
+			<TaskTable v-if="!isEmptyObject(pagedList)" 
+			:model="pagedList" 
+			@select="onSelect"
+			@options_changed="onOptionChanged"
+			/>
+		</v-col>
+	</v-row>
 	<v-row class="mt-1">
 		<v-col cols="12">
 			

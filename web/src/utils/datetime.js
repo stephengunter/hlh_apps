@@ -92,10 +92,11 @@ export const rocNumToDateText = (input, rocDate = false) => {
    return '' 
 }
 
-export const dateTextToRoc = (text) => {
+export const dateTextToRoc = (text, cn = false) => {
    if(text) {
       let parts = text.split('-')
       parts[0] = parseInt(parts[0]) - 1911
+      if(cn) return `${parts[0]}年${parseInt(parts[1])}月${parseInt(parts[2])}日`
       return `${parts[0]}-${parts[1]}-${parts[2]}`
    }
    return ''

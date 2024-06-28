@@ -84,8 +84,6 @@ onBeforeMount(init)
 
 function init() {
 	setValues(props.model, state.form)
-	console.log(props.model.deadLine)
-	console.log(state.form.deadLine)
 
 	let date = props.model.deadLine
 	let model = getDatePickerModel(date)

@@ -20,7 +20,7 @@ const dateAdapter = new date.adapter({ locale: date.locale.zhTW })
 
 const emit = defineEmits(['submit', 'add'])
 defineExpose({
-   init, setParams, getParams
+   init, setQuery, getQuery, setPageOption
 })
 
 const props = defineProps({
@@ -28,14 +28,15 @@ const props = defineProps({
 })
 
 const initialState = {
-	params: {
-		
+	query: {
+		page: 1,
+		pageSize: 50
 	}
 }
 
 const state = reactive(deepClone(initialState))
 
-const params = computed(() => store.state.tasks.params)
+const query = computed(() => store.state.tasks.query)
 
 const rules = computed(() => {
 	return {
@@ -43,39 +44,45 @@ const rules = computed(() => {
 	}
 })
 
-const params_are_match = computed(() => {
-	if(route.params) {
-		return areObjectsEqual(state.params, route.params, true)
+const query_are_match = computed(() => {
+	if(route.query) {
+		return areObjectsEqual(state.query, route.query, true)
 	} return false
 })
 
-const v$ = useVuelidate(rules, state.params)
 
 
 function init() {
-	if(route.params) copyFromQuery(state.params, route.params)
-	if(!checkParams()) {
+	if(route.query) copyFromQuery(state.query, route.query)
+	if(!checkQuery()) {
 	}
 
-	onParamsChanged()
+	onQueryChanged()
 }
-function checkParams() {
+function checkQuery() {
 	
 	return true
 }
-function setParams(model) {
-   setValues(model, state.params)
-	onParamsChanged()
+function setQuery(model) {
+   setValues(model, state.query)
+	onQueryChanged()
 }
-function getParams() {
-   return state.params
+function getQuery() {
+   return state.query
 }
-function onParamsChanged() {
+function onQueryChanged() {
+	onSubmit()
+}
+function setPageOption(option) {
+	if(option.hasOwnProperty('page')) state.query.page = option.page
+	if(option.hasOwnProperty('size')) state.query.pageSize = option.size
 	onSubmit()
 }
 function onSubmit() {
-	if(params_are_match.value) emit('submit', { ...state.params })
-	else router.push({ name: ROUTE_NAMES.TASKS_INDEX, params: state.params })
+	console.log('onSubmit')
+	console.log('query_are_match.value', query_are_match.value)
+	if(query_are_match.value) emit('submit', { ...state.query })
+	else router.push({ name: ROUTE_NAMES.TASKS_INDEX, query: { ...state.query } })
 }
 function create() {
 	emit('add')

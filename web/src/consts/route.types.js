@@ -10,6 +10,7 @@ export const ROUTE_NAMES = {
    AUTHTOKEN: 'authtoken',
    CALENDARS: 'calendars',
    TASKS_INDEX: 'tasks',
+   TASK_DETAILS: 'taskDetails',
    CLOSE: 'close',
 
    
