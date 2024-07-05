@@ -5,5 +5,9 @@ const source =`${API_URL}/api/attachments`
 
 const temp = (form) => BaseService.post(`${source}/temp`, form)
 
+const store = (form) => BaseService.post(`${source}`, form)
 
-export default { temp }
+const get = (id) => BaseService.fetch(`${source}/${id}`)
+
+
+export default { temp, store, get }

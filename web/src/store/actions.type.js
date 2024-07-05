@@ -2,6 +2,8 @@ export const PAGE_NOT_FOUND = '404'
 export const SHOW_CONFIRM = 'showConfirm'
 export const HIDE_CONFIRM = 'hideConfirm'
 export const SHOW_PHOTO = 'showPhoto'
+export const PREVIEW_IMAGE = 'previewImage'
+export const PREVIEW_ATTACHMENT = 'previewAttachment'
 
 export const GET_MENUS = 'getMenus'
 
@@ -22,7 +24,13 @@ export const SHOW_MODIFY_RECORDS = 'showModifyRecords'
 
 
 //Attachments
+export const STORE_ATTACHMENT = 'storeAttachment'
 export const TEMP_ATTACHMENTS = 'tempAttachments'
+export const GET_ATTACHMENT = 'getAttachment'
+
+//References
+export const STORE_REFERENCE = 'storeReference'
+export const GET_REFERENCE = 'getReference'
 
 //Calendars
 export const FETCH_CALENDARS = 'fetchCalendars'

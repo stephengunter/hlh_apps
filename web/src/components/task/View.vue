@@ -6,14 +6,13 @@ import { useStore } from 'vuex'
 import Errors from '@/common/errors'
 import { deepClone, dateTextToRoc, isSameDay, getTimeString
 } from '@/utils'
-import { ENTITY_TYPES, ACTION_TYPES } from '@/consts'
-import { el, tr } from 'date-fns/locale'
+import { ENTITY_TYPES, ACTION_TYPES, WIDTH } from '@/consts'
 
 const name = 'EventView'
 const store = useStore()
 const route = useRoute()
 const router = useRouter()
-const ENTITY_TYPE = ENTITY_TYPES.EVENT
+const REFERENCE = ENTITY_TYPES.REFERENCE
 
 const props = defineProps({
    model: {
@@ -23,10 +22,6 @@ const props = defineProps({
 	labels: {
 		type: Object,
 		default: () => {}
-	},
-	calendars: {
-		type: Array,
-		default: () => []
 	}
 })
 const emit = defineEmits(['edit'])
@@ -47,6 +42,18 @@ const state = reactive(deepClone(initialState))
 function edit() {
 	emit('edit', props.model.id)
 }
+function editReference(index) {
+	state.form.references[index]
+	state.dialog.key = REFERENCE.name
+	state.dialog.action = ACTION_TYPES.EDIT.name
+	state.dialog.title = `${ACTION_TYPES.EDIT.title}${REFERENCE.title}`
+	state.dialog.model = deepClone(state.form.references[index]) 
+	state.dialog.model.uuid = uuid()
+	state.dialog.active = true
+}
+function removeReference(index) {
+	state.form.references.splice(index, 1)
+}
 
 </script>
 
@@ -54,9 +61,8 @@ function edit() {
 	<div>
 		<v-row>
 			<v-col cols="9">
-				<p class="text-h5">
-					{{ model.title }}
-				</p>
+				<span class="text-h5 font-weight-black" v-text="model.title"></span>
+				
 			</v-col>
 			<v-col cols="3">
 				<span class="text-subtitle-2" v-text="labels['deadLine']"></span>
@@ -73,9 +79,19 @@ function edit() {
 		</v-row>
 		<v-row>
 			<v-col cols="12">
-				<!-- <ReferenceTable :list="state.form.references" 
-				@remove="removeReference" @edit="editReference"
-				/> -->
+				<v-card :max-width="WIDTH.M">
+					<v-card-title>
+						<span class="text-h5" v-text="REFERENCE['title']"></span>
+					</v-card-title>
+					<v-card-text>
+						<ReferenceTable :read_only="true"
+						:list="model.references" 
+						@remove="removeReference" @edit="editReference"
+						/>
+						
+					</v-card-text>
+				</v-card>
+				
 			</v-col>
 		</v-row>
 	</div>	

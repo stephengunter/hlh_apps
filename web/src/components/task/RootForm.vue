@@ -87,11 +87,9 @@ function init() {
 
 	let date = props.model.deadLine
 	let model = getDatePickerModel(date)
-	 
-	state.date.date = state.form.deadLine
-	state.date.model = getDatePickerModel()
 
 	onDateSelected({ date, model }, false)
+	console.log(props.model)
 }
 
 function onDateSelected({ date, model }) {
@@ -159,7 +157,6 @@ function onReferenceSubmit(model) {
 	onCancelDialog()
 }
 function editReference(index) {
-	state.form.references[index]
 	state.dialog.key = REFERENCE.name
 	state.dialog.action = ACTION_TYPES.EDIT.name
 	state.dialog.title = `${ACTION_TYPES.EDIT.title}${REFERENCE.title}`
@@ -196,7 +193,7 @@ function removeReference(index) {
 			</v-col>
 		</v-row>
 		<v-row>
-			<v-col cols="4">
+			<!-- <v-col cols="4">
 				<span class="text-h5 font-weight-black" v-text="REFERENCE.title"></span>
 				<CommonButtonCreate :tooltip="`新增${REFERENCE.title}`" 
 				class_name="float-right" size="x-small"
@@ -207,16 +204,32 @@ function removeReference(index) {
 			</v-col>
 			<v-col cols="4">
 				
-			</v-col>
+			</v-col> -->
 			<v-col cols="12">
-				<v-card variant="outlined">
-				<ReferenceTable :list="state.form.references" 
-				@remove="removeReference" @edit="editReference"
-				/>
-			</v-card>
+				<v-card :max-width="WIDTH.M" variant="outlined">
+					<v-card-title>
+						<span class="text-h5" v-text="REFERENCE['title']"></span>
+						<CommonButtonCreate :tooltip="`新增${REFERENCE.title}`" 
+						class_name="float-right" size="x-small"
+						@create="onAddReference"
+						/>
+					</v-card-title>
+					<v-card-text v-if="state.form.references.length">
+						<ReferenceTable :read_only="false"
+						:list="state.form.references" 
+						@remove="removeReference" @edit="editReference"
+						/>
+						
+					</v-card-text>
+				</v-card>
+				<!-- <v-card variant="outlined">
+					<ReferenceTable :list="state.form.references" 
+					@remove="removeReference" @edit="editReference"
+					/>
+				</v-card> -->
 			</v-col>
 		</v-row>
-		<v-row>
+		<!-- <v-row>
 			<v-col cols="4">
 				<span class="text-h5 font-weight-black">子任務</span>
 				<CommonButtonCreate tooltip="新增子任務" 
@@ -229,7 +242,7 @@ function removeReference(index) {
 			<v-col cols="4">
 				
 			</v-col>
-		</v-row>
+		</v-row> -->
 		<v-row dense>
 			<v-col cols="12">
 				<CommonErrorsList />

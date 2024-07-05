@@ -21,20 +21,26 @@ export const getMimeType = (extension) => {
 
 export const bytesToBinary = (bytes) => Uint8Array.from(atob(bytes), c => c.charCodeAt(0))
 
+export const createBlobFromFileBytes = (fileBytes, ext) => {
+   const type = getMimeType(ext)
+   return new Blob([bytesToBinary(fileBytes)], { type })
+}
+
 export const downloadFile = (blob, name) => {
    // Create a URL for the Blob
    const url = window.URL.createObjectURL(blob)
-   // Create a link element to trigger the download
-
+   downloadFromBlobUrl(url, name)
+}
+export const downloadFromBlobUrl = (blobUrl, name) => {
    const a = document.createElement('a')
    a.style.display = 'none'
-   a.href = url
+   a.href = blobUrl
    a.download = name
    document.body.appendChild(a)
    a.click()
 
    // Cleanup
-   window.URL.revokeObjectURL(url)
+   window.URL.revokeObjectURL(blobUrl)
 }
 
 export const previewClientFile = (file) => {
@@ -61,4 +67,16 @@ export const extractUUIDFromBlobURL = (blobURL) => {
       console.error('Invalid URL:', error)
       return null
    }
+}
+
+export const getFilenameWithoutExtension = (filename) => {
+   const lastDotPosition = filename.lastIndexOf('.')
+  
+   // If no period is found, return the original filename
+   if (lastDotPosition === -1) {
+      return filename
+   }
+   
+   // Extract and return the filename without the extension
+   return filename.substring(0, lastDotPosition)
 }

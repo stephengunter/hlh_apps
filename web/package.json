@@ -35,6 +35,7 @@
     "pluralize": "^8.0.0",
     "query-string": "^9.0.0",
     "roboto-fontface": "*",
+    "sortablejs": "^1.15.2",
     "vue": "^3.2.0",
     "vue-router": "^4.0.0",
     "vue-social-sharing": "^4.0.0-alpha4",

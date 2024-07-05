@@ -3,6 +3,7 @@ import { createStore } from 'vuex'
 import app from './modules/app.module'
 import auth from './modules/auth.module'
 import attachments from './modules/attachments.module'
+import references from './modules/references.module'
 import calendars from './modules/calendars.module'
 import events from './modules/events.module'
 import tasks from './modules/tasks.module'
@@ -13,6 +14,7 @@ const store = createStore({
       app,
       auth,
       attachments,
+      references,
       calendars,
       events,
       tasks,

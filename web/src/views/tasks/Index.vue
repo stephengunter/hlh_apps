@@ -4,29 +4,18 @@ import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } fr
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
-import FullCalendar from '@fullcalendar/vue3'
-import dayGridPlugin from '@fullcalendar/daygrid'
-//import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin from '@fullcalendar/interaction'
-import zh_tw from '@fullcalendar/core/locales/zh-tw'
-
-import { FETCH_CALENDARS, FETCH_TASKS, CREATE_TASK, STORE_TASK, TASK_DETAILS, UPDATE_TASK } from '@/store/actions.type'
+import { STORE_ATTACHMENT, STORE_REFERENCE, FETCH_TASKS, CREATE_TASK, STORE_TASK, TASK_DETAILS, UPDATE_TASK } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
-import FullEvent from '@/models/fullEvent'
-import { isEmptyObject, deepClone , isSameDay, initByDate,
-	 onErrors, onSuccess, setValues, is400, dateToText, toYearTW,
+import { isEmptyObject, deepClone,
+	 onErrors, onSuccess, setValues
 } from '@/utils'
-import { WIDTH, ROUTE_NAMES, CALENDAR_TYPES, ACTION_TYPES, ENTITY_TYPES } from '@/consts'
-
-import date from '@/plugins/date'
-
+import { WIDTH, ROUTE_NAMES, ACTION_TYPES, ENTITY_TYPES, POST_TYPES } from '@/consts'
 
 const name = 'TaskIndexView'
 const TASK = ENTITY_TYPES.TASK
 const store = useStore()
 const route = useRoute()
 const router = useRouter()
-const dateAdapter = new date.adapter({ locale: date.locale.zhTW })
 
 const head = ref(null)
 
@@ -58,7 +47,6 @@ function onOptionChanged(option) {
 	head.value.setPageOption(option)
 }
 function fetchTasks(query) {
-	console.log(FETCH_TASKS, query)  
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(FETCH_TASKS, query)
 	.then(() => {
@@ -83,11 +71,86 @@ function edit(id) {
 }
 function onSubmit(model) {
 	setValues(model, state.form.model)
-	store.commit(CLEAR_ERRORS)
-	store.dispatch(STORE_TASK, state.form.model)
-	.then(onTaskUpdated)
+	storeReferences(state.form.model.references)
+	.then(reference_results => {
+		state.form.model.references = reference_results
+		store.commit(CLEAR_ERRORS)
+		store.dispatch(STORE_TASK, state.form.model)
+		.then(data => console.log(data))
+		.catch(error => onErrors(error))
+	})
 	.catch(error => onErrors(error))
+	
 }
+function storeReferences(references) {
+	if(!references.length) return new Promise((resolve, reject) => resolve([]))
+
+	return new Promise((resolve, reject) => {
+		let attachments = []
+		let models = []
+		references.forEach(reference => {
+			if(reference.file) {
+				attachments.push({
+					uuid: reference.uuid,
+					postType: POST_TYPES.REFERENCE,
+					postId: 0,
+					title: reference.title,
+					description: '',
+					file: reference.file
+				})
+			}
+			models.push({
+				uuid: reference.uuid,
+				postType: POST_TYPES.TASKS,
+				postId: 0,
+				title: reference.title,
+				url: reference.url,
+				attachmentId: 0
+			})
+		})
+		let results = []
+		storeAttachments(attachments)
+		.then(attachment_results => {
+			attachment_results.forEach(result => { 
+				let model = models.find(item => item.uuid === result.uuid)
+				model.attachmentId = result.id
+			})
+			models.forEach(model => {
+				store.commit(CLEAR_ERRORS)
+				store.dispatch(STORE_REFERENCE, model)
+				.then(data => {
+					results.push(data)
+					if(results.length === models.length) {
+						resolve(results)
+					}
+				})
+				.catch(error => reject(error))
+			})
+		})
+		.catch(error => reject(error))
+		
+	})
+}
+
+function storeAttachments(attachments) {
+	if(!attachments.length) return new Promise((resolve, reject) => resolve([]))
+	return new Promise((resolve, reject) => {
+		let results = []
+		attachments.forEach(attachment => {
+			store.commit(CLEAR_ERRORS)
+			store.dispatch(STORE_ATTACHMENT, attachment)
+			.then(model => {
+				attachment.id = model.id
+				results.push(attachment)
+				if(results.length === attachments.length) {
+					resolve(results)
+				}
+			})
+			.catch(error => reject(error))
+		})
+	})
+}
+
 function onTaskUpdated() {
 	state.form = deepClone(initialState.form)
 }
@@ -106,6 +169,7 @@ function onSelect(id) {
 </script>
 
 <template>
+<div>
    <TaskHead ref="head" 
 	@submit="onQueryChanged" @add="create"
 	/>
@@ -129,16 +193,13 @@ function onSelect(id) {
 			@cancel="onCancel"  
 			/>
 			<v-card-text>
-				<TaskView v-if="state.form.action === TASK_DETAILS" :labels="labels"
+				<TaskRootForm :labels="labels"
 				:model="state.form.model"
-				@edit="edit"
-				/>
-				<TaskRootForm v-else :type="state.form.type" :labels="labels"
-				:model="state.form.model"
-				@submit="onSubmit"  @remove="onRemove"
+				@submit="onSubmit" @remove="onRemove"
 				/>
 				
 			</v-card-text>
 		</v-card>
 	</v-dialog>
+</div>
 </template>

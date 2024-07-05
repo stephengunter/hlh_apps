@@ -1,5 +1,5 @@
 import { ERRORS, WARNING, SUCCESS, BAD_REQUEST, DIALOG_TITLE, DIALOG_MESSAGE } from '@/consts'
-import { SHOW_CONFIRM, HIDE_CONFIRM, SHOW_MODIFY_RECORDS } from '@/store/actions.type'
+import { SHOW_CONFIRM, HIDE_CONFIRM, SHOW_PHOTO, SHOW_MODIFY_RECORDS, PREVIEW_IMAGE, PREVIEW_ATTACHMENT } from '@/store/actions.type'
 export const resolveErrorData = (error) => {
    if(is400(error)) {
       if(!error.hasOwnProperty('data')) return null
@@ -43,6 +43,14 @@ export const onSuccess = (msg) => Bus.emit(SUCCESS, msg)
 export const onWarning = (msg) => Bus.emit(WARNING, msg)
 
 export const showConfirm = (confirm) => Bus.emit(SHOW_CONFIRM, confirm)
+
+export const showPhoto = (model) => Bus.emit(SHOW_PHOTO, model)
+
+export const previewImage = (model) => Bus.emit(PREVIEW_IMAGE, model)
+
+export const previewAttachment = (model) => Bus.emit(PREVIEW_ATTACHMENT, model)
+
+
 
 export const hideConfirm = () => Bus.emit(HIDE_CONFIRM)
 

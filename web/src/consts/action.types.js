@@ -19,6 +19,10 @@ export const ACTION_TYPES = {
       name: 'remove',
       title: '刪除'
    },
+   PREVIEW: {
+      name: 'preview',
+      title: '預覽'
+   },
    REVIEW: {
       name: 'review',
       title: '審核'

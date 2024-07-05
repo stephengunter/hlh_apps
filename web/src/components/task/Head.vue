@@ -79,8 +79,6 @@ function setPageOption(option) {
 	onSubmit()
 }
 function onSubmit() {
-	console.log('onSubmit')
-	console.log('query_are_match.value', query_are_match.value)
 	if(query_are_match.value) emit('submit', { ...state.query })
 	else router.push({ name: ROUTE_NAMES.TASKS_INDEX, query: { ...state.query } })
 }

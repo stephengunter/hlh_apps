@@ -1,4 +1,5 @@
 import date from '@/plugins/date'
+import { el } from 'date-fns/locale'
 import moment from 'moment'
 
 const adapter = new date.adapter({ locale: date.locale.zhTW })
@@ -112,14 +113,20 @@ export const dateToRocFormat = (date, time = false) => {
 
 export const getDatePickerModel = (date, roc = false) => {
    if(date) {
-      let text = dateToText(date)
-      let text_cn =  dateTextToRoc(text)
-      let num = dateToNumber(date, roc)
-      return {
-         text,
-         text_cn,
-         num
+      if(date instanceof Date) {
+         let text = dateToText(date)
+         let text_cn =  dateTextToRoc(text)
+         let num = dateToNumber(date, roc)
+         return {
+            text,
+            text_cn,
+            num
+         }
+      }else {
+         if(isValidDate(date)) return getDatePickerModel(new Date(date), roc)
+         else return getDatePickerModel(null)
       }
+      
    }
    return {
          text: '',

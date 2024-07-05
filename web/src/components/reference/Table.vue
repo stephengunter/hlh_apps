@@ -1,7 +1,12 @@
 <script setup>
-import { previewClientFile } from '@/utils'
+import { previewClientFile, previewAttachment } from '@/utils'
+
 const name = 'ReferenceTable'
 const props = defineProps({
+	read_only: {
+      type: Boolean,
+      default: false
+   },
    list: {
       type: Array,
       default: () => []
@@ -10,8 +15,13 @@ const props = defineProps({
 const emit = defineEmits(['edit', 'remove'])
 
 function getUrl(model) {
-	if(model.url) return model.url
-	return model.file.name
+	if(model.id) {
+
+	}else {
+		if(model.url) return model.url
+		return model.file.name
+	}
+	
 }
 function preview(model) {
 	if(model.file) previewClientFile(model.file)
@@ -20,7 +30,6 @@ function preview(model) {
 	}
 	
 }
-
 function remove(index) {
 	emit('remove', index)
 }
@@ -30,7 +39,26 @@ function edit(index) {
 
 </script>
 <template>
-   <v-table>
+   <v-table v-if="read_only">
+      <tbody>
+			<tr v-for="(model, index) in list" :key="index">
+				<td>
+					{{ model.title }}
+				</td>
+				<td>
+					<a v-if="model.url" :href="model.url" v-bind="props"
+					v-text="model.url">
+					</a>
+					<AttachmentIcon v-else 
+					:model="model.attachment"
+					@click="previewAttachment(model.attachment)"
+					/>
+					
+				</td>
+			</tr>
+		</tbody>
+   </v-table>
+	<v-table v-else>
       <tbody>
 			<tr v-for="(model, index) in list" :key="index">
             <td style="width: 60px;">
@@ -41,7 +69,16 @@ function edit(index) {
 				<td>
 					{{ model.title }}
 				</td>
-				<td>
+				<td v-if="model.id">
+					<a v-if="model.url" :href="model.url" v-bind="props"
+					v-text="model.url">
+					</a>
+					<!-- <AttachmentIcon v-else 
+					:model="model.attachment"
+					/> -->
+					
+				</td>
+				<td v-else>
 					<v-tooltip top>
 						<template v-slot:activator="{ props }">
 							<a href="#" v-bind="props"
