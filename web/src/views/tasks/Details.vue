@@ -72,26 +72,43 @@ function edit() {
 function onTaskUpdated() {
 	state.form = deepClone(initialState.form)
 }
-function onSubmit(model) {
+function onSubmit(model) {	
+	console.log('model', model)
+	let references = model.references
+	console.log('references', references)
 	setValues(model, state.form.model)
-	storeReferences(state.form.model.references)
-	.then(reference_results => {
-		console.log(reference_results)
-		state.form.model.references = reference_results
-		// store.commit(CLEAR_ERRORS)
-		// store.dispatch(STORE_TASK, state.form.model)
-		// .then(data => console.log(data))
-		// .catch(error => onErrors(error))
+
+	console.log('state.form.action', state.form.action)
+	store.commit(CLEAR_ERRORS)
+	store.dispatch(state.form.action, state.form.model)
+	.then(task => {
+		let id = state.form.model.id ? state.form.model.id : task.id
+		references.forEach(item => {
+			item.postType = POST_TYPES.TASKS
+			item.postId = id
+		})
+		storeReferences(references)
+		.then(() => {
+			onTaskUpdated()
+		})
+		.catch(error => onErrors(error))
+		// model.uuid = attachment.uuid
+		// //attachment.id = model.id
+		// results.push(model)
+		// if(results.length === attachments.length) {
+		// 	resolve(results)
+		// }
 	})
-	.catch(error => onErrors(error))
+	.catch(error => {
+		console.log(error)
+	})
 	
 }
 function storeReferences(references) {
-	if(!references.length) return new Promise((resolve, reject) => resolve([]))
+	if(!references.length) return new Promise((resolve) => resolve([]))
 
 	return new Promise((resolve, reject) => {
 		let attachments = []
-		let models = []
 		references.forEach(reference => {
 			if(reference.file) {
 				attachments.push({
@@ -103,28 +120,20 @@ function storeReferences(references) {
 					file: reference.file
 				})
 			}
-			models.push({
-				uuid: reference.uuid,
-				postType: POST_TYPES.TASKS,
-				postId: state.model.id,
-				title: reference.title,
-				url: reference.url,
-				attachmentId: 0
-			})
 		})
 		let results = []
 		storeAttachments(attachments)
 		.then(attachment_results => {
 			attachment_results.forEach(result => { 
-				let model = models.find(item => item.uuid === result.uuid)
-				model.attachmentId = result.id
+				let reference = references.find(item => item.uuid === result.uuid)
+				reference.attachmentId = result.id
 			})
-			models.forEach(model => {
+			references.forEach(model => {
 				store.commit(CLEAR_ERRORS)
 				store.dispatch(STORE_REFERENCE, model)
 				.then(data => {
 					results.push(data)
-					if(results.length === models.length) {
+					if(results.length === references.length) {
 						resolve(results)
 					}
 				})
@@ -137,15 +146,15 @@ function storeReferences(references) {
 }
 
 function storeAttachments(attachments) {
-	if(!attachments.length) return new Promise((resolve, reject) => resolve([]))
+	if(!attachments.length) return new Promise((resolve) => resolve([]))
 	return new Promise((resolve, reject) => {
 		let results = []
 		attachments.forEach(attachment => {
 			store.commit(CLEAR_ERRORS)
 			store.dispatch(STORE_ATTACHMENT, attachment)
 			.then(model => {
-				attachment.id = model.id
-				results.push(attachment)
+				model.uuid = attachment.uuid
+				results.push(model)
 				if(results.length === attachments.length) {
 					resolve(results)
 				}
@@ -157,6 +166,9 @@ function storeAttachments(attachments) {
 function onCancel() {
 	state.form = { ...initialState.form }
 }
+function onRemove(id) {
+	console.log('remove', id)
+}
 
 </script>
 
@@ -165,10 +177,11 @@ function onCancel() {
 	<v-row >
 		<v-col cols="12">
 			<v-card v-if="state.model">
-				<CommonCardTitle :id="state.model.id" :show_id="false"
-				tooltip="編輯" :can_cancel="false"
-				@edit="edit"
-				/>
+				<v-card-title>
+					<CommonButtonEdit class_name="float-right" tooltip="編輯"
+					@edit="edit"
+					/>
+				</v-card-title>
 				<v-card-text>
 					<TaskView :labels="labels"
 					:model="state.model"

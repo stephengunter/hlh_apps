@@ -22,10 +22,9 @@ const head = ref(null)
 const initialState = {
 	form: {
 		title: '',
+		action: '',
 		active: false,
-		type: 'all',
-		model: {},
-		action: ''
+		model: {}		
 	}
 }
 
@@ -61,66 +60,71 @@ function create() {
 		state.form.model = deepClone(model)
 		state.form.active = true
 		state.form.title = `${ACTION_TYPES.CREATE['title']}${TASK.title}`
-		state.form.action = UPDATE_TASK
+		state.form.action = STORE_TASK
 	})
 	.catch(error => onErrors(error))
-}
-
-function edit(id) {
-	console.log('edit', id)
 }
 function onSubmit(model) {
+	console.log('model', model)
+	let references = model.references
+	console.log('references', references)
 	setValues(model, state.form.model)
-	storeReferences(state.form.model.references)
-	.then(reference_results => {
-		state.form.model.references = reference_results
-		store.commit(CLEAR_ERRORS)
-		store.dispatch(STORE_TASK, state.form.model)
-		.then(data => console.log(data))
+
+
+	console.log('state.form.action', state.form.action)
+	store.commit(CLEAR_ERRORS)
+	store.dispatch(state.form.action, state.form.model)
+	.then(task => {
+		let id = task.id
+		references.forEach(item => {
+			item.postType = POST_TYPES.TASKS
+			item.postId = id
+		})
+		storeReferences(references)
+		.then(onTaskStoreSuccess)
 		.catch(error => onErrors(error))
+		// model.uuid = attachment.uuid
+		// //attachment.id = model.id
+		// results.push(model)
+		// if(results.length === attachments.length) {
+		// 	resolve(results)
+		// }
 	})
-	.catch(error => onErrors(error))
+	.catch(error => {
+		console.log(error)
+	})
 	
 }
 function storeReferences(references) {
-	if(!references.length) return new Promise((resolve, reject) => resolve([]))
+	if(!references.length) return new Promise((resolve) => resolve([]))
 
 	return new Promise((resolve, reject) => {
 		let attachments = []
-		let models = []
 		references.forEach(reference => {
 			if(reference.file) {
 				attachments.push({
 					uuid: reference.uuid,
 					postType: POST_TYPES.REFERENCE,
-					postId: 0,
+					postId: reference.id ? reference.id : 0,
 					title: reference.title,
 					description: '',
 					file: reference.file
 				})
 			}
-			models.push({
-				uuid: reference.uuid,
-				postType: POST_TYPES.TASKS,
-				postId: 0,
-				title: reference.title,
-				url: reference.url,
-				attachmentId: 0
-			})
 		})
 		let results = []
 		storeAttachments(attachments)
 		.then(attachment_results => {
 			attachment_results.forEach(result => { 
-				let model = models.find(item => item.uuid === result.uuid)
-				model.attachmentId = result.id
+				let reference = references.find(item => item.uuid === result.uuid)
+				reference.attachmentId = result.id
 			})
-			models.forEach(model => {
+			references.forEach(model => {
 				store.commit(CLEAR_ERRORS)
 				store.dispatch(STORE_REFERENCE, model)
 				.then(data => {
 					results.push(data)
-					if(results.length === models.length) {
+					if(results.length === references.length) {
 						resolve(results)
 					}
 				})
@@ -133,15 +137,15 @@ function storeReferences(references) {
 }
 
 function storeAttachments(attachments) {
-	if(!attachments.length) return new Promise((resolve, reject) => resolve([]))
+	if(!attachments.length) return new Promise((resolve) => resolve([]))
 	return new Promise((resolve, reject) => {
 		let results = []
 		attachments.forEach(attachment => {
 			store.commit(CLEAR_ERRORS)
 			store.dispatch(STORE_ATTACHMENT, attachment)
 			.then(model => {
-				attachment.id = model.id
-				results.push(attachment)
+				model.uuid = attachment.uuid
+				results.push(model)
 				if(results.length === attachments.length) {
 					resolve(results)
 				}
@@ -151,8 +155,9 @@ function storeAttachments(attachments) {
 	})
 }
 
-function onTaskUpdated() {
+function onTaskStoreSuccess() {
 	state.form = deepClone(initialState.form)
+	fetchTasks(head.value.getQuery())
 }
 function onRemove() {
 	const id = state.form.model.id

@@ -1,11 +1,11 @@
 <script setup>
-import { ref, reactive, computed, watch, onBeforeMount } from 'vue'
+import { ref, reactive, computed, watch, onBeforeMount, onMounted } from 'vue'
 import Errors from '@/common/errors'
 import { useVuelidate } from '@vuelidate/core'
 import { url, required, helpers } from '@vuelidate/validators'
 import { DIALOG_MAX_WIDTH } from '@/config'
 import { WIDTH, VALIDATE_MESSAGES, ACTION_TYPES } from '@/consts'
-import { deepClone, setValues, isValidURL, getFilenameWithoutExtension } from '@/utils'
+import { deepClone, setValues, isValidURL, getFilenameWithoutExtension, previewAttachment } from '@/utils'
 
 const name = 'ReferenceForm'
 const props = defineProps({
@@ -30,10 +30,12 @@ const initialState = {
       file: null,
       fileName: ''
    },
+   attachment: null,
    
    errors: new Errors()
 }
 const state = reactive(deepClone(initialState))
+const file_upload = ref(null)
 
 const no_file = computed(() => {
    if(state.form.file) return false
@@ -42,13 +44,27 @@ const no_file = computed(() => {
 
 onBeforeMount(() => {
    setValues(props.model, state.form)
-   if(props.model.file) state.type = 'upload'
-   if(props.model.url) state.type = 'link'
+   if(props.model.id) {
+      state.type = props.model.url ? 'link' : 'upload'
+      if(props.model.attachment) {
+         state.attachment = deepClone(props.model.attachment)
+         console.log('attachment', state.attachment)
+      }
+   }else {
+      state.type = props.model.url ? 'link' : 'upload'
+   }
+   // if(props.model.file) state.type = 'upload'
+   // if(props.model.url) state.type = 'link'
    
 
-   if(state.form.file) state.form.fileName = state.form.file.name
+   //if(state.form.file) state.form.fileName = state.form.file.name
 
    console.log(state.form)
+})
+
+onMounted(() => {
+   if(state.form.file) file_upload.value.setFiles([state.form.file])
+   console.log('onMounted', file_upload.value)
 })
 
 function onTypeChanged(val) {
@@ -65,6 +81,9 @@ function upload() {
    state.form.fileName = ''
    file_upload.value.launch()
 }
+function removeAttachment() {
+   state.attachment = null
+}
 function onFileAdded(files) {
    const file = files[0]
    state.form.file = file
@@ -72,6 +91,7 @@ function onFileAdded(files) {
       state.form.title =  getFilenameWithoutExtension(file.name)
       check('title')
    }
+   check('file')
 }
 function check(key) {
    if(key === 'title') {
@@ -89,7 +109,7 @@ function check(key) {
       }else state.errors.clear(key)
    }else if(key === 'file') {
       if(state.type === 'upload') {
-         if(state.form.file) {
+         if(state.form.file || state.attachment) {
             state.errors.clear(key)
          }else {
             state.errors.set(key, [`必須上傳檔案`])
@@ -105,7 +125,9 @@ function onSubmit() {
    }else {
       check('file')
    }
+   
    if(state.errors.any()) return
+   
    emit('submit', state.form)
 }
 
@@ -140,32 +162,34 @@ function onSubmit() {
 			</v-col>
          <v-col cols="8" v-else>
             <div class="mb-3">
-               <div v-show="!state.form.fileName">
-						<CommonInputUpload v-show="state.type === 'upload'" ref="file_upload"
-                  :show_button="true" :is_media="false" :multiple="false"
-                  @file-added="onFileAdded"
-                  />
-                  <CommonErrorsMessages v-show="state.errors.has('file')" :messages="[state.errors.get('file')]" />
-					</div>
-					<div v-show="state.form.fileName">
+					<div v-show="state.attachment">
 						<span>檔案文件：</span>
-						<v-icon size="small" icon="mdi-file" /> {{ state.form.fileName }}
+                  <AttachmentIcon v-if="state.attachment"
+                  :model="state.attachment"
+                  @click="previewAttachment(state.attachment)"
+                  /> 
 						<v-tooltip text="刪除重傳">
 							<template v-slot:activator="{ props }">
 								<v-icon size="small" v-bind="props" color="red-lighten-1" icon="mdi-close" 
-								@click.prevent="upload"
+								@click.prevent="removeAttachment"
 								/>
 							</template>
 						</v-tooltip>
 					</div>
-						
+					<div v-show="!state.attachment">
+						<CommonInputUpload v-show="state.type === 'upload'" ref="file_upload"
+                  :show_button="true" :is_media="false" :multiple="false"
+                  @file-added="onFileAdded"
+                  />
+                  <CommonErrorsMessages class="mt-1" v-show="state.errors.has('file')" :messages="[state.errors.get('file')]" />
+					</div>	
 					
 					
 				</div>
             
 			</v-col>
          <v-col cols="12">
-            <v-btn class="float-right" type="submit" color="success">確定</v-btn>
+            <v-btn :disabled="state.errors.any()" class="float-right" type="submit" color="success">確定</v-btn>
          </v-col>
       </v-row>
    </form>

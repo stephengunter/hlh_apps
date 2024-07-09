@@ -15,8 +15,9 @@ const props = defineProps({
 const emit = defineEmits(['edit', 'remove'])
 
 function getUrl(model) {
+	console.log(model)
 	if(model.id) {
-
+		
 	}else {
 		if(model.url) return model.url
 		return model.file.name
@@ -42,11 +43,11 @@ function edit(index) {
    <v-table v-if="read_only">
       <tbody>
 			<tr v-for="(model, index) in list" :key="index">
-				<td>
+				<td >
 					{{ model.title }}
 				</td>
-				<td>
-					<a v-if="model.url" :href="model.url" v-bind="props"
+				<td style="width: 50%;">
+					<a v-if="model.url" :href="model.url" target="_blank"
 					v-text="model.url">
 					</a>
 					<AttachmentIcon v-else 
@@ -73,9 +74,10 @@ function edit(index) {
 					<a v-if="model.url" :href="model.url" v-bind="props"
 					v-text="model.url">
 					</a>
-					<!-- <AttachmentIcon v-else 
+					<AttachmentIcon v-if="model.attachment"
 					:model="model.attachment"
-					/> -->
+					@click="previewAttachment(model.attachment)"
+					/> 
 					
 				</td>
 				<td v-else>

@@ -9,6 +9,7 @@ import Errors from '@/common/errors'
 import { getDatePickerModel, deepClone , areObjectsEqual, initByDate,
 	setValues, badRequest, isValidDate, uuid
 } from '@/utils'
+import Reference from '@/models/reference'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { WIDTH, VALIDATE_MESSAGES, ROUTE_NAMES, ENTITY_TYPES, ACTION_TYPES, HEIGHT } from '@/consts'
 
@@ -33,14 +34,14 @@ const props = defineProps({
 const emit = defineEmits(['submit', 'remove'])
 
 const initialState = {
-	form: {
+	task: {
 		id: 0,
 		title: '',
 		content: '',
 		deadLine: null,
-		done: false,
-		references: []
+		done: false
    },
+	references: [],
 	date: {
 		date: null,
 		value: '',
@@ -77,45 +78,66 @@ const rules = computed(() => {
 		}
 	}
 })
-const v$ = useVuelidate(rules, state.form)
+const v$ = useVuelidate(rules, state.task)
 
 
 onBeforeMount(init)
 
 function init() {
-	setValues(props.model, state.form)
-
-	let date = props.model.deadLine
+	setValues(props.model, state.task)
+	let date = null 
+	let deadLine = props.model.deadLine 
+	if(deadLine && isValidDate(deadLine)) {
+		if(deadLine instanceof Date) date = deadLine
+		else date = new Date(deadLine)
+	}
 	let model = getDatePickerModel(date)
-
 	onDateSelected({ date, model }, false)
-	console.log(props.model)
-}
 
-function onDateSelected({ date, model }) {
+	initReferences(props.model.references)
+}
+function initReferences(references) {
+	if(references && references.length) {
+		props.model.references.forEach(reference => {
+			let model = new Reference(reference)
+			if(reference.attachment) model.setAttachment(reference.attachment)
+			state.references.push(model)
+		})
+	}
+	console.log('state.references', state.references)
+}
+ 
+function onDateSelected({ date, model }, check) {
+	console.log('onDateSelected', date)
+	console.log('check', check)
 	state.date.date = date
 	state.date.model = deepClone(model)
 	state.date.value = model.text_cn
 
-	state.form.deadLine = date
+	state.task.deadLine = date
 
-	if(checkDeadLine(state.form.deadLine)) {
-		state.date.error_message = ''
-	}else {
-		state.date.error_message = `${labels.value['deadLine']}不正確`
+	if(!check) return
+	const err_msg = checkDeadLine(state.task.deadLine)
+	if(err_msg) {
+		state.errors.set('deadLine', [err_msg])		
+	}else {		
+		state.errors.clear('deadLine')
 	}
 
 }
 function checkDeadLine(date) {
-   console.log('checkDeadLine', date)
-	return true
+	if(date) return ''
+	return `必須填寫${props.labels['deadLine']}`
 }
 function onSubmit() {
 	v$.value.$validate().then(valid => {
 		if(!valid) return
-
+		
 		if(state.errors.any()) return
-		emit('submit', state.form)
+
+		let model = deepClone(state.task)
+		model.references = state.references.slice()
+		emit('submit', model)
 	})
 }
 function onRemove(id) {
@@ -123,9 +145,6 @@ function onRemove(id) {
 }
 function onInputChanged(){
    store.commit(CLEAR_ERRORS)
-}
-function onAddSub() {
-
 }
 function onAddReference() {
 	state.dialog.key = REFERENCE.name
@@ -145,38 +164,56 @@ function onCancelDialog() {
 	state.dialog = { ...initialState.dialog }
 }
 function onReferenceSubmit(model) {
+	console.log('model', model)
+	
+	if(model.url) {
+		state.dialog.model.attachment = null
+		state.dialog.model.attachmentId = 0
+	} 
 	setValues(model, state.dialog.model)
+	console.log('state.dialog.model', state.dialog.model)
 	if(state.dialog.action == ACTION_TYPES.CREATE.name) {
-		state.form.references.push(state.dialog.model)
+		let reference = new Reference(state.dialog.model)
+		let file = state.dialog.model.file
+		if(file) reference.setFile(file)
+		state.references.push(reference)
+		
 	}else {
 		const uuid = state.dialog.model.uuid
-		const index = state.form.references.findIndex(x => x.uuid === uuid)		
-		state.form.references.splice(index, 1, state.dialog.model)
+		console.log('uuid', uuid)
+		const index = state.references.findIndex(x => x.uuid === uuid)
+		console.log('index', index)
+
+		console.log('state.dialog.model', state.dialog.model)
+		state.references.splice(index, 1, state.dialog.model)
 	}
 	
 	onCancelDialog()
 }
-function editReference(index) {
+function editReference(index) {	 
 	state.dialog.key = REFERENCE.name
 	state.dialog.action = ACTION_TYPES.EDIT.name
 	state.dialog.title = `${ACTION_TYPES.EDIT.title}${REFERENCE.title}`
-	state.dialog.model = deepClone(state.form.references[index]) 
-	state.dialog.model.uuid = uuid()
+	
+	let model = state.references[index]
+	if(!model.uuid) model.uuid = uuid()
+
+	state.dialog.model = deepClone(model)
 	state.dialog.active = true
 }
 function removeReference(index) {
-	state.form.references.splice(index, 1)
+	state.references.splice(index, 1)
 }
 
 </script>
 
 <template>
 <div>	
-   <form @submit.prevent="onSubmit" @input="onInputChanged">
+   <form  @submit.prevent="onSubmit" @input="onInputChanged">
 		<v-row dense>
 			<v-col cols="10">
 				<v-text-field :label="labels['title']"           
-				v-model="state.form.title"
+				v-model="state.task.title"
 				:error-messages="v$.title.$errors.map(e => e.$message)"                     
 				@input="v$.title.$touch"
 				@blur="v$.title.$touch"
@@ -185,28 +222,16 @@ function removeReference(index) {
 			<v-col cols="2">
 				<CommonPickerRocDate :label="labels['deadLine']"
 				:clearable="true"
-				:error_message="state.date.error_message"
+				:error_message="state.errors.has('deadLine') ? state.errors.get('deadLine') : ''"
 				:date="state.date.date" :value="state.date.value"
-				@ready="(model) => onDateSelected(model)"
-				@selected="(model) => onDateSelected(model)"
+				@ready="(model) => onDateSelected(model, false)"
+				@selected="(model) => onDateSelected(model, true)"
 				/>
 			</v-col>
 		</v-row>
 		<v-row>
-			<!-- <v-col cols="4">
-				<span class="text-h5 font-weight-black" v-text="REFERENCE.title"></span>
-				<CommonButtonCreate :tooltip="`新增${REFERENCE.title}`" 
-				class_name="float-right" size="x-small"
-				@create="onAddReference"
-				/>
-			</v-col>
-			<v-col cols="4">
-			</v-col>
-			<v-col cols="4">
-				
-			</v-col> -->
 			<v-col cols="12">
-				<v-card :max-width="WIDTH.M" variant="outlined">
+				<v-card variant="outlined">
 					<v-card-title>
 						<span class="text-h5" v-text="REFERENCE['title']"></span>
 						<CommonButtonCreate :tooltip="`新增${REFERENCE.title}`" 
@@ -214,19 +239,13 @@ function removeReference(index) {
 						@create="onAddReference"
 						/>
 					</v-card-title>
-					<v-card-text v-if="state.form.references.length">
+					<v-card-text v-if="state.references.length">
 						<ReferenceTable :read_only="false"
-						:list="state.form.references" 
+						:list="state.references" 
 						@remove="removeReference" @edit="editReference"
 						/>
-						
 					</v-card-text>
 				</v-card>
-				<!-- <v-card variant="outlined">
-					<ReferenceTable :list="state.form.references" 
-					@remove="removeReference" @edit="editReference"
-					/>
-				</v-card> -->
 			</v-col>
 		</v-row>
 		<!-- <v-row>

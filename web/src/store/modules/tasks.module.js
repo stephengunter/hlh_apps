@@ -1,6 +1,6 @@
 import TaskService from '@/services/tasks.service'
 import { resolveErrorData, deepClone, isEmptyObject, getListFromObj } from '@/utils'
-import { FETCH_TASKS, CREATE_TASK, STORE_TASK, TASK_DETAILS, EDIT_TASK } from '@/store/actions.type'  
+import { FETCH_TASKS, CREATE_TASK, STORE_TASK, TASK_DETAILS, EDIT_TASK, UPDATE_TASK } from '@/store/actions.type'  
 
 import { SET_TASKS, SET_LOADING } from '@/store/mutations.type'
    
@@ -73,6 +73,15 @@ const actions = {
       return new Promise((resolve, reject) => {
          TaskService.edit(id)
          .then(model => resolve(model))
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
+   [UPDATE_TASK](context, model) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         TaskService.update(model)
+         .then(() => resolve())
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })

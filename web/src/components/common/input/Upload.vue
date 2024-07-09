@@ -30,7 +30,7 @@ const props = defineProps({
 })
 
 defineExpose({
-   launch, getFiles
+   launch, getFiles, setFiles
 })
 const emit = defineEmits(['file-added', 'file-removed'])
 const inputUpload = ref(null)
@@ -57,6 +57,9 @@ const button_disable = computed(() => {
 
 function getFiles() {
    return state.files
+}
+function setFiles(files) {
+   state.files = files
 }
 function launch() {
    inputUpload.value.click()
