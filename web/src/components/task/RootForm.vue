@@ -6,7 +6,7 @@ import { useStore } from 'vuex'
 import { useVuelidate } from '@vuelidate/core'
 import { required, numeric, helpers } from '@vuelidate/validators'
 import Errors from '@/common/errors'
-import { getDatePickerModel, deepClone , areObjectsEqual, initByDate,
+import { getDatePickerModel, deepClone , isDirty, initByDate,
 	setValues, badRequest, isValidDate, uuid
 } from '@/utils'
 import Reference from '@/models/reference'
@@ -42,6 +42,8 @@ const initialState = {
 		done: false
    },
 	references: [],
+	dirty_reference_ids: [],
+	removed_reference_ids: [],
 	date: {
 		date: null,
 		value: '',
@@ -104,12 +106,9 @@ function initReferences(references) {
 			state.references.push(model)
 		})
 	}
-	console.log('state.references', state.references)
 }
  
 function onDateSelected({ date, model }, check) {
-	console.log('onDateSelected', date)
-	console.log('check', check)
 	state.date.date = date
 	state.date.model = deepClone(model)
 	state.date.value = model.text_cn
@@ -136,8 +135,17 @@ function onSubmit() {
 		if(state.errors.any()) return
 
 		let model = deepClone(state.task)
-		model.references = state.references.slice()
-		emit('submit', model)
+		model.references = []
+		state.references.forEach(item => {
+			if(item.id) {
+				console.log('state.dirty_reference_ids', state.dirty_reference_ids)
+				console.log('item.id', item.id)
+				if(state.dirty_reference_ids.includes(item.id)) model.references.push(item)
+			}else {
+				model.references.push(item)
+			}			
+		})
+		emit('submit', { model, removed_ids: state.removed_reference_ids })
 	})
 }
 function onRemove(id) {
@@ -163,29 +171,37 @@ function onCancelDialog() {
 	state.dialog.active = false
 	state.dialog = { ...initialState.dialog }
 }
-function onReferenceSubmit(model) {
-	console.log('model', model)
-	
+function onReferenceSubmit(model) {	
 	if(model.url) {
 		state.dialog.model.attachment = null
 		state.dialog.model.attachmentId = 0
-	} 
-	setValues(model, state.dialog.model)
-	console.log('state.dialog.model', state.dialog.model)
+	}	
+
 	if(state.dialog.action == ACTION_TYPES.CREATE.name) {
+		setValues(model, state.dialog.model)
 		let reference = new Reference(state.dialog.model)
 		let file = state.dialog.model.file
 		if(file) reference.setFile(file)
-		state.references.push(reference)
-		
+		state.references.push(reference)		
 	}else {
 		const uuid = state.dialog.model.uuid
-		console.log('uuid', uuid)
 		const index = state.references.findIndex(x => x.uuid === uuid)
-		console.log('index', index)
 
-		console.log('state.dialog.model', state.dialog.model)
+		let dirty = false
+		if(model.file) {
+			state.dialog.model.attachment = null
+			state.dialog.model.attachmentId = 0
+			dirty = true
+		}else dirty = isDirty(model, state.dialog.model)
+
+		setValues(model, state.dialog.model)
 		state.references.splice(index, 1, state.dialog.model)
+		if(dirty) {
+			const id = state.dialog.model.id
+			if(id && !state.dirty_reference_ids.includes(id)) {
+				state.dirty_reference_ids.push(id)
+			}
+		}
 	}
 	
 	onCancelDialog()
@@ -202,6 +218,10 @@ function editReference(index) {
 	state.dialog.active = true
 }
 function removeReference(index) {
+	const model = state.references[index]
+	if(model.id && !state.removed_reference_ids.includes(model.id)) {
+		state.removed_reference_ids.push(model.id)
+	}
 	state.references.splice(index, 1)
 }
 

@@ -53,13 +53,6 @@ onBeforeMount(() => {
    }else {
       state.type = props.model.url ? 'link' : 'upload'
    }
-   // if(props.model.file) state.type = 'upload'
-   // if(props.model.url) state.type = 'link'
-   
-
-   //if(state.form.file) state.form.fileName = state.form.file.name
-
-   console.log(state.form)
 })
 
 onMounted(() => {
@@ -77,10 +70,6 @@ function onTypeChanged(val) {
    }
    
 }
-function upload() {
-   state.form.fileName = ''
-   file_upload.value.launch()
-}
 function removeAttachment() {
    state.attachment = null
 }
@@ -88,7 +77,7 @@ function onFileAdded(files) {
    const file = files[0]
    state.form.file = file
    if(!state.form.title) {
-      state.form.title =  getFilenameWithoutExtension(file.name)
+      state.form.title = getFilenameWithoutExtension(file.name)
       check('title')
    }
    check('file')
@@ -127,7 +116,6 @@ function onSubmit() {
    }
    
    if(state.errors.any()) return
-   
    emit('submit', state.form)
 }
 

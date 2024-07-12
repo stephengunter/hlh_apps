@@ -31,6 +31,9 @@ export const GET_ATTACHMENT = 'getAttachment'
 //References
 export const STORE_REFERENCE = 'storeReference'
 export const GET_REFERENCE = 'getReference'
+export const UPDATE_REFERENCE = 'updateReference'
+export const REMOVE_REFERENCE = 'removeReference'
+
 
 //Calendars
 export const FETCH_CALENDARS = 'fetchCalendars'

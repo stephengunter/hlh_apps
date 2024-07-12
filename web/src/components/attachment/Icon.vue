@@ -47,13 +47,14 @@ onBeforeMount(() => {
    const model = props.model
    if(model) {
       const fileType = model.fileType.toLowerCase()
+      
       if(fileType === 'pdf') {
          state.icon = 'mdi-file-pdf-box'
          state.color = 'red'
       } 
       else if(fileType === 'image') state.icon = 'mdi-image'
-      else if(fileType === 'word') state.icon = 'mdi-microsoft-excel'
-      else if(fileType === 'excel') state.icon = 'mdi-microsoft-word'
+      else if(fileType === 'word') state.icon = 'mdi-microsoft-word'
+      else if(fileType === 'excel') state.icon = 'mdi-microsoft-excel'
       else state.icon = 'mdi-file-document'
    }
 })
@@ -69,6 +70,7 @@ onBeforeMount(() => {
          :variant="icon_only ? 'text' : 'elevated'"
          @click.prevent="() => emit('click')" 
          />
+         {{ model.fileType }}
       </template>
       <span v-text="tooltip"></span>
    </v-tooltip>

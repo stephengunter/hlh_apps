@@ -1,7 +1,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
-import { deepClone, onErrors, createBlobFromFileBytes, downloadFromBlobUrl } from '@/utils'
+import { deepClone, onErrors, isPreviewable, createBlobFromFileBytes, downloadFromBlobUrl } from '@/utils'
 import { SHOW_MODIFY_RECORDS, FETCH_MODIFY_RECORDS, PREVIEW_IMAGE, PREVIEW_ATTACHMENT, GET_ATTACHMENT } from '@/store/actions.type'
 import { WIDTH, ENTITY_TYPES } from '@/consts'
 
@@ -62,16 +62,26 @@ function previewAttachment({ id }) {
    store.dispatch(GET_ATTACHMENT, id)
 	.then(data => {
       const fileType = data.fileType.toLowerCase()
+      console.log('fileType', fileType)
+      
 		const ext = data.ext
 		const fileBytes = data.fileView.fileBytes
 		const title = data.title
-      if(fileType === 'pdf') {
+
+      if(fileType === 'image') {
+         previewImage({ ext, fileBytes, title })
+      }else {
          const blob = createBlobFromFileBytes(fileBytes, ext)
-         state.attachment.url = URL.createObjectURL(blob)
-         state.title = title
-         state.key = PREVIEW_ATTACHMENT
-         state.width = WIDTH.XL
-         state.active = true
+         const blobUrl = URL.createObjectURL(blob)
+         if(fileType === 'pdf') {
+            state.attachment.url = blobUrl
+            state.title = title
+            state.key = PREVIEW_ATTACHMENT
+            state.width = WIDTH.XL
+            state.active = true
+         }else {
+            downloadFromBlobUrl(blobUrl, `${title}${ext}`)         
+         }
       }
 		
 	})
@@ -125,7 +135,6 @@ function onCancel() {
             </div>
             <div v-if="state.key === PREVIEW_ATTACHMENT">
                <iframe :src="state.attachment.url" style="width: 100%; height:100vh">
-
                </iframe>  
             </div>
          </v-card-text>

@@ -7,5 +7,7 @@ const store = (model) => BaseService.post(`${source}`, model)
 
 const get = (id) => BaseService.fetch(`${source}/${id}`)
 
+const update = (id, model) => BaseService.put(`${source}/${id}`, model)
 
-export default { store, get }
+
+export default { store, get, update }

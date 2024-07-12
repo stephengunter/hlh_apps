@@ -4,10 +4,11 @@ import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } fr
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
-import { EDIT_TASK, STORE_TASK, TASK_DETAILS, UPDATE_TASK, STORE_ATTACHMENT, STORE_REFERENCE } from '@/store/actions.type'
+import { EDIT_TASK, STORE_TASK, TASK_DETAILS, UPDATE_TASK, STORE_ATTACHMENT, 
+	STORE_REFERENCE, UPDATE_REFERENCE } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { isEmptyObject, deepClone , tryParseInt, badRequest,
-	 onErrors, onSuccess, setValues, is400, dateToText, toYearTW,
+	 onErrors, onSuccess, setValues, is400, isDirty, isValidDate
 } from '@/utils'
 import { WIDTH, ROUTE_NAMES, POST_TYPES, ACTION_TYPES, ENTITY_TYPES } from '@/consts'
 
@@ -38,11 +39,13 @@ watch(route, init)
 
 onBeforeMount(init)
 
-function init() {
-	const id = getIdFromParams()
+function init(id) {
 	if(!id) {
-		badRequest('錯誤的id', '錯誤的查詢參數，請回上一頁')
-		return
+		id = getIdFromParams()
+		if(!id) {
+			badRequest('錯誤的id', '錯誤的查詢參數，請回上一頁')
+			return
+		}
 	}
 	fetchData(id)
 }
@@ -63,46 +66,74 @@ function edit() {
 	store.dispatch(EDIT_TASK, state.model.id)
 	.then(model => {
 		state.form.model = deepClone(model)
+
+		let deadLine = state.form.model.deadLine
+		if(deadLine && isValidDate(deadLine)) {
+			if(!(deadLine instanceof Date)) state.form.model.deadLine = new Date(deadLine)
+		}
+
 		state.form.active = true
 		state.form.title = `${ACTION_TYPES.EDIT['title']}${TASK.title}`
 		state.form.action = UPDATE_TASK
 	})
 	.catch(error => onErrors(error))
 }
-function onTaskUpdated() {
+function onTaskUpdated(id) {
 	state.form = deepClone(initialState.form)
+	init(id)
 }
-function onSubmit(model) {	
-	console.log('model', model)
+function onSubmit({ model, removed_ids }) {
+	let id = state.form.model.id
 	let references = model.references
-	console.log('references', references)
-	setValues(model, state.form.model)
-
-	console.log('state.form.action', state.form.action)
-	store.commit(CLEAR_ERRORS)
-	store.dispatch(state.form.action, state.form.model)
-	.then(task => {
-		let id = state.form.model.id ? state.form.model.id : task.id
+	const excepts = ['references']
+	let dirty = id ? isDirty(model, state.form.model, excepts) : true
+	if(dirty) {
+		setValues(model, state.form.model)
+		store.commit(CLEAR_ERRORS)
+		store.dispatch(state.form.action, state.form.model)
+		.then(task => {
+			references.forEach(item => {
+				item.postType = POST_TYPES.TASKS
+				item.postId = id ? id : task.id
+			})
+			storeReferences(references)
+			.then(() => {
+				onSuccess()
+				removeReferences.then(onTaskUpdated(id ? id : task.id))
+			})
+			.catch(error => onErrors(error))
+		})
+		.catch(error => {
+			console.log(error)
+		})
+	}else {
 		references.forEach(item => {
 			item.postType = POST_TYPES.TASKS
 			item.postId = id
 		})
 		storeReferences(references)
 		.then(() => {
-			onTaskUpdated()
+			onSuccess()
+			removeReferences.then(onTaskUpdated(id ? id : task.id))
 		})
 		.catch(error => onErrors(error))
-		// model.uuid = attachment.uuid
-		// //attachment.id = model.id
-		// results.push(model)
-		// if(results.length === attachments.length) {
-		// 	resolve(results)
-		// }
+	}
+}
+function removeReferences(ids) {
+	if(!ids.length) return new Promise((resolve) => resolve())
+
+	return new Promise((resolve, reject) => {
+		store.commit(CLEAR_ERRORS)
+		store.dispatch(STORE_ATTACHMENT, attachment)
+		.then(model => {
+			model.uuid = attachment.uuid
+			results.push(model)
+			if(results.length === attachments.length) {
+				resolve(results)
+			}
+		})
+		.catch(error => reject(error))
 	})
-	.catch(error => {
-		console.log(error)
-	})
-	
 }
 function storeReferences(references) {
 	if(!references.length) return new Promise((resolve) => resolve([]))
@@ -129,8 +160,9 @@ function storeReferences(references) {
 				reference.attachmentId = result.id
 			})
 			references.forEach(model => {
+				const actionName = model.id ? UPDATE_REFERENCE : STORE_REFERENCE
 				store.commit(CLEAR_ERRORS)
-				store.dispatch(STORE_REFERENCE, model)
+				store.dispatch(actionName, model)
 				.then(data => {
 					results.push(data)
 					if(results.length === references.length) {

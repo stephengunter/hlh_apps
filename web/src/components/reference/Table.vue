@@ -15,13 +15,12 @@ const props = defineProps({
 const emit = defineEmits(['edit', 'remove'])
 
 function getUrl(model) {
-	console.log(model)
-	if(model.id) {
+	// if(model.id) {
 		
-	}else {
-		if(model.url) return model.url
-		return model.file.name
-	}
+	// }
+
+	if(model.url) return model.url
+	return model.file.name
 	
 }
 function preview(model) {
@@ -63,6 +62,7 @@ function edit(index) {
       <tbody>
 			<tr v-for="(model, index) in list" :key="index">
             <td style="width: 60px;">
+
 					<CommonButtonEdit size="x-small" :icon_only="true" color="success"
 					@edit="edit(index)"
                />
@@ -71,13 +71,21 @@ function edit(index) {
 					{{ model.title }}
 				</td>
 				<td v-if="model.id">
-					<a v-if="model.url" :href="model.url" v-bind="props"
+					<a v-if="model.url" :href="model.url" target="_blank"
 					v-text="model.url">
 					</a>
 					<AttachmentIcon v-if="model.attachment"
 					:model="model.attachment"
 					@click="previewAttachment(model.attachment)"
 					/> 
+					<v-tooltip v-if="model.file" top>
+						<template  v-slot:activator="{ props }">
+							<a href="#" v-bind="props"
+							@click.prevent="previewClientFile(model.file)" v-text="model.file.name">
+							</a>
+						</template>
+						<span>預覽</span>
+					</v-tooltip>
 					
 				</td>
 				<td v-else>

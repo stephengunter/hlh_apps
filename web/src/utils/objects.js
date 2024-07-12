@@ -95,3 +95,28 @@ export const appendFormData = (formData, data, parentKey) => {
      formData.append(parentKey, data)
    }
 }
+
+export const isDirty = (form, model, excepts = []) => {
+   for (const key in form) {
+      if(excepts.length && excepts.includes(key)) continue
+      
+      if (model.hasOwnProperty(key)) {
+         let formValue = form[key]
+         let modelValue = model[key]
+
+         if (formValue instanceof Date && modelValue instanceof Date) {
+            // Compare Date objects by their time values
+            if (formValue.getTime() !== modelValue.getTime()) {
+              console.log('key', key)
+              console.log('formValue', formValue, 'modelValue', modelValue)
+              return true
+            }
+         } else if (formValue !== modelValue) {
+            console.log('key', key)
+            console.log('formValue', formValue, 'modelValue', modelValue)
+            return true
+         }
+      }
+   }
+   return false
+}

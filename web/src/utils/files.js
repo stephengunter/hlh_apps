@@ -1,4 +1,5 @@
 import { FILE_TYPES } from '@/consts'
+import { el } from 'date-fns/locale';
 export const getMimeType = (extension) => {
    switch (extension.toLowerCase().replace(/\./g, '')) {
       case 'pdf':
@@ -38,25 +39,32 @@ export const downloadFromBlobUrl = (blobUrl, name) => {
    a.download = name
    document.body.appendChild(a)
    a.click()
+}
 
-   // Cleanup
-   window.URL.revokeObjectURL(blobUrl)
+export const isPreviewable = (file) => {
+   const fileType = file.type.toLowerCase()
+   if(fileType === FILE_TYPES.PNG || fileType === FILE_TYPES.JPEG) return true
+   if(fileType === FILE_TYPES.PDF) return true
+   return false
 }
 
 export const previewClientFile = (file) => {
-	if(file.type === FILE_TYPES.PDF) {
-      const reader = new FileReader()
-      reader.onload = function(event) {
-         const data = event.target.result
-         const blob = new Blob([data], { type: 'application/pdf' })
-         const url = URL.createObjectURL(blob)
+   const reader = new FileReader()
+   reader.onload = (e) => {
+      const data = e.target.result
+      const blob = new Blob([data], { type: file.type })
+      const url = URL.createObjectURL(blob)
+      if(isPreviewable(file)) {
          window.open(url, '_blank')
-      }
-      reader.onerror = function(event) {
-         console.error('Error reading file:', event.target.error)
-      }
-      reader.readAsArrayBuffer(file)
+      }else {
+         downloadFromBlobUrl(url, file.name)
+      }      
    }
+   reader.onerror = function(e) {
+      console.error('Error reading file:', e.target.error)
+   }
+   reader.readAsArrayBuffer(file)
+   
 }
 
 export const extractUUIDFromBlobURL = (blobURL) => {
