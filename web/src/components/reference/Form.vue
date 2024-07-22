@@ -37,18 +37,12 @@ const initialState = {
 const state = reactive(deepClone(initialState))
 const file_upload = ref(null)
 
-const no_file = computed(() => {
-   if(state.form.file) return false
-   return true
-})
-
 onBeforeMount(() => {
    setValues(props.model, state.form)
    if(props.model.id) {
       state.type = props.model.url ? 'link' : 'upload'
       if(props.model.attachment) {
          state.attachment = deepClone(props.model.attachment)
-         console.log('attachment', state.attachment)
       }
    }else {
       state.type = props.model.url ? 'link' : 'upload'
@@ -57,7 +51,6 @@ onBeforeMount(() => {
 
 onMounted(() => {
    if(state.form.file) file_upload.value.setFiles([state.form.file])
-   console.log('onMounted', file_upload.value)
 })
 
 function onTypeChanged(val) {

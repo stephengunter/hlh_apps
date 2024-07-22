@@ -34,6 +34,12 @@ export const GET_REFERENCE = 'getReference'
 export const UPDATE_REFERENCE = 'updateReference'
 export const REMOVE_REFERENCE = 'removeReference'
 
+//Items
+export const STORE_ITEM = 'storeItem'
+export const GET_ITEM = 'getItem'
+export const UPDATE_ITEM = 'updateItem'
+export const REMOVE_ITEM = 'removeItem'
+
 
 //Calendars
 export const FETCH_CALENDARS = 'fetchCalendars'

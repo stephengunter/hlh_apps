@@ -6,7 +6,7 @@ import { useStore } from 'vuex'
 
 import { STORE_ATTACHMENT, STORE_REFERENCE, FETCH_TASKS, CREATE_TASK, STORE_TASK, TASK_DETAILS, UPDATE_TASK } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
-import { isEmptyObject, deepClone,
+import { isEmptyObject, deepClone, resolveErrorData, is400,
 	 onErrors, onSuccess, setValues
 } from '@/utils'
 import { WIDTH, ROUTE_NAMES, ACTION_TYPES, ENTITY_TYPES, POST_TYPES } from '@/consts'
@@ -64,95 +64,22 @@ function create() {
 	})
 	.catch(error => onErrors(error))
 }
-function onSubmit(model) {
-	console.log('model', model)
-	let references = model.references
-	console.log('references', references)
+function onSubmit({ model }) {
 	setValues(model, state.form.model)
-
-
-	console.log('state.form.action', state.form.action)
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(state.form.action, state.form.model)
 	.then(task => {
-		let id = task.id
-		references.forEach(item => {
-			item.postType = POST_TYPES.TASKS
-			item.postId = id
-		})
-		storeReferences(references)
-		.then(onTaskStoreSuccess)
-		.catch(error => onErrors(error))
-		// model.uuid = attachment.uuid
-		// //attachment.id = model.id
-		// results.push(model)
-		// if(results.length === attachments.length) {
-		// 	resolve(results)
-		// }
+		onSelect(task.id)
+		state.form = deepClone(initialState.form)
 	})
 	.catch(error => {
-		console.log(error)
+		if(is400(error)) {
+			const data = resolveErrorData(error)
+			if(data) store.commit(SET_ERRORS, Object.values(data))
+			else onErrors(error)
+		}else onErrors(error)
 	})
 	
-}
-function storeReferences(references) {
-	if(!references.length) return new Promise((resolve) => resolve([]))
-
-	return new Promise((resolve, reject) => {
-		let attachments = []
-		references.forEach(reference => {
-			if(reference.file) {
-				attachments.push({
-					uuid: reference.uuid,
-					postType: POST_TYPES.REFERENCE,
-					postId: reference.id ? reference.id : 0,
-					title: reference.title,
-					description: '',
-					file: reference.file
-				})
-			}
-		})
-		let results = []
-		storeAttachments(attachments)
-		.then(attachment_results => {
-			attachment_results.forEach(result => { 
-				let reference = references.find(item => item.uuid === result.uuid)
-				reference.attachmentId = result.id
-			})
-			references.forEach(model => {
-				store.commit(CLEAR_ERRORS)
-				store.dispatch(STORE_REFERENCE, model)
-				.then(data => {
-					results.push(data)
-					if(results.length === references.length) {
-						resolve(results)
-					}
-				})
-				.catch(error => reject(error))
-			})
-		})
-		.catch(error => reject(error))
-		
-	})
-}
-
-function storeAttachments(attachments) {
-	if(!attachments.length) return new Promise((resolve) => resolve([]))
-	return new Promise((resolve, reject) => {
-		let results = []
-		attachments.forEach(attachment => {
-			store.commit(CLEAR_ERRORS)
-			store.dispatch(STORE_ATTACHMENT, attachment)
-			.then(model => {
-				model.uuid = attachment.uuid
-				results.push(model)
-				if(results.length === attachments.length) {
-					resolve(results)
-				}
-			})
-			.catch(error => reject(error))
-		})
-	})
 }
 
 function onTaskStoreSuccess() {

@@ -14,7 +14,7 @@ const initialState = {
    list: [],
    labels: {
       'title': '名稱',
-      'content': '內容',
+      'content': '說明',
       'deadLine': '截止日期',
       'ps': '備註'
    },

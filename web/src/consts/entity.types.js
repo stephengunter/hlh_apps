@@ -11,6 +11,10 @@ export const ENTITY_TYPES = {
       name: 'task',
       title: '任務'
    },
+   ITEM: {
+      name: 'item',
+      title: '事項'
+   },
    REFERENCE: {
       name: 'reference',
       title: '參考資料'

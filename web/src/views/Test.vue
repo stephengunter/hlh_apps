@@ -13,13 +13,15 @@ const name = 'TestPage'
 
 const store = useStore()
 const initialState = {
-	range: {
-		roc: true,
-		dates: [],
-      values: [],
-		models: {},
-		hours_allow: [],
-		minutes_allow: []
+	form: {
+		model: {
+			postType: '',
+			postId: 0,
+			title: '',
+			done: false,
+			order: 0
+		}
+		
 	},
 
 	photo: {
@@ -33,22 +35,22 @@ const state = reactive(deepClone(initialState))
 
 onBeforeMount(() => {
 	
-	store.dispatch(GET_ATTACHMENT, 4)
-	.then(data => {
-		const ext = data.ext
-		const fileBytes = data.fileView.fileBytes
-		const title = data.title
-		previewImage({ ext, fileBytes, title })
+	// store.dispatch(GET_ATTACHMENT, 4)
+	// .then(data => {
+	// 	const ext = data.ext
+	// 	const fileBytes = data.fileView.fileBytes
+	// 	const title = data.title
+	// 	previewImage({ ext, fileBytes, title })
 		
-	})
-	.catch(error => onErrors(error))
+	// })
+	// .catch(error => onErrors(error))
 })
 
 function onDateSelected({ date, model }, selected = true) {	
 	
 }
 function create() {
-	console.log('create')
+	
 }
 
 function onFileAdded({ files }) {
@@ -74,12 +76,14 @@ function onFileAdded({ files }) {
 	<div>
 		<v-row>
 			<v-col cols="12">
-				<CommonInputUpload :show_button="true"
-				@file-added="onFileAdded"
-				/>
+			<CommonButtonCreate  size="x-small"
+			@create="create"	
+			/>
 			</v-col>
 			<v-col cols="12">
-				<v-img v-if="state.photo.url" :src="state.photo.url" />
+			<ItemForm 
+			:model="state.form.model"
+			/>	
                
 			</v-col>
 		</v-row>

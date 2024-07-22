@@ -9,19 +9,45 @@ export const upperFirstLetter = (val) => isNullOrEmpty(val) ? '' : val.charAt(0)
 export const pluralization = (val) => isNullOrEmpty(val) ? '' : pluralize(val)
 
 
+// export const removeHtmlTags = (str) => {
+//    if((str === null) || (str === '')) return ''
+//    else {
+//       str = str.toString()
+//       return removeWhiteSpaces(str.replace( /(<([^>]+)>)/ig, ''))
+//    }   
+// }
+
 export const removeHtmlTags = (str) => {
-   if((str === null) || (str === '')) return ''
+   if ((str === null) || (str === '')) return ''
    else {
       str = str.toString()
-      return removeWhiteSpaces(str.replace( /(<([^>]+)>)/ig, ''))
+      return str.replace(/(<([^>]+)>)/ig, '').replace(/\n/g, '\n')
    }   
-      
 }
 
-export const replaceBR = (text) => 
-   text.replace(/<br>/g, '\n').replace(new RegExp('<br/>', 'g'), '\n')
+export const replaceNewLineWithBR = (text) => {
+   if ((text === null) || (text === '')) return ''
+   else {
+      text = text.toString()
+      return text.replace(/\n/g, '<br>')
+   } 
+}
+
+
+export const replaceBR = (text) => {
+   if ((text === null) || (text === '')) return ''
+   else {
+      text = text.toString()
+      return text.replace(/<br>/g, '\n').replace(new RegExp('<br/>', 'g'), '\n')
+   } 
+}
+  
    
 export const removeWhiteSpaces = (strVal) => strVal.replace(/\s/g,'')
+
+export const removeExtraSpaces = (str) => {
+   return str.replace(/[ \t]+/g, ' ').replace(/^\s+|\s+$/gm, '')
+}
 
 export const formatNumberWithLeadingZeros = (num, len) => {
    let strNum = num.toString(); // Convert the number to a string

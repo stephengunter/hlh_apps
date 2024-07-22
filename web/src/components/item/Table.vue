@@ -1,7 +1,7 @@
 <script setup>
 import { previewClientFile, previewAttachment } from '@/utils'
 
-const name = 'ReferenceTable'
+const name = 'ItemTable'
 const props = defineProps({
 	read_only: {
       type: Boolean,
@@ -19,12 +19,8 @@ function getUrl(model) {
 	return model.file.name
 	
 }
-function preview(model) {
-	if(model.file) previewClientFile(model.file)
-	else {
-		window.open(model.url)
-	}
-	
+function preview(file) {
+	previewClientFile(file)	
 }
 function remove(index) {
 	emit('remove', index)
@@ -66,28 +62,25 @@ function edit(index) {
 					{{ model.title }}
 				</td>
 				<td v-if="model.id">
-					<a v-if="model.url" :href="model.url" target="_blank"
-					v-text="model.url">
-					</a>
-					<AttachmentIcon v-if="model.attachment"
-					:model="model.attachment"
-					@click="previewAttachment(model.attachment)"
+					<AttachmentIcon v-for="(attachment, index) in model.attachments"
+					:model="attachment"
+					@click="previewAttachment(attachment)"
 					/> 
-					<v-tooltip v-if="model.file" top>
+					<!-- <v-tooltip v-if="model.file" top>
 						<template  v-slot:activator="{ props }">
 							<a href="#" v-bind="props"
 							@click.prevent="previewClientFile(model.file)" v-text="model.file.name">
 							</a>
 						</template>
 						<span>預覽</span>
-					</v-tooltip>
+					</v-tooltip> -->
 					
 				</td>
 				<td v-else>
-					<v-tooltip top>
+					<v-tooltip top v-for="(file, index) in model.files">
 						<template v-slot:activator="{ props }">
-							<a href="#" v-bind="props"
-							@click.prevent="preview(model)" v-text="getUrl(model)">
+							<a href="#" v-bind="props" class="ma-3"
+							@click.prevent="preview(file)" v-text="file.name">
 							</a>
 						</template>
 						<span>預覽</span>

@@ -4,6 +4,7 @@ import app from './modules/app.module'
 import auth from './modules/auth.module'
 import attachments from './modules/attachments.module'
 import references from './modules/references.module'
+import items from './modules/items.module'
 import calendars from './modules/calendars.module'
 import events from './modules/events.module'
 import tasks from './modules/tasks.module'
@@ -15,6 +16,7 @@ const store = createStore({
       auth,
       attachments,
       references,
+      items,
       calendars,
       events,
       tasks,
