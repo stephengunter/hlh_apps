@@ -64,3 +64,13 @@ export const TASK_DETAILS = 'taskDetails'
 export const EDIT_TASK = 'editTask'
 export const UPDATE_TASK = 'updateTask'
 export const REMOVE_TASK = 'removeTask'
+
+//Docs
+export const INIT_DOCS = 'initDocs'
+export const FETCH_DOCS = 'fetchDocs'
+export const CREATE_DOC = 'createDoc'
+export const STORE_DOC = 'storeDoc'
+export const DOC_DETAILS = 'docDetails'
+export const EDIT_DOC = 'editDoc'
+export const UPDATE_DOC = 'updateDoc'
+export const REMOVE_DOC = 'removeDoc'

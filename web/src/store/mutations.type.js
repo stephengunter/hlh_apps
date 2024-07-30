@@ -35,3 +35,7 @@ export const SET_EVENT_CATEGORIES = 'setEventCategories'
 
 //Tasks
 export const SET_TASKS = 'setTasks'
+
+//Tasks
+export const SET_DOCS = 'setDocs'
+export const SET_DOC_DEPARTMENTS = 'setDocDepartments'
