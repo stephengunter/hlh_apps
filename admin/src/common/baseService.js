@@ -6,8 +6,8 @@ const setHeader = (token) => {
 	else axios.defaults.headers.common['Authorization'] = null	
 }
 
-const fetch = (url, params) => new Promise((resolve, reject) => {
-	axios.get(buildQuery(url, params))
+const fetch = (url, query) => new Promise((resolve, reject) => {
+	axios.get(buildQuery(url, query))
 	.then(response => resolve(response.data))
 	.catch(error => reject(error.response))
 })

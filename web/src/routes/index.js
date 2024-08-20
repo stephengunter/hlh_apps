@@ -5,8 +5,8 @@ import store from '@/store'
 import JwtService from '@/services/jwt.service'
 import { ROUTE_TYPES, ROUTE_NAMES } from '@/consts'
 import { APP_CLOSED } from '@/config'
-import { CHECK_AUTH, REFRESH_TOKEN, GET_MENUS, LOGOUT } from '@/store/actions.type'
-import { SET_ROUTE, CLEAR_ERRORS, PURGE_AUTH, TOGGLE_USER_MENU } from '@/store/mutations.type'
+import { CHECK_AUTH, REFRESH_TOKEN, GET_MENUS } from '@/store/actions.type'
+import { SET_ROUTE, CLEAR_ERRORS, PURGE_AUTH } from '@/store/mutations.type'
 
 const history = createWebHistory(process.env.BASE_URL)
 const routes = appRoutes.map(item => {

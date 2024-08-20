@@ -16,7 +16,33 @@ export const REFRESH_TOKEN = 'refreshToken'
 //AppAdmin
 export const FETCH_EXCEPTIONS = 'fetchExceptions'
 
+//IT/Databases
+export const FETCH_IT_DATABASES = 'fetchITDatabases'
+export const CREATE_IT_DATABASE = 'createITDatabase'
+export const STORE_IT_DATABASE = 'storeITDatabase'
+export const EDIT_IT_DATABASE = 'editITDatabase'
+export const UPDATE_IT_DATABASE = 'updateITDatabase'
+export const REMOVE_IT_DATABASE = 'removeITDatabase'
+
+//IT/SystemApps
+export const FETCH_IT_SYSTEM_APPS = 'fetchITSystemApps'
+export const CREATE_IT_SYSTEM_APP = 'createITSystemApp'
+export const STORE_IT_SYSTEM_APP = 'storeITSystemApp'
+export const EDIT_IT_SYSTEM_APP = 'editITSystemApp'
+export const UPDATE_IT_SYSTEM_APP = 'updateITSystemApp'
+export const REMOVE_IT_SYSTEM_APP = 'removeITSystemApp'
+
 //NEW
+
+
+//Tags
+export const FETCH_TAGS = 'fetchTags'
+export const CREATE_TAG = 'createTag'
+export const STORE_TAG = 'storeTag'
+export const TAG_DETAILS = 'tagDetails'
+export const EDIT_TAG = 'editTag'
+export const UPDATE_TAG = 'updateTag'
+export const REMOVE_TAG = 'removeTag'
 
 //JobUserProfiles
 export const FETCH_JOB_USER_PROFILES_BY_JOB = 'fetchJobUserProfilesByJob'

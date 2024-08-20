@@ -7,11 +7,16 @@ export const ROUTE_TYPES = {
 export const ROUTE_NAMES = {
    DASHBOARDS: 'dashboards',
    LOGIN: 'login',
+   
    DEPARTMENTS: 'departments',
    USER_DETAILS: 'user-details',
    JOB_DETAILS: 'job-details',
    ARTICLE_INDEX: 'articles',
    ARTICLE_EDIT: 'article-edit',
    NOT_FOUND: '404',
-   CLOSE: 'close'
+   CLOSE: 'close',
+
+
+   SYSTEM_APPS: 'systemApps',
+   DATABASES: 'databases',
 }

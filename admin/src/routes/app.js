@@ -8,6 +8,10 @@ const DEPARTMENT = ENTITY_TYPES.DEPARTMENT
 const JOB = ENTITY_TYPES.JOB
 const LOCATION = ENTITY_TYPES.LOCATION
 
+const DATABASE = ENTITY_TYPES.DATABASE
+const SYSTEM_APP = ENTITY_TYPES.SYSTEM_APP
+
+
 const applinks = [
 new Page({
    name: ROUTE_NAMES.CLOSE,
@@ -61,6 +65,26 @@ new Page({
    icon: 'mdi-file-tree-outline', 
    title: '組織管理',
    menus: [MENUS.MAIN]
+}),
+
+//Groups IT
+new Page({
+   name: ROUTE_NAMES.DATABASES,
+   path: `/it/${pluralization(DATABASE.name)}`,
+   view: `it/${pluralization(DATABASE.name)}/Index`,
+   icon: 'mdi-database', 
+   title: `${DATABASE.title}管理`,
+   menus: [MENUS.MAIN],
+   parent: ''
+}),
+new Page({
+   name: ROUTE_NAMES.SYSTEM_APPS,
+   path: `/it/${pluralization(SYSTEM_APP.name)}`,
+   view: `it/${pluralization(SYSTEM_APP.name)}/Index`,
+   icon: 'mdi-web', 
+   title: `${SYSTEM_APP.title}管理`,
+   menus: [MENUS.MAIN],
+   parent: ''
 }),
 
 //Groups Users

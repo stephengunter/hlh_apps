@@ -18,11 +18,18 @@ export const SET_ROUTE = 'setRoute'
 export const SET_ERRORS = 'setErrors'
 export const CLEAR_ERRORS = 'clearErrors'
 
+//IT/Databases
+export const SET_IT_DATABASES = 'setITDatabases'
+//IT/SystemApps
+export const SET_IT_SYSTEM_APPS = 'setITSystemApps'
+
 //NEW
 export const SET_LOCATIONS = 'setLocations'
 
 
 export const SET_JOBS = 'setJobs'
+
+export const SET_TAGS = 'setTags'
 
 
 export const SET_DEPARTMENTS = 'setDepartments'

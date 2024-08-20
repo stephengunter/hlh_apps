@@ -1,10 +1,11 @@
 <script setup>
 import ButtonDefault from './Default.vue'
-const name = 'CommonButtonRemove'
+
+const name = 'ButtonCreate'
 const props = defineProps({
    tooltip: {
       type: String,
-      default: '刪除'
+      default: '下載'
    },
    disabled: {
       type: Boolean,
@@ -16,7 +17,7 @@ const props = defineProps({
    },
    color: {
       type: String,
-      default: 'error'
+      default: 'info'
    },
    size: {
       type: String,
@@ -24,21 +25,22 @@ const props = defineProps({
    },
    icon: {
       type: String,
-      default: 'mdi-trash-can'
+      default: 'mdi-download'
    },
    icon_only: {
       type: Boolean,
       default: false
    }
 })
-const emit = defineEmits(['remove'])
+
+const emit = defineEmits(['download'])
 </script>
 <template>
    <ButtonDefault :tooltip="tooltip"
    :icon="icon" :color="color" :size="size"
    :disabled="disabled" :class_name="class_name"
    :icon_only="icon_only"
-   @click="() => emit('remove')" 
+   @click="() => emit('download')" 
    />
   
 </template>

@@ -1,4 +1,12 @@
 export const ENTITY_TYPES = {
+   DATABASE: {
+      name: 'database',
+      title: '資料庫'
+   },
+   SYSTEM_APP: {
+      name: 'systemApp',
+      title: '系統應用'
+   },
    USER: {
       name: 'user',
       title: '用戶'

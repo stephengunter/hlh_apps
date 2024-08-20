@@ -1,4 +1,5 @@
 <script setup>
+import ButtonDefault from './Default.vue'
 const name = 'CommonButtonEdit'
 const props = defineProps({
    tooltip: {
@@ -13,9 +14,17 @@ const props = defineProps({
       type: String,
       default: ''
    },
+   color: {
+      type: String,
+      default: 'info'
+   },
    size: {
       type: String,
       default: 'small'
+   },
+   icon: {
+      type: String,
+      default: 'mdi-pencil'
    },
    icon_only: {
       type: Boolean,
@@ -23,28 +32,13 @@ const props = defineProps({
    }
 })
 const emit = defineEmits(['edit'])
-
-
-function edit() {
-	emit('edit')
-}
 </script>
 <template>
-   <v-tooltip v-if="tooltip" top>
-      <template v-slot:activator="{ props }">
-         <v-btn  v-bind="props" :size="size" :color="color" icon="mdi-pencil"
-         :class="class_name" variant=""
-         :disabled="disabled" 
-         @click.prevent="edit"  
-         >
-         </v-btn>
-      </template>
-      <span v-text="tooltip"></span>
-   </v-tooltip>
-   <v-btn v-else :size="size" :color="color" icon="mdi-pencil" 
-   :class="class_name" :disabled="disabled"  variant=""
-   @click.prevent="edit" 
-   >
-   </v-btn>
+   <ButtonDefault :tooltip="tooltip"
+   :icon="icon" :color="color" :size="size"
+   :disabled="disabled" :class_name="class_name"
+   :icon_only="icon_only"
+   @click="() => emit('edit')" 
+   />
   
 </template>

@@ -7,9 +7,13 @@ import locations from './modules/locations.module'
 import jobUserProfiles from './modules/job_user_profiles.module'
 import jobs from './modules/jobs.module'
 import departments from './modules/departments.module'
+import tags from './modules/tags.module'
 import users from './modules/users.module'
 import profiles from './modules/profiles.module'
 import passwords from './modules/passwords.module'
+
+import it_databases from './modules/it/databases.module'
+import it_systemApps from './modules/it/systemApps.module'
 
 const store = createStore({
    modules: {
@@ -21,9 +25,12 @@ const store = createStore({
       departments,
       jobs,
       jobUserProfiles,
+      tags,
       users,
       profiles,
-      passwords
+      passwords,
+      it_databases,
+      it_systemApps
    }
 })
 
