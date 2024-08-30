@@ -6,7 +6,7 @@ import JwtService from '@/services/jwt.service'
 import { ROUTE_TYPES, ROUTE_NAMES } from '@/consts'
 import { APP_CLOSED } from '@/config'
 import { CHECK_AUTH, REFRESH_TOKEN, GET_MENUS } from '@/store/actions.type'
-import { SET_ROUTE, CLEAR_ERRORS, PURGE_AUTH } from '@/store/mutations.type'
+import { SET_ROUTE, CLEAR_ERRORS, PURGE_AUTH, SET_DOC_PERSONS, SET_DOCS } from '@/store/mutations.type'
 
 const history = createWebHistory(process.env.BASE_URL)
 const routes = appRoutes.map(item => {
@@ -56,6 +56,10 @@ router.beforeEach((to, from, next) => {
 	if(to.name === ROUTE_NAMES.AUTHTOKEN) {
 		store.commit(PURGE_AUTH)
 		return authDone(next, to)
+	}
+	if(to.name !== from.name) {
+		store.commit(SET_DOC_PERSONS, [])
+		store.commit(SET_DOCS, [])
 	}
 	
 	store.commit(SET_ROUTE, { to: appRoutes.find(page => page.name === to.name), from: appRoutes.find(page => page.name === from.name) })

@@ -3,23 +3,24 @@ import { resolveErrorData, deepClone, isEmptyObject, getListFromObj } from '@/ut
 import Doc from '@/models/doc'
 import { INIT_DOCS, FETCH_DOCS, CREATE_DOC, STORE_DOC, DOC_DETAILS, EDIT_DOC, UPDATE_DOC } from '@/store/actions.type'  
 
-import { SET_DOCS, SET_DOC_DEPARTMENTS, SET_LOADING } from '@/store/mutations.type'
+import { SET_DOCS, SET_DOC_PERSONS, SET_LOADING } from '@/store/mutations.type'
    
 
 
 
 const initialState = {
    query: {
-
-   },
-   departments: [],
-   tels: [],
+      person: '',
+      flag: 1
+	},
+   keep_reasons: [
+      { value: 0, title: ''},
+      { value: 1, title: '(一)「紙本原卷將送交檔案管理單位辦理歸檔作業」'},
+      { value: 3, title: '(三)「案件尚在承辦中，辦畢後將送檔案管理辦理歸檔作業」'},      
+      { value: 4, title: '(四)「資料截止後已送歸」'}
+   ],
    list: [],
-   labels: {
-      'tel': '分機',
-      'ps': '備註'
-   },
-   actions: []
+   persons: []
 }
 
 const state = deepClone(initialState)
@@ -30,15 +31,14 @@ const getters = {
 
 
 const actions = {
-   [INIT_DOCS](context) {
+   [INIT_DOCS](context, query) {
       let state = context.state
-      state.query = { ...initialState.query }
-      
+      state.query = { ...initialState.query }      
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         DocService.init()
-            .then(model => {
-               context.commit(SET_DOC_DEPARTMENTS, model.departments)
+         DocService.init(query)
+            .then(list => {
+               context.commit(SET_DOC_PERSONS, list)
                resolve()
             })
             .catch(error => reject(error))
@@ -49,9 +49,9 @@ const actions = {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          DocService.fetch(query)
-         .then(model => {
-            context.commit(SET_DOCS, model)
-            resolve()
+         .then(list => {
+            context.commit(SET_DOCS, list)
+            resolve(list)
          })
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
@@ -70,7 +70,10 @@ const actions = {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          DocService.store(model)
-         .then(model => resolve(model))
+         .then(list => {
+            context.commit(SET_DOC_PERSONS, list)
+            resolve()
+         })
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })
@@ -106,19 +109,27 @@ const actions = {
 
 
 const mutations = {
-   [SET_DOCS](state, model) {
-      state.query = model.request
-      state.actions = model.actions
-      state.pagedList = model.pagedList
+   [SET_DOCS](state, list) {
+      state.list = list
    },
-   [SET_DOC_DEPARTMENTS](state, departments) {
-      state.departments = []
-      state.tels = []
-      departments.forEach(d => {
-         let entry = new Doc(d)
-         state.tels = state.tels.concat(entry.tels)
-         state.departments.push(entry)
-      })
+   [SET_DOC_PERSONS](state, unitPersons) {
+      // if(unitPersons.length) {
+      //    let persons = []
+      //    unitPersons.forEach(unitPerson => {
+      //       if(units.findIndex(x => x.name === unitPerson.unit) < 0) {
+      //          units.push({ name: unitPerson.unit  })
+      //       }
+      //       persons.push({
+      //          unit: unitPerson.unit,
+      //          name: unitPerson.person,
+      //          saves: unitPerson.saves,
+      //          id: unitPerson.id
+      //       })
+      //    })
+      //    state.units = units
+      //    state.persons = unitPersons
+      // }
+      state.persons = unitPersons
    }
 }
 

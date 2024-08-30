@@ -3,7 +3,7 @@ import { API_URL } from '@/config'
 
 const source =`${API_URL}/docs`
 
-const init = () => BaseService.fetch(`${source}/init`)
+const init = (params) => BaseService.fetch(`${source}/init`, params)
 
 const fetch = (query) => BaseService.fetch(source, query)
 
