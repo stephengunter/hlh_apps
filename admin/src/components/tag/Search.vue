@@ -1,7 +1,10 @@
 
 <script setup>
-import { reactive, onBeforeMount } from 'vue'
+import { reactive, onBeforeMount, computed } from 'vue'
+import { useStore } from 'vuex'
 import { deepClone } from '@/utils'
+
+const store = useStore()
 const name = 'TagSearch'
 const props = defineProps({
    label: {
@@ -18,6 +21,13 @@ const initialState = {
    val: ''
 }
 const state = reactive(deepClone(initialState))
+
+const list = computed(() => store.getters.tags)
+const items = computed(() => {
+   return store.getters.tags
+   // if(state.val) return store.getters.tags
+   // return []
+})
 
 onBeforeMount(init)
 
@@ -42,9 +52,18 @@ function search() {
       v-model="state.val" 
       @click:clear="clear"
       /> -->
-      <v-autocomplete
-      :label="label"
-      :items="['California', 'Colorado', 'Florida', 'Georgia', 'Texas', 'Wyoming']"
-      />
+      <!-- <v-autocomplete style="max-width: 320px;" hide-no-data 
+      :label="label" v-model="state.val"
+      :items="items"
+      /> -->
+      <v-menu full-width max-width="290"
+      :close-on-content-click="false"
+      >
+         <template v-slot:activator="{ on }">
+            <v-text-field :label="label"
+            v-model="state.val" v-on="on"
+            />
+         </template>
+      </v-menu>
    </form>
 </template>

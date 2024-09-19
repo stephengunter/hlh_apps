@@ -13,3 +13,6 @@ export const GOOGLE_AUTH_PARAMS = {
    client_id: import.meta.env.VITE_APP_GOOGLE_AUTH_CLIENT_ID,
    scope: 'email'
 }
+
+//UI
+export const DIALOG_MAX_WIDTH = 480

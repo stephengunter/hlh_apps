@@ -3,6 +3,8 @@ import { API_URL } from '@/config'
 
 const source =`${API_URL}/admin/it/systemapps`
 
+const init = () => BaseService.fetch(`${source}/init`)
+
 const fetch = (query) => BaseService.fetch(source, query)
 
 const create = () => BaseService.fetch(`${source}/create`)
@@ -17,4 +19,4 @@ const update = (model) => BaseService.put(`${source}/${model.id}`, model)
 
 const remove = (id) => BaseService.remove(`${source}/${id}`)
 
-export default { fetch, create, store, details, edit, update, remove }
+export default { init, fetch, create, store, details, edit, update, remove }

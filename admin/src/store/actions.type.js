@@ -16,6 +16,26 @@ export const REFRESH_TOKEN = 'refreshToken'
 //AppAdmin
 export const FETCH_EXCEPTIONS = 'fetchExceptions'
 
+
+//Keyin
+export const INIT_KEYINS_BRANCHES = 'initKeyinsBranches'
+export const FETCH_KEYINS_BRANCHES = 'fetchKeyinsBranches'
+export const UPLOAD_KEYINS_BRANCHES = 'uploadKeyinsBranches'
+export const STORE_KEYINS_BRANCHES = 'storeKeyinsBranches'
+export const EXPORT_KEYINS_BRANCHES_REPORT = 'exportKeyinsBranchesReport'
+
+export const INIT_KEYINS_PERSONS = 'initKeyinsPersons'
+export const FETCH_KEYINS_PERSONS = 'fetchKeyinsPersons'
+export const UPLOAD_KEYINS_PERSONS = 'uploadKeyinsPersons'
+export const STORE_KEYINS_PERSONS = 'storeKeyinsPersons'
+export const EXPORT_KEYINS_PERSONS_REPORT = 'exportKeyinsPersonsReport'
+
+
+export const FETCH_KEYINS_PASSES = 'fetchKeyinsPasses'
+export const UPLOAD_KEYINS_PASSES = 'uploadKeyinsPasses'
+export const STORE_KEYINS_PASSES = 'storeKeyinsPasses'
+export const EXPORT_KEYINS_PASSES_REPORT = 'exportKeyinsPassesReport'
+
 //IT/Databases
 export const FETCH_IT_DATABASES = 'fetchITDatabases'
 export const CREATE_IT_DATABASE = 'createITDatabase'
@@ -25,6 +45,7 @@ export const UPDATE_IT_DATABASE = 'updateITDatabase'
 export const REMOVE_IT_DATABASE = 'removeITDatabase'
 
 //IT/SystemApps
+export const INIT_IT_SYSTEM_APPS = 'initITSystemApps'
 export const FETCH_IT_SYSTEM_APPS = 'fetchITSystemApps'
 export const CREATE_IT_SYSTEM_APP = 'createITSystemApp'
 export const STORE_IT_SYSTEM_APP = 'storeITSystemApp'

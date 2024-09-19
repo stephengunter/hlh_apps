@@ -65,6 +65,11 @@ function currentMain() {
 function expand() {
    state.expand = !state.expand
 }
+function getTitle(item) {
+   let parts = item.meta.title.split(',')
+   if(parts.length === 1) return item.meta.title
+   return parts[0]
+}
 function select() {
    emit('select', props.item)
 }
@@ -73,7 +78,7 @@ function select() {
    <v-list-item :prepend-icon="item.meta.icon" :active="state.parent_active" >
       <template v-slot:title>
          <a href="#" @click.prevent="select" style="color: white;" class="text-decoration-none">
-         {{ item.meta.title }}
+         {{ getTitle(item) }}
          </a>
       </template>
       <template v-if="subMenuItems.length" v-slot:append>
@@ -87,7 +92,7 @@ function select() {
       v-for="subItem in subMenuItems"  :key="subItem.name"
       :active="subItem.name === state.sub_active_name" 
       color="info"
-      :title="subItem.meta.title"
+      :title="getTitle(subItem)"
       :prepend-icon="subItem.meta.icon"
       :value="subItem.name"
       :to="subItem.path"

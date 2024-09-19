@@ -8,8 +8,8 @@ import { isEmptyObject, deepClone , activeOptions, areObjectsEqual, reviewedOpti
 	setValues, badRequest, tryParseInt, isTrue
 } from '@/utils'
 
-const name = 'ITSystemAppHead'
-const emit = defineEmits(['submit', 'create'])
+const name = 'KeyinPersonHead'
+const emit = defineEmits(['submit', 'upload', 'report'])
 defineExpose({
    init, setQuery, getQuery, setPageOption
 })
@@ -26,6 +26,18 @@ const props = defineProps({
 	labels: {
       type: Object,
       default: null
+   },
+	year_options: {
+      type: Array,
+      default: () => []
+   },
+	month_options: {
+      type: Array,
+      default: () => []
+   },
+	can_report: {
+      type: Boolean,
+      default: false
    }
 })
 const initialState = {
@@ -39,7 +51,6 @@ const query_match_route = computed(() => {
 		return areObjectsEqual(state.query, route.query, true)
 	} return false
 })
-const ready = computed(() => store.state.it_systemApps.pagedList != null)
 
 watch(route, init)
 
@@ -54,9 +65,11 @@ function initQuery() {
 	}
 	
 	state.query = { ...route.query }
-	state.query.active = isTrue(state.query.active)
-	state.query.page = tryParseInt(state.query.page)
-	state.query.pageSize = tryParseInt(state.query.pageSize)
+	state.query.year = tryParseInt(state.query.year)
+	state.query.month = tryParseInt(state.query.month)
+
+	console.log(state.query)
+	
 }
 function setQuery(model) {
    setValues(model, state.query)
@@ -69,15 +82,18 @@ function setPageOption(option) {
 	if(option.hasOwnProperty('size')) state.query.pageSize = option.size
 	onSubmit()
 }
-function onParamsChanged() {
+function onQueryChanged() {
 	onSubmit()
 }
 function onSubmit() {
 	if(query_match_route.value) emit('submit', state.query)
 	else router.push({ path: route.path, query: { ...state.query } })	
 }
-function onCreate() {
-	emit('create')
+function onReport() {
+	emit('report', state.query)
+}
+function onUpload() {
+	emit('upload', state.query)
 }
 
 </script>
@@ -87,27 +103,37 @@ function onCreate() {
    <form v-show="!isEmptyObject(state.query)" @submit.prevent="onSubmit">
 		<v-row dense>
 			<v-col cols="3">
-				<v-radio-group v-model="state.query.active" inline @update:modelValue="onParamsChanged">
-					<v-radio v-for="(item, index) in active_options" :key="index"
-					:label="item.title" :value="item.value"
-					/>
-				</v-radio-group>
+				<v-select density="compact" 
+				:items="year_options" v-model="state.query.year"
+				@update:modelValue="onQueryChanged"
+				/>
 			</v-col>
          <v-col cols="3">
+				<v-select density="compact"
+				:items="month_options" v-model="state.query.month"
+				@update:modelValue="onQueryChanged"
+				/>
+			</v-col>
+			<v-col cols="3">
 				
 			</v-col>
 			<v-col cols="3">
-				<v-text-field label="關鍵字"  density="compact" clearable    
-				v-model="state.query.keyword"
-				/>
-			</v-col>
-			<v-col cols="2">
-				
-			</v-col>
-			<v-col cols="1">
-            <CommonButtonCreate class_name="float-right"
-				@create="onCreate"
-            />
+				<v-tooltip text="上傳">
+					<template v-slot:activator="{ props }">
+						<v-btn class="float-right ml-1"
+						icon="mdi-upload" v-bind="props" size="small" color="info"
+						@click.prevent="onUpload"
+						/>
+					</template>
+				</v-tooltip>
+				<v-tooltip text="報表" v-if="can_report">
+					<template v-slot:activator="{ props }">
+						<v-btn class="float-right" 
+						icon="mdi-file-document" v-bind="props" size="small" color="warning"
+						@click.prevent="onReport"
+						/>
+					</template>
+				</v-tooltip>
 			</v-col>
 		</v-row>
 	</form>

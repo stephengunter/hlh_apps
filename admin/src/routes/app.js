@@ -7,6 +7,7 @@ const PROFILES = ENTITY_TYPES.PROFILES
 const DEPARTMENT = ENTITY_TYPES.DEPARTMENT
 const JOB = ENTITY_TYPES.JOB
 const LOCATION = ENTITY_TYPES.LOCATION
+const KEYIN = ENTITY_TYPES.KEYIN
 
 const DATABASE = ENTITY_TYPES.DATABASE
 const SYSTEM_APP = ENTITY_TYPES.SYSTEM_APP
@@ -66,8 +67,16 @@ new Page({
    title: '組織管理',
    menus: [MENUS.MAIN]
 }),
+new Page({
+   name: pluralization(KEYIN.name),
+   path: `/${pluralization(KEYIN.name)}`,
+   view: `${pluralization(KEYIN.name)}/Index`,
+   icon: 'mdi-keyboard-outline', 
+   title: `${KEYIN.title},${KEYIN.title} - 個人成績`,
+   menus: [MENUS.MAIN]
+}),
 
-//Groups IT
+// IT
 new Page({
    name: ROUTE_NAMES.DATABASES,
    path: `/it/${pluralization(DATABASE.name)}`,
@@ -125,43 +134,26 @@ new Page({
    menus: [MENUS.MAIN],
    parent: pluralization(DEPARTMENT.name),
 }),
+//Groups KEYIN
+new Page({
+   name: 'keyins-branches',
+   path: `/${pluralization(KEYIN.name)}/branches`,
+   view: `${pluralization(KEYIN.name)}/Branches`,
+   icon: 'mdi-office-building',
+   title: `法院成績,${KEYIN.title} - 法院成績`,
+   menus: [MENUS.MAIN],
+   parent: pluralization(KEYIN.name),
+}),
 
-//Groups Departments
-// toLink(JOB.name, {
-//    icon: 'mdi-briefcase-outline',
-//    parent: groups[DEPARTMENT.name].name,
-//    title: JOB.title,
-//    menus: [MENUS.MAIN]
-// },`${pluralization(JOB.name)}/Index`
-// ),
-// {
-//    name: ROUTE_NAMES.JOB_DETAILS,
-//    path: '/jobs/:id',
-//    view: 'jobs/Details',
-//    meta: {
-//       title: `${JOB.title}管理`,
-//       parent: groups[DEPARTMENT.name].name
-//    }
-// },
-// {
-//    name: ROUTE_NAMES.ARTICLE_INDEX,
-//    path: '/articles',
-//    view: 'articles/Index',      
-//    meta: {
-//       icon: 'mdi-post-outline',
-//       title: '文章管理',
-//       menus: [MENUS.MAIN]
-//    }
-// },
-// {
-//    name: ROUTE_NAMES.ARTICLE_EDIT,
-//    path: '/articles/edit/:id?',
-//    view: 'articles/Edit',
-//    meta: {
-//       title: '文章管理 - 編輯',
-//       parent: ROUTE_NAMES.ARTICLE_INDEX,
-//    }
-// },
+new Page({
+   name: 'keyins-passes',
+   path: `/${pluralization(KEYIN.name)}/passes`,
+   view: `${pluralization(KEYIN.name)}/Passes`,
+   icon: 'mdi-check-circle',
+   title: `免測人員`,
+   menus: [MENUS.MAIN],
+   parent: pluralization(KEYIN.name),
+}),
 ]
 const guestLinks = [
 new Page({

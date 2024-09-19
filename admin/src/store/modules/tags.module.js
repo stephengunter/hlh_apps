@@ -18,7 +18,7 @@ const state = deepClone(initialState)
 const getters = {
    tags(state) {
       return state.list
-   },
+   }
 }
 
 

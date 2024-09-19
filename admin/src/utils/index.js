@@ -26,6 +26,7 @@ export const badRequest = (title = DIALOG_TITLE[BAD_REQUEST], text = DIALOG_MESS
 })
 
 export const onErrors = (error) => {
+   console.log('onErrors', error)
    if(is500(error)) {
       Bus.emit(ERRORS, { 
          type: ERRORS,

@@ -30,50 +30,6 @@ new Page({
    icon: '',
    title: 'Test',
    menus: []
-}),
-new Page({
-   name: 'doc',
-   path: '/doc',
-   view: 'Doc',      
-   icon: 'mdi-file-document',
-   title: '舊公文資料確認-說明',
-   menus: [MENUS.MAIN],
-   alias: '/'
-})
-,
-new Page({
-   name: 'doc-a',
-   path: '/doc_a',
-   view: 'DocA',      
-   icon: 'mdi-file-document',
-   title: '舊公文資料確認-A類',
-   menus: [MENUS.MAIN],
-   alias: '/'
-}),
-new Page({
-   name: 'doc-b',
-   path: '/doc_b',
-   view: 'DocB',      
-   icon: 'mdi-file-document',
-   title: '舊公文資料確認-B類',
-   menus: [MENUS.MAIN]
-}),
-new Page({
-   name: 'doc-c',
-   path: '/doc_c',
-   view: 'DocC',      
-   icon: 'mdi-file-document',
-   title: '舊公文資料確認-C類',
-   menus: [MENUS.MAIN]
-})
-,
-new Page({
-   name: 'doc-d',
-   path: '/doc_d',
-   view: 'DocD',      
-   icon: 'mdi-file-gavel',
-   title: '審判公文，隨卷歸檔',
-   menus: [MENUS.MAIN]
 })
 ]
 

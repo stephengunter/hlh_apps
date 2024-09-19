@@ -30,5 +30,9 @@ export const ENTITY_TYPES = {
    JOB_USER_PROFILES: {
       name: 'jobUserProfiles',
       title: '任職紀錄'
-   }
+   },
+   KEYIN: {
+      name: 'keyin',
+      title: '聽打紀錄'
+   },
 }

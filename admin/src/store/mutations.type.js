@@ -21,11 +21,17 @@ export const CLEAR_ERRORS = 'clearErrors'
 //IT/Databases
 export const SET_IT_DATABASES = 'setITDatabases'
 //IT/SystemApps
+export const SET_IT_SYSTEM_APPS_INDEX_MODEL = 'setITSystemAppsIndexModel'
 export const SET_IT_SYSTEM_APPS = 'setITSystemApps'
 
 //NEW
 export const SET_LOCATIONS = 'setLocations'
 
+export const SET_KEYINS_BRANCHES_INDEX_MODEL = 'setKeyinsBranchesIndexModel'
+export const SET_KEYINS_BRANCHES = 'setKeyinsBranches'
+
+export const SET_KEYINS_PERSONS_INDEX_MODEL = 'setKeyinPersonsIndexModel'
+export const SET_KEYINS_PERSONS = 'setKeyinsPersons'
 
 export const SET_JOBS = 'setJobs'
 

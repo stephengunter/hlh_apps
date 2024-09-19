@@ -36,9 +36,12 @@ const redirect = (next, route) => next(route)
 
 const authDone = (next, to, auth = false) => {
 	store.dispatch(GET_MENUS, auth)
-	if(!store.getters.tags.length) {
-		store.dispatch(FETCH_TAGS)
+	if(auth) {
+		if(!store.getters.tags.length) {
+			store.dispatch(FETCH_TAGS)
+		}
 	}
+	
 	return next()
 }
 const refreshToken = (next, to) => {

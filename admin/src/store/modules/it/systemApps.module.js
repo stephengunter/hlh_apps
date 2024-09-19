@@ -2,23 +2,18 @@ import SystemAppsService from '@/services/it/systemApps.service'
 import { resolveErrorData, deepClone } from '@/utils'
 
 import {
-   FETCH_IT_SYSTEM_APPS, CREATE_IT_SYSTEM_APP, STORE_IT_SYSTEM_APP, 
+   INIT_IT_SYSTEM_APPS, FETCH_IT_SYSTEM_APPS, CREATE_IT_SYSTEM_APP, STORE_IT_SYSTEM_APP, 
    EDIT_IT_SYSTEM_APP, UPDATE_IT_SYSTEM_APP, REMOVE_IT_SYSTEM_APP
 } from '@/store/actions.type'
 
-import { SET_IT_SYSTEM_APPS, SET_LOADING } from '@/store/mutations.type'
+import { SET_IT_SYSTEM_APPS_INDEX_MODEL, SET_IT_SYSTEM_APPS, SET_LOADING } from '@/store/mutations.type'
+
 
 
 const initialState = {
    query: {
-      active: true,
-      page: 1,
-      pageSize: 10
    },
    labels: {
-      title: '名稱',
-      key: 'Key',
-      provider: 'Provider',
    },
    pagedList: null
 }
@@ -31,6 +26,18 @@ const getters = {
 
 
 const actions = {
+   [INIT_IT_SYSTEM_APPS](context) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         SystemAppsService.init()
+            .then(model => {
+               context.commit(SET_IT_SYSTEM_APPS_INDEX_MODEL, model)
+               resolve()
+            })
+            .catch(error => reject(error))
+            .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
    [FETCH_IT_SYSTEM_APPS](context, query) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
@@ -92,6 +99,12 @@ const actions = {
 
 
 const mutations = {
+   [SET_IT_SYSTEM_APPS_INDEX_MODEL](state, model) {
+      console.log(model)
+      state.query = model.request
+      state.labels = model.labels
+      console.log(state.labels)
+   },
    [SET_IT_SYSTEM_APPS](state, pagedList) {
       state.pagedList = pagedList
    }

@@ -11,6 +11,9 @@ import tags from './modules/tags.module'
 import users from './modules/users.module'
 import profiles from './modules/profiles.module'
 import passwords from './modules/passwords.module'
+import keyins_persons from './modules/keyins/persons.module'
+import keyins_branches from './modules/keyins/branches.module'
+import keyins_passes from './modules/keyins/passes.module'
 
 import it_databases from './modules/it/databases.module'
 import it_systemApps from './modules/it/systemApps.module'
@@ -29,6 +32,9 @@ const store = createStore({
       users,
       profiles,
       passwords,
+      keyins_persons,
+      keyins_branches,
+      keyins_passes,
       it_databases,
       it_systemApps
    }

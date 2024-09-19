@@ -75,7 +75,7 @@ function cancel() {
             </v-container>
          </v-card-text>
       </slot>
-      <v-card-actions v-show="!noAction">
+      <v-card-actions v-show="!noAction"> 
          <v-spacer />
          <v-btn v-show="cancel_text" text @click="cancel">
             {{ cancel_text }}

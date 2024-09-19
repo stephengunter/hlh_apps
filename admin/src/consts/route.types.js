@@ -19,4 +19,7 @@ export const ROUTE_NAMES = {
 
    SYSTEM_APPS: 'systemApps',
    DATABASES: 'databases',
+
+   KEYIN: 'keyin',
+   KEYIN_UPLOAD: 'keyin-upload',
 }

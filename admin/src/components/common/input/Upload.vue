@@ -32,7 +32,7 @@ const props = defineProps({
 defineExpose({
    launch, getFiles
 })
-const emit = defineEmits(['file-added'])
+const emit = defineEmits(['file-added', 'file-removed'])
 const inputUpload = ref(null)
 
 const image_types = ['image/png', 'image/gif', 'image/jpeg']
@@ -43,7 +43,7 @@ const initialState = {
 const state = reactive(deepClone(initialState))
 
 const accept = computed(() => props.is_media ? image_types.toString() : props.allow_types.toString())
-
+const names = computed(() => state.files.map(x => x.name))
 const button_disable = computed(() => {
    if(state.files.length) {
       return true
@@ -118,11 +118,12 @@ function removeFile(name) {
    let index = findFileIndex(name)
    if(index >= 0) {
       state.files.splice(index, 1)
-      if(props.multiple) {
 
-      }else inputUpload.value.value = ''
+      if(!state.files.length) inputUpload.value.value = ''
    }
    removeThumb(name)
+
+   emit('file-removed', state.files)
 }
 function removeThumb(name) {
    let thumbIndex = state.thumbnails.findIndex(item => item.name == name)
@@ -149,19 +150,21 @@ function isImage(type) {
 }
 </script>
 <template>
-   <v-btn v-show="show_button" variant="outlined" density="comfortable" 
-   color="primary" v-text="button_label" :disabled="button_disable"
-   @click.prevent="launch()"
-   >
-   </v-btn>
-   <input ref="inputUpload" style="display: none;" type="file" 
-   :multiple="multiple" :accept="accept" 
-   @change="onFileChange" 
-   > 
-   <v-chip v-for="file in state.files" size="small" class="ma-2"
-   closable  
-   @click:close="removeFile(file.name)"
-   >
-      {{ file.name  }}
-   </v-chip> 
+   <div>
+      <v-btn v-show="show_button" variant="outlined" v-bind="props"  
+      color="primary" v-text="button_label" :disabled="button_disable"
+      @click.prevent="launch"
+      >
+      </v-btn>
+      <input ref="inputUpload" style="display: none;" type="file" 
+      :multiple="multiple" :accept="accept" 
+      @change="onFileChange" 
+      > 
+      <v-chip size="small" class="ma-2" v-for="file in state.files"
+      closable :key="file.name"  
+      @click:close="removeFile(file.name)"
+      >
+      {{ file.name }}
+      </v-chip>
+   </div>
 </template>

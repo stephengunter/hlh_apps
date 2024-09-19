@@ -139,6 +139,7 @@ function showConfirm({type, title, text, ok ='確定', cancel = '', on_ok = null
 		on_ok: on_ok,
 		on_cancel: on_cancel
 	}
+	
 }
 function hideConfirm() {
 	state.confirm = deepClone(initialState.confirm)
