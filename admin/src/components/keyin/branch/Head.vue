@@ -70,7 +70,7 @@ function initQuery() {
 	state.query.year = tryParseInt(state.query.year)
 	state.query.month = tryParseInt(state.query.month)
 
-	console.log(state.query)
+	
 	
 }
 function setQuery(model) {

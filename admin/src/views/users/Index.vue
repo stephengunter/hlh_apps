@@ -206,7 +206,7 @@ function handleSubmitError(error) {
 				<v-card-text>
 					<AdminForm v-if="state.form.action === IMPORT_USERS"
 					:model="state.form.model" :file_request="true"
-					:file_accept="['.txt']" file_label="上傳檔案"
+					:file_accept="['.csv']" file_label="上傳檔案"
 					@submit="onSubmit"
 					/>
 					<UserForm v-else
