@@ -123,11 +123,12 @@ export const UPDATE_ARTICLE = 'updateArticle'
 export const REMOVE_ARTICLE = 'removeArticle'
 
 //Users
+export const INIT_USERS = 'initUsers'
 export const FETCH_USERS = 'fetchUsers'
 export const CREATE_USER = 'createUser'
 export const STORE_USER = 'storeUser'
 export const FETCH_ROLES = 'fetchRoles'
-export const IMPORT_USERS = 'importUsers'
+export const SYNC_USERS = 'syncUsers'
 export const USER_DETAILS = 'userDetails'
 export const EDIT_USER = 'editUser'
 export const UPDATE_USER = 'updateUser'

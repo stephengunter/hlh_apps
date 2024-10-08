@@ -1,16 +1,19 @@
 import UsersService from '@/services/users.service'
 import { resolveErrorData, deepClone } from '@/utils'
 
-import { FETCH_USERS, CREATE_USER, STORE_USER, FETCH_ROLES, IMPORT_USERS, USER_DETAILS, EDIT_USER,
+import { INIT_USERS, FETCH_USERS, CREATE_USER, STORE_USER, FETCH_ROLES, SYNC_USERS, USER_DETAILS, EDIT_USER,
    UPDATE_USER, ADD_USER_PASSWORD } from '@/store/actions.type'
-import { SET_USERS, SET_ROLES, SET_LOADING } from '@/store/mutations.type'
+import { SET_USERS_INDEX_MODEL, SET_USERS, SET_ROLES, SET_DEPARTMENTS, SET_LOADING } from '@/store/mutations.type'
 import { ROLES } from '@/consts'
 
 
 
 const initialState = {
+   query: {
+   },
    pagedList: null,
-   roles: []
+   roles: [],
+   departments: []
 }
 
 const state = deepClone(initialState)
@@ -21,13 +24,27 @@ const getters = {
 
 
 const actions = {
+   [INIT_USERS](context) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         UsersService.init()
+            .then(model => {
+               context.commit(SET_USERS_INDEX_MODEL, model)
+               if(model.departments.length) {
+                  context.commit(SET_DEPARTMENTS, model.departments)
+               }
+               resolve()
+            })
+            .catch(error => reject(error))
+            .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
    [FETCH_USERS](context, params) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          UsersService.fetch(params)
             .then(model => {
-               context.commit(SET_USERS, model.pagedList)
-               context.commit(SET_ROLES, model.roles)
+               context.commit(SET_USERS, model)
                resolve(model)
             })
             .catch(error => reject(error))
@@ -64,17 +81,10 @@ const actions = {
             .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [IMPORT_USERS](context, { key, files }) {
-      console.log('key', key)
-      console.log('files', files)
+   [SYNC_USERS](context, model) {
       context.commit(SET_LOADING, true)
-      let form = new FormData()
-      form.append('key', key)
-      for (let i = 0; i < files.length; i++) {
-         form.append('files', files[i])
-      }
       return new Promise((resolve, reject) => {
-         UsersService.importing(form)
+         UsersService.sync(model)
          .then(data => resolve(data))
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
@@ -120,11 +130,18 @@ const actions = {
 
 
 const mutations = {
+   [SET_USERS_INDEX_MODEL](state, model) {
+      state.query = model.request
+      state.roles = model.roles
+   },
    [SET_USERS](state, model) {
       state.pagedList = model
    },
    [SET_ROLES](state, roles) {
       state.roles = roles
+   },
+   [SET_DEPARTMENTS](state, departments) {
+      state.departments = departments
    }
 }
 

@@ -3,7 +3,9 @@ import { API_URL } from '@/config'
 
 const source =`${API_URL}/admin/users`
 
-const fetch = (params) => BaseService.fetch(source, params)
+const init = () => BaseService.fetch(`${source}/init`)
+
+const fetch = (query) => BaseService.fetch(source, query)
 
 const create = () => BaseService.fetch(`${source}/create`)
 
@@ -11,7 +13,7 @@ const store = (model) => BaseService.post(`${source}`, model)
 
 const roles = () => BaseService.fetch(`${source}/roles`)
 
-const importing  = (model) => BaseService.post(`${source}/import`, model)
+const sync  = (model) => BaseService.post(`${source}/sync`, model)
 
 const details = (id) => BaseService.fetch(`${source}/${id}`)
 
@@ -21,4 +23,4 @@ const update = (model) => BaseService.put(`${source}/${model.id}`, model)
 
 const addPassword = (model) => BaseService.post(`${source}/password`, model)
 
-export default { fetch, create, store, roles, importing, details, edit, update, addPassword }
+export default { init, fetch, create, store, roles, sync, details, edit, update, addPassword }

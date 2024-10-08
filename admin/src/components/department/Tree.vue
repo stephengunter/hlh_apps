@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { deepClone } from '@/utils'
 
@@ -11,7 +11,11 @@ const props = defineProps({
       default: null
    },
    show_key: {
-      type: Boolean   ,
+      type: Boolean,
+      default: false
+   },
+   admin: {
+      type: Boolean,
       default: false
    }
 })
@@ -31,6 +35,9 @@ const state = reactive(deepClone(initialState))
 
 const emit = defineEmits(['select', 'add', 'orders'])
 
+onMounted(() => {
+	init()
+})
 function init() {
    if(!state.active_ids.length) state.active_ids = store.state.departments.all.map(c => c.id)
    state.version += 1
@@ -64,7 +71,8 @@ function saveOrder(ids) {
          >
          </a>
       </template>
-      <template v-slot:append="{ model }">
+      <template v-if="props.admin" v-slot:append="{ model }">
+
          <v-icon v-if="model.active" class="mb-1 ml-1" icon="mdi-check-circle" size="x-small" color="success"></v-icon>
          
          <v-tooltip :text="`在 ${model.title} 之下增加新部門`">

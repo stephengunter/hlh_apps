@@ -1,95 +1,74 @@
 <script setup>
 import { MqResponsive } from 'vue3-mq'
-import { ref, reactive, computed, watch, onBeforeMount, nextTick } from 'vue'
+import { ref, reactive, computed, watch, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { FETCH_USERS, CREATE_USER, STORE_USER, IMPORT_USERS
+import { INIT_USERS, FETCH_USERS, CREATE_USER, STORE_USER, SYNC_USERS
 } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { isEmptyObject, deepClone , activeOptions, copyFromQuery,
 	resolveErrorData, onErrors, onSuccess, setValues, badRequest, is400
 } from '@/utils'
-import { WIDTH, ROUTE_NAMES } from '@/consts'
+import { WIDTH, ROUTE_NAMES, ROOT_DEPARTMENT_KEYS } from '@/consts'
 
 const name = 'UsersIndexView'
 const store = useStore()
 const route = useRoute()
 const router = useRouter()
 
-const initialState = {
-	params: {
-		active: true,
-		role: '',
-		keyword: '',
-		page: -1,
-		pageSize: 10
-	},
+const initialState = {	
 	form: {
 		title: '新增用戶',
 		active: false,
 		model: {},
 		action: ''
-	}
+	},
+	can_down: false
 }
-
+const head = ref(null)
+const table = ref(null)
 const active_options = activeOptions
+const query = computed(() => store.state.users.query)
 const pagedList = computed(() => store.state.users.pagedList)
 const roles = computed(() => store.state.users.roles)
-const roleOptions = computed(() => {
-	let options = roles.value.map(role => ({ value: role.name, title: role.title }))
-	options.splice(0, 0, {
-	   value: '',
-	   title: 'All'
-	})
-	return options
-})
+const departments = computed(() => store.state.users.departments)
+const root_hlh  = computed(() => store.state.departments.roots.find(x => x.key === ROOT_DEPARTMENT_KEYS.HLH))
+
 
 const state = reactive(deepClone(initialState))
 
-onBeforeMount(loadParams)
-
-watch(route, loadParams)
-
-function loadParams() {
-	if(isEmptyObject(route.query)) router.push({ path: route.path, query: { ...state.params } })
+onMounted(() => {
+	if(roles.length) init()
 	else {
-		copyFromQuery(state.params, route.query)
-		fetchData()
+		store.dispatch(INIT_USERS)
+		.then(() => {
+			nextTick(init)
+		})
+		.catch(error => onErrors(error))
 	}
+})
+function init() {
+	head.value.init()
 }
-function checkParams() {
-	if(!state.params.role) state.params.role = ''
-	if(!state.params.keyword) state.params.keyword = ''
-}
-function fetchData() {
+function fetchData(query) {
+	if(!query) query = head.value.getQuery()
 	store.commit(CLEAR_ERRORS)
-	store.dispatch(FETCH_USERS, state.params)
-	.then(model => {
-		if(model.request) {
-			setValues(model.request, state.params)
-			checkParams() 
-		}
+	store.dispatch(FETCH_USERS, query)
+	.then(() => {
+		// if(query.role) state.admin_only = true
+		// else state.admin_only = false		
 	})
 	.catch(error => onErrors(error))
 }
-function search(val) {
-	state.params.keyword = val
-	onParamsChanged()
-}
 function onOptionChanged(option) {
-	if(option.hasOwnProperty('page')) state.params.page = option.page
-	if(option.hasOwnProperty('size')) state.params.pageSize = option.size
-	onParamsChanged()
-}
-function onParamsChanged() {
-	router.push({ path: route.path, query: { ...state.params } })
+	head.value.setPageOption(option)
 }
 
 function details(id) {
 	router.push({ name: ROUTE_NAMES.USER_DETAILS, params: { id } })
 }
 
-function onAdd() {
+function onCreate() {
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(CREATE_USER)
 	.then(model => {
@@ -100,26 +79,13 @@ function onAdd() {
 	})
 	.catch(error => onErrors(error))
 }
-function onImport() {
-	state.form.title = '匯入用戶'
-	state.form.action = IMPORT_USERS
-	state.form.model = { key: '', files: [] }
-	state.form.active = true
-}
-function onFileAdded(files) {
-	store.dispatch(IMPORT_USERS, files)
-	.then(() => {
-		
-	})
-	.catch(error => onErrors(error))
-}
 function onCancel() {
 	state.form = deepClone(initialState.form)
 }
 function onSubmit(form) {
 	setValues(form, state.form.model)
-	if(state.form.action === IMPORT_USERS) {
-		importing()
+	if(state.form.action === SYNC_USERS) {
+		sync()
 		return
 	}
 	store.dispatch(STORE_USER, state.form.model)
@@ -130,13 +96,25 @@ function onSubmit(form) {
 	})
 	.catch(error => handleSubmitError(error))
 }
+function onCheckChanged(ids) {
+	if(ids.length) state.can_down = true
+	else state.can_down = false
+}
 
-function importing() {
-	store.dispatch(IMPORT_USERS, state.form.model)
-	.then(() => {
+function onSync() {
+	state.form.title = '從AD同步用戶'
+	state.form.action = SYNC_USERS
+	state.form.model = { key: '' }
+	state.form.active = true
+}
+
+function sync() {
+	store.dispatch(SYNC_USERS, state.form.model)
+	.then(data => {
+		console.log(data)
 		onCancel()
 		fetchData()
-		onSuccess('匯入成功')
+		onSuccess('同步成功')
 	})
 	.catch(error => handleSubmitError(error))
 }
@@ -151,50 +129,18 @@ function handleSubmitError(error) {
 </script>
 
 <template>
-	<MqResponsive target="md+">
-		<v-row dense>
-			<v-col cols="3">
-				<v-radio-group v-model="state.params.active" inline @update:modelValue="onParamsChanged">
-					<v-radio v-for="(item, index) in active_options" :key="index"
-					:label="item.text" :value="item.value"
-					/>
-				</v-radio-group>
-			</v-col>
-			<v-col cols="3">
-				<v-select label="角色" density="compact" 
-            :items="roleOptions" v-model="state.params.role"
-				@update:modelValue="onParamsChanged"
-            />
-			</v-col>
-			<v-col cols="3">
-				<CommonInputSearch 
-				:keyword="state.params.keyword"
-				@search="search"
-				/>
-			</v-col>
-			<v-col cols="3">
-				<v-menu>
-					<template v-slot:activator="{ props }">
-						<v-btn icon="mdi-plus" v-bind="props" size="small" color="info"
-						/>
-					</template>
-					<v-list min-width="160"  max-width="300">   
-						<v-list-item title="手動新增" prepend-icon="mdi-pencil"
-						@click.prevent="onAdd"
-						/>
-						<v-list-item title="匯入" prepend-icon="mdi-import"
-						@click.prevent="onImport"
-						/>
-					</v-list> 
-				</v-menu>
-			</v-col>
-		</v-row>
+	<div>
+		<UserHead ref="head" :query="query" :active_options="active_options"
+		:departments="departments" :root_hlh="root_hlh"
+		:show_down="state.can_down"
+		@submit="fetchData" @create="onCreate" @sync="onSync"
+		/>
 		<v-row dense>
 			<v-col cols="12">
-				<UserTable v-if="!isEmptyObject(pagedList)"
-				:model="pagedList" :roles="roles"
+				<UserTable ref="table"
+				:model="pagedList" :roles="roles" :departments="departments"
 				@options_changed="onOptionChanged"
-				@select="details"
+				@select="details" @check="onCheckChanged"
 				/>
 			</v-col>
 		</v-row>
@@ -204,9 +150,8 @@ function handleSubmitError(error) {
 				@cancel="onCancel"
 				/>
 				<v-card-text>
-					<AdminForm v-if="state.form.action === IMPORT_USERS"
-					:model="state.form.model" :file_request="true"
-					:file_accept="['.csv']" file_label="上傳檔案"
+					<AdminForm v-if="state.form.action === SYNC_USERS"
+					:model="state.form.model" :file_request="false"
 					@submit="onSubmit"
 					/>
 					<UserForm v-else
@@ -216,5 +161,5 @@ function handleSubmitError(error) {
 				</v-card-text>
       	</v-card>
 		</v-dialog>
-	</MqResponsive>
+	</div>
 </template>
