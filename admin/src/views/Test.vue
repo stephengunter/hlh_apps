@@ -1,37 +1,45 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, computed, onBeforeMount } from 'vue'
+import { useStore } from 'vuex'
 import { DIALOG_MAX_WIDTH } from '@/config'
-import { resolveErrorData, onErrors, onWarning } from '@/utils'
+import { FETCH_ROLES, LOGIN
+} from '@/store/actions.type'
+import { deepClone, onErrors, setValues, downloadFile } from '@/utils'
 
-const data = reactive({
-	image: {
-		active: false
+const store = useStore()
+const initialState = {
+	form: {
+		roles: []
 	}
-})
-  
-function image(val) {
-	onErrors()
-	//data.image.active = val
 }
+const state = reactive(deepClone(initialState))
+const roles = computed(() => store.state.roles.list)
+onBeforeMount(init)
 
-function onImageSelected(model) {
-	
-	//image(false)
+function init() {
+	store.dispatch(FETCH_ROLES)
 }
+function onSubmit() {
+	
+	store.dispatch(LOGIN)
+}	
 </script>
 
 <template>
 	<div>
-		<v-row>
-			<v-col cols="12">
-				<TagSearch />
-			</v-col>
-		</v-row>
-		<v-row>
-			<v-col cols="12">
-				
-			</v-col>
-		</v-row>
-		
+		<form @submit.prevent="onSubmit">
+			<v-row>
+				<v-col cols="4" v-for="role in roles">
+					
+				</v-col>
+			</v-row>
+			<v-row>
+				<v-col cols="12">
+					<v-btn color="success" @click.prevent="onSubmit">
+						存檔
+					</v-btn>
+				</v-col>
+			</v-row>
+		</form>
 	</div>
- </template>
+</template>

@@ -35,4 +35,12 @@ export const ENTITY_TYPES = {
       name: 'keyin',
       title: '聽打紀錄'
    },
+   CRIMINALS_RECORDS: {
+      name: 'criminal-record',
+      title: '前案查詢紀錄'
+   },
+   FETCHES_RECORDS: {
+      name: 'fetches-record',
+      title: '電子閘門查詢紀錄'
+   }
 }

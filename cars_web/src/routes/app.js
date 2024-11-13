@@ -2,10 +2,6 @@ import { ROUTE_TYPES, ROUTE_NAMES, MENUS, ENTITY_TYPES } from '@/consts'
 import { isNullOrEmpty, upperFirstLetter, pluralization } from '@/utils'
 import Page from '@/models/page'
 
-const TASK = ENTITY_TYPES.TASK
-const CALENDAR = ENTITY_TYPES.CALENDAR
-const EVENT = ENTITY_TYPES.EVENT
-
 const applinks = [
 new Page({
    name: ROUTE_NAMES.CLOSE,
@@ -35,36 +31,6 @@ new Page({
 
 const userlinks = [
 // groups
-// CALENDARS
-new Page({
-   name: ROUTE_NAMES.CALENDARS,
-   path: `/${ROUTE_NAMES.CALENDARS}/:calendar?/:year?/:month?`,
-   view: `${ROUTE_NAMES.CALENDARS}/Index`,
-   icon: 'mdi-calendar', 
-   title: CALENDAR.title,
-   menus: [MENUS.MAIN],
-   alias: '/'
-}),
-
-
-// TASKS
-new Page({
-   name: ROUTE_NAMES.TASKS_INDEX,
-   path: `/${ROUTE_NAMES.TASKS_INDEX}`,
-   view: `${ROUTE_NAMES.TASKS_INDEX}/Index`,
-   icon: 'mdi-note-check-outline', 
-   title: TASK.title,
-   menus: [MENUS.MAIN]
-}),
-new Page({
-   name: ROUTE_NAMES.TASK_DETAILS,
-   path: `/${ROUTE_NAMES.TASKS_INDEX}/:id`,
-   view: `${ROUTE_NAMES.TASKS_INDEX}/Details`,
-   icon: '', 
-   title: TASK.title,
-   parent: ROUTE_NAMES.TASKS_INDEX,
-   menus: []
-})
 ]
 
 
@@ -75,14 +41,6 @@ new Page({
    view: `${upperFirstLetter(ROUTE_NAMES.LOGIN)}`,
    icon: '',
    title: 'Login',
-   menus: []
-}),
-new Page({
-   name: ROUTE_NAMES.AUTHTOKEN,
-   path: `/${ROUTE_NAMES.AUTHTOKEN}/:username/:token/:provider`,
-   view: `${upperFirstLetter(ROUTE_NAMES.AUTHTOKEN)}`,
-   icon: '',
-   title: '系統登入',
    menus: []
 })
 ]

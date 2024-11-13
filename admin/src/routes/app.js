@@ -8,7 +8,8 @@ const DEPARTMENT = ENTITY_TYPES.DEPARTMENT
 const JOB = ENTITY_TYPES.JOB
 const LOCATION = ENTITY_TYPES.LOCATION
 const KEYIN = ENTITY_TYPES.KEYIN
-
+const CRIMINALS_RECORDS = ENTITY_TYPES.CRIMINALS_RECORDS
+const FETCHES_RECORDS = ENTITY_TYPES.FETCHES_RECORDS
 const DATABASE = ENTITY_TYPES.DATABASE
 const SYSTEM_APP = ENTITY_TYPES.SYSTEM_APP
 
@@ -52,7 +53,24 @@ new Page({
    alias: '/'
 }),
 new Page({
-   name: pluralization(USER.name),
+   name: ROUTE_NAMES.CRIMINALS_RECORDS,
+   path: `/${ROUTE_NAMES.CRIMINALS_RECORDS}`,
+   view: `criminals/Index`,
+   icon: 'mdi-text-search',
+   title: `${CRIMINALS_RECORDS.title}`,
+   menus: [MENUS.MAIN]
+}),
+
+new Page({
+   name: ROUTE_NAMES.FETCHES_RECORDS,
+   path: `/fetches`,
+   view: `fetches/Index`,
+   icon: 'mdi-api',
+   title: `${FETCHES_RECORDS.title}`,
+   menus: [MENUS.MAIN]
+}),
+new Page({
+   name: ROUTE_NAMES.USERS,
    path: `/${pluralization(USER.name)}`,
    view: `${pluralization(USER.name)}/Index`,
    icon: 'mdi-account', 

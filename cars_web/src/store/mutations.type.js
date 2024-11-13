@@ -23,19 +23,3 @@ export const CLEAR_ERRORS = 'clearErrors'
 export const SET_MODIFY_RECORDS = 'setModifyRecords'
 
 //NEW
-
-
-//Calendars
-export const SET_CALENDARS = 'setCalendars'
-
-
-//Events
-export const SET_EVENT_CATEGORIES = 'setEventCategories'
-
-
-//Tasks
-export const SET_TASKS = 'setTasks'
-
-//Tasks
-export const SET_DOCS = 'setDocs'
-export const SET_DOC_PERSONS = 'setDocPersons'

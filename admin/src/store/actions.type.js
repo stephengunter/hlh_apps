@@ -36,6 +36,28 @@ export const UPLOAD_KEYINS_PASSES = 'uploadKeyinsPasses'
 export const STORE_KEYINS_PASSES = 'storeKeyinsPasses'
 export const EXPORT_KEYINS_PASSES_REPORT = 'exportKeyinsPassesReport'
 
+
+//Criminals
+export const INIT_CRIMINALS_RECORDS = 'initCriminalRecords'
+export const FETCH_CRIMINALS_RECORDS = 'fetchCriminalRecords'
+export const UPLOAD_CRIMINALS_RECORDS = 'uploadCriminalRecords'
+export const STORE_CRIMINALS_RECORDS = 'storeCriminalRecords'
+export const EXPORT_CRIMINALS_RECORDS_REPORT = 'exportCriminalRecordsReport'
+
+
+//Fetches
+export const INIT_FETCHES_RECORDS = 'initFetchRecords'
+export const FETCH_FETCHES_RECORDS = 'fetchFetchRecords'
+export const UPLOAD_FETCHES_RECORDS = 'uploadFetchRecords'
+export const STORE_FETCHES_RECORDS = 'storeFetchRecords'
+export const DOWNLOAD_FETCHES_RECORDS = 'downloadFetchRecords'
+export const TEMPLATE_FETCHES_RECORDS = 'templateFetchRecords'
+export const EXPORT_FETCHES_RECORDS_REPORT = 'exportFetchRecordsReport'
+
+export const STORE_FETCHES_SYSTEM = 'storeFetchesSystem'
+export const EDIT_FETCHES_SYSTEM = 'editFetchesSystem'
+export const UPDATE_FETCHES_SYSTEM = 'updateFetchesSystem'
+
 //IT/Databases
 export const FETCH_IT_DATABASES = 'fetchITDatabases'
 export const CREATE_IT_DATABASE = 'createITDatabase'
@@ -129,6 +151,7 @@ export const CREATE_USER = 'createUser'
 export const STORE_USER = 'storeUser'
 export const FETCH_ROLES = 'fetchRoles'
 export const SYNC_USERS = 'syncUsers'
+export const UPDOWN_USERS = 'updownUsers'
 export const USER_DETAILS = 'userDetails'
 export const EDIT_USER = 'editUser'
 export const UPDATE_USER = 'updateUser'

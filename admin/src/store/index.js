@@ -9,11 +9,17 @@ import jobs from './modules/jobs.module'
 import departments from './modules/departments.module'
 import tags from './modules/tags.module'
 import users from './modules/users.module'
+import roles from './modules/roles.module'
 import profiles from './modules/profiles.module'
 import passwords from './modules/passwords.module'
+
 import keyins_persons from './modules/keyins/persons.module'
 import keyins_branches from './modules/keyins/branches.module'
 import keyins_passes from './modules/keyins/passes.module'
+
+import criminals_records from './modules/criminals/records.module'
+import fetches_records from './modules/fetches/records.module'
+import fetches_systems from './modules/fetches/systems.module'
 
 import it_databases from './modules/it/databases.module'
 import it_systemApps from './modules/it/systemApps.module'
@@ -30,11 +36,15 @@ const store = createStore({
       jobUserProfiles,
       tags,
       users,
+      roles,
       profiles,
       passwords,
       keyins_persons,
       keyins_branches,
       keyins_passes,
+      criminals_records,
+      fetches_records,
+      fetches_systems,
       it_databases,
       it_systemApps
    }

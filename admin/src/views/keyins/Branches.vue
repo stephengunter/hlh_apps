@@ -3,7 +3,9 @@ import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } fr
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { ACTION_TYPES, ENTITY_TYPES, WIDTH } from '@/consts'
-import { INIT_KEYINS_BRANCHES, FETCH_KEYINS_BRANCHES, UPLOAD_KEYINS_BRANCHES, STORE_KEYINS_BRANCHES, EXPORT_KEYINS_BRANCHES_REPORT } from '@/store/actions.type'
+import { INIT_KEYINS_BRANCHES, FETCH_KEYINS_BRANCHES, UPLOAD_KEYINS_BRANCHES, 
+	STORE_KEYINS_BRANCHES, EXPORT_KEYINS_BRANCHES_REPORT 
+} from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { isEmptyObject, deepClone , downloadFile, showConfirm, hideConfirm,
 	onErrors, onSuccess, setValues, is400, bytesToBinary, getMimeType,
@@ -108,17 +110,6 @@ function onReport(model) {
 		downloadFile(blob, fileName)
 	})
 	.catch(error => onErrors(error))
-	// state.form.title = `上傳${ENTITY_TYPE.title}`,
-	// state.form.model = {
-	// 	year: query.year,
-	// 	month: query.month,
-	// 	file: null,
-	// 	records: []
-	// }
-
-	// state.form.action = UPLOAD_KEYINS_BRANCHES
-	// state.form.width = WIDTH.L
-	// state.form.active = true
 }
 
 function onSubmit(form) {

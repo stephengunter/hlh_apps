@@ -144,11 +144,12 @@ const mutations = {
    },
    [SET_DEPARTMENTS](state, departments) {
       state.all = departments.map(item => new Category(item))
+      
       state.all.forEach(c => c.loadParentIds(state.all))
       
       let roots = state.all.filter(c => c.isRootItem)
-      state.roots = roots.slice(0)
-
+      state.roots = roots
+      
       state.options = state.all.map(item => ({
          value: item.id,
          text: item.getFullText(departments)

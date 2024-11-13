@@ -5,11 +5,15 @@ import { useVuelidate } from '@vuelidate/core'
 import { required, helpers } from '@vuelidate/validators'
 import { VALIDATE_MESSAGES } from '@/consts'
 import { CLEAR_ERRORS } from '@/store/mutations.type' 
-import { setValues, deepClone } from '@/utils'
+import { isEmptyObject, deepClone, getValue, setValues } from '@/utils'
 
 const name = 'ProfilesForm'
 const props = defineProps({
    model: {
+      type: Object,
+      default: null
+   },
+	labels: {
       type: Object,
       default: null
    },
@@ -35,15 +39,15 @@ const state = reactive(deepClone(initialState))
 
 onBeforeMount(init)
 
-const labels = {
-	'name':'姓名',
-	'ps':'備註'
+function getLabel(key) {
+	if(isEmptyObject(props.labels)) return ''
+   return getValue(props.labels, key)
 }
 
 const rules = computed(() => {
 	return {
 		name: { 
-			required: helpers.withMessage(VALIDATE_MESSAGES.REQUIRED(labels['name']), required)
+			required: helpers.withMessage(VALIDATE_MESSAGES.REQUIRED(getLabel('name')), required)
 		}
 	}
 })
@@ -71,13 +75,13 @@ function onInputChanged(){
    <form v-if="props.model" @submit.prevent="onSubmit" @input="onInputChanged">
 		<v-row>
 			<v-col cols="12">
-				<v-text-field :label="labels['name']"                
+				<v-text-field :label="getLabel('name')"                
 				v-model="state.form.name"
 				:error-messages="v$.name.$errors.map(e => e.$message)"                     
 				@input="v$.name.$touch"
 				@blur="v$.name.$touch"
 				/>
-				<v-text-field :label="labels['ps']"                   
+				<v-text-field :label="getLabel('ps')"                   
 				v-model="state.form.ps"
 				/>
 				<CommonErrorsList v-if="props.active" />

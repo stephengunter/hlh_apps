@@ -9,6 +9,7 @@ export const ROUTE_NAMES = {
    LOGIN: 'login',
    
    DEPARTMENTS: 'departments',
+   USERS: 'users',
    USER_DETAILS: 'user-details',
    JOB_DETAILS: 'job-details',
    ARTICLE_INDEX: 'articles',
@@ -22,4 +23,6 @@ export const ROUTE_NAMES = {
 
    KEYIN: 'keyin',
    KEYIN_UPLOAD: 'keyin-upload',
+   CRIMINALS_RECORDS: 'criminal-records',
+   FETCHES_RECORDS: 'fetches-records',
 }

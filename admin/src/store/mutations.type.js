@@ -30,8 +30,19 @@ export const SET_LOCATIONS = 'setLocations'
 export const SET_KEYINS_BRANCHES_INDEX_MODEL = 'setKeyinsBranchesIndexModel'
 export const SET_KEYINS_BRANCHES = 'setKeyinsBranches'
 
+//Keyins
 export const SET_KEYINS_PERSONS_INDEX_MODEL = 'setKeyinPersonsIndexModel'
 export const SET_KEYINS_PERSONS = 'setKeyinsPersons'
+
+//Criminals
+export const SET_CRIMINAL_RECORDS_INDEX_MODEL = 'setCriminalRecordsIndexModel'
+export const SET_CRIMINAL_RECORDS = 'setCriminalRecords'
+
+//Fetches
+export const SET_FETCHES_RECORDS_INDEX_MODEL = 'setFetchRecordsIndexModel'
+export const SET_FETCHES_RECORDS = 'setFetchRecords'
+export const SET_FETCHES_SYSTEMS = 'setFetchSystems'
+export const SET_FETCHES_SYSTEMS_DEPARTMENTS = 'setFetchSystemsDepartments'
 
 export const SET_JOBS = 'setJobs'
 

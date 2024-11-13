@@ -29,22 +29,44 @@ const defaultError = {
 }
 
 const actions = {
+   // [LOGIN](context, form) {
+   //    context.commit(SET_LOADING, true)
+   //    return new Promise((resolve, reject) => {
+   //       AuthService.login(form)
+   //       .then(model => {
+   //          context.commit(SET_AUTH, {
+   //             token: model.token,
+   //             refreshToken: model.refreshToken
+   //          }) 
+   //          context.dispatch(CHECK_AUTH)
+   //          .then(result => {
+   //             console.log('result', result)
+   //             if(result) resolve() //is admin
+   //             else reject(defaultError)
+   //          })
+   //          .catch(() => reject(defaultError))            
+   //       })
+   //       .catch(error => reject(error))
+   //       .finally(() => context.commit(SET_LOADING, false))
+   //    })     
+   // },
    [LOGIN](context, form) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         AuthService.login(form)
+         AuthService.login()
          .then(model => {
-            context.commit(SET_AUTH, {
-               token: model.token,
-               refreshToken: model.refreshToken
-            }) 
-            context.dispatch(CHECK_AUTH)
-            .then(result => {
-               console.log('result', result)
-               if(result) resolve() //is admin
-               else reject(defaultError)
-            })
-            .catch(() => reject(defaultError))            
+            console.log(model)
+            // context.commit(SET_AUTH, {
+            //    token: model.token,
+            //    refreshToken: model.refreshToken
+            // }) 
+            // context.dispatch(CHECK_AUTH)
+            // .then(result => {
+            //    console.log('result', result)
+            //    if(result) resolve() //is admin
+            //    else reject(defaultError)
+            // })
+            // .catch(() => reject(defaultError))            
          })
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
