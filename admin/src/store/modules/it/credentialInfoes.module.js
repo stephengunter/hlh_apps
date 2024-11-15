@@ -1,18 +1,17 @@
-import Service from '@/services/it/databases.service'
+import Service from '@/services/it/credentialInfoes.service'
 import { resolveErrorData, deepClone } from '@/utils'
 
 import {
-   INIT_IT_DATABASES, FETCH_IT_DATABASES, CREATE_IT_DATABASE, STORE_IT_DATABASE, 
-   EDIT_IT_DATABASE, UPDATE_IT_DATABASE, REMOVE_IT_DATABASE
+   INIT_IT_CREDENTIALINFOS, FETCH_IT_CREDENTIALINFOS, CREATE_IT_CREDENTIALINFO, STORE_IT_CREDENTIALINFO, 
+   IT_CREDENTIALINFO_DETAILS, EDIT_IT_CREDENTIALINFO, UPDATE_IT_CREDENTIALINFO, REMOVE_IT_CREDENTIALINFO
 } from '@/store/actions.type'
 
-import { SET_IT_DATABASES_INDEX_MODEL, SET_IT_DATABASES, SET_LOADING } from '@/store/mutations.type'
+import { SET_IT_CREDENTIALINFO_LABLES, SET_LOADING } from '@/store/mutations.type'
 
 
 const initialState = {
    query: {
    },
-   providers: [],
    labels: {
    },
    pagedList: null
@@ -26,31 +25,31 @@ const getters = {
 
 
 const actions = {
-   [INIT_IT_DATABASES](context) {
+   [INIT_IT_CREDENTIALINFOS](context) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.init()
             .then(model => {
-               context.commit(SET_IT_DATABASES_INDEX_MODEL, model)
+               //context.commit(SET_IT_CREDENTIALINFOS_INDEX_MODEL, model)
                resolve()
             })
             .catch(error => reject(error))
             .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [FETCH_IT_DATABASES](context, query) {
+   [FETCH_IT_CREDENTIALINFOS](context, query) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.fetch(query)
             .then(model => {
-               context.commit(SET_IT_DATABASES, model)
+               context.commit(SET_IT_CREDENTIALINFOS, model)
                resolve()
             })
             .catch(error => reject(error))
             .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [CREATE_IT_DATABASE](context) {
+   [CREATE_IT_CREDENTIALINFO](context) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.create()
@@ -59,7 +58,7 @@ const actions = {
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [STORE_IT_DATABASE](context, model) {
+   [STORE_IT_CREDENTIALINFO](context, model) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.store(model)
@@ -68,7 +67,16 @@ const actions = {
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [EDIT_IT_DATABASE](context, id) {
+   [IT_CREDENTIALINFO_DETAILS](context, id) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         Service.details(id)
+         .then(model => resolve(model))
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
+   [EDIT_IT_CREDENTIALINFO](context, id) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.edit(id)
@@ -77,7 +85,7 @@ const actions = {
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [UPDATE_IT_DATABASE](context, model) {
+   [UPDATE_IT_CREDENTIALINFO](context, model) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.update(model)
@@ -86,7 +94,7 @@ const actions = {
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [REMOVE_IT_DATABASE](context, id) {
+   [REMOVE_IT_CREDENTIALINFO](context, id) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.remove(id)
@@ -99,13 +107,8 @@ const actions = {
 
 
 const mutations = {
-   [SET_IT_DATABASES_INDEX_MODEL](state, model) {
-      state.query = model.request
-      state.labels = model.labels
-      state.providers = model.providers
-   },
-   [SET_IT_DATABASES](state, pagedList) {
-      state.pagedList = pagedList
+   [SET_IT_CREDENTIALINFO_LABLES](state, labels) {
+      state.labels = labels
    }
 }
 

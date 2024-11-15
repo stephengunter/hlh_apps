@@ -1,7 +1,7 @@
 import BaseService from '@/common/baseService'
 import { API_URL } from '@/config'
 
-const source =`${API_URL}/admin/it/databases`
+const source =`${API_URL}/admin/it/credentialInfoes`
 
 const init = () => BaseService.fetch(`${source}/init`)
 

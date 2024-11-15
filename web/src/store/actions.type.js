@@ -17,6 +17,7 @@ export const RE_LOGIN = 'reLogin'
 export const CHECK_AUTH = 'checkAuth'
 export const REFRESH_TOKEN = 'refreshToken'
 
+//ModifyRecords
 export const FETCH_MODIFY_RECORDS = 'fetchModifyRecords'
 export const SHOW_MODIFY_RECORDS = 'showModifyRecords'
 

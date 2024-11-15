@@ -21,6 +21,8 @@ import criminals_records from './modules/criminals/records.module'
 import fetches_records from './modules/fetches/records.module'
 import fetches_systems from './modules/fetches/systems.module'
 
+import it_hosts from './modules/it/hosts.module'
+import it_credentialInfoes from './modules/it/credentialInfoes.module'
 import it_databases from './modules/it/databases.module'
 import it_systemApps from './modules/it/systemApps.module'
 
@@ -45,6 +47,8 @@ const store = createStore({
       criminals_records,
       fetches_records,
       fetches_systems,
+      it_hosts,
+      it_credentialInfoes,
       it_databases,
       it_systemApps
    }

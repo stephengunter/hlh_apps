@@ -8,7 +8,7 @@ import { isEmptyObject, deepClone , copyFromQuery, areObjectsEqual, reviewedOpti
 	setValues, badRequest, tryParseInt
 } from '@/utils'
 
-const name = 'ITDatabaseHead'
+const name = 'ITHostHead'
 const emit = defineEmits(['submit', 'create'])
 defineExpose({
    init, setQuery, getQuery, setPageOption
@@ -82,7 +82,7 @@ function onSubmit() {
 	if(query_match_route.value) emit('submit', state.query)
 	else router.push({ path: route.path, query: { ...state.query } })	
 }
-function createDb() {
+function create() {
    emit('create')
 }
 
@@ -93,7 +93,6 @@ function createDb() {
    <form v-show="!isEmptyObject(state.query)" @submit.prevent="onSubmit">
       <v-row dense>
 			<v-col cols="3">
-
          </v-col>
          <v-col cols="3">
 
@@ -104,10 +103,9 @@ function createDb() {
          <v-col cols="3">
             <CommonButtonCreate class_name="float-right" 
 				tooltip="新增"
-				@create="createDb"
+				@create="create"
 				/>
          </v-col>
       </v-row>
    </form>
-
 </template>

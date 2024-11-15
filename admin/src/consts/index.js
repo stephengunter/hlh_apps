@@ -1,6 +1,7 @@
 export * from './action.types'
 export * from './claims.types'
 export * from './departments.types'
+export * from './files.types'
 export * from './role.types'
 export * from './dialog.types'
 export * from './entity.types'

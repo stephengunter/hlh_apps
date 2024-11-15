@@ -2,6 +2,8 @@ export const PAGE_NOT_FOUND = '404'
 export const SHOW_CONFIRM = 'showConfirm'
 export const HIDE_CONFIRM = 'hideConfirm'
 export const SHOW_PHOTO = 'showPhoto'
+export const PREVIEW_IMAGE = 'previewImage'
+export const SHOW_PASSWORD = 'showPassword'
 
 export const GET_MENUS = 'getMenus'
 
@@ -16,6 +18,12 @@ export const REFRESH_TOKEN = 'refreshToken'
 //AppAdmin
 export const FETCH_EXCEPTIONS = 'fetchExceptions'
 
+//Cryptoes
+export const GET_CRYPTO = 'getCrypto'
+
+//ModifyRecords
+export const FETCH_MODIFY_RECORDS = 'fetchModifyRecords'
+export const SHOW_MODIFY_RECORDS = 'showModifyRecords'
 
 //Keyin
 export const INIT_KEYINS_BRANCHES = 'initKeyinsBranches'
@@ -57,8 +65,26 @@ export const EXPORT_FETCHES_RECORDS_REPORT = 'exportFetchRecordsReport'
 export const STORE_FETCHES_SYSTEM = 'storeFetchesSystem'
 export const EDIT_FETCHES_SYSTEM = 'editFetchesSystem'
 export const UPDATE_FETCHES_SYSTEM = 'updateFetchesSystem'
-
+//IT/Hosts
+export const INIT_IT_HOSTS = 'initITHosts'
+export const FETCH_IT_HOSTS = 'fetchITHosts'
+export const CREATE_IT_HOST = 'createITHost'
+export const STORE_IT_HOST = 'storeITHost'
+export const IT_HOST_DETAILS = 'ITHostDetails'
+export const EDIT_IT_HOST = 'editITHost'
+export const UPDATE_IT_HOST = 'updateITHost'
+export const REMOVE_IT_HOST = 'removeITHost'
+//IT/CredentialInfos
+export const INIT_IT_CREDENTIALINFOS = 'initITCredentialInfos'
+export const FETCH_IT_CREDENTIALINFOS = 'fetchITCredentialInfos'
+export const CREATE_IT_CREDENTIALINFO = 'createITCredentialInfo'
+export const STORE_IT_CREDENTIALINFO = 'storeITCredentialInfo'
+export const IT_CREDENTIALINFO_DETAILS = 'ITCredentialInfoDetails'
+export const EDIT_IT_CREDENTIALINFO = 'editITCredentialInfo'
+export const UPDATE_IT_CREDENTIALINFO = 'updateITCredentialInfo'
+export const REMOVE_IT_CREDENTIALINFO = 'removeITCredentialInfo'
 //IT/Databases
+export const INIT_IT_DATABASES = 'initITDatabases'
 export const FETCH_IT_DATABASES = 'fetchITDatabases'
 export const CREATE_IT_DATABASE = 'createITDatabase'
 export const STORE_IT_DATABASE = 'storeITDatabase'
@@ -179,6 +205,8 @@ export const REMOVE_MEDIA = 'removeMedia'
 export const FETCH_ATTACHMENTS = 'fetchAttachments'
 export const STORE_ATTACHMENT = 'storeAttachment'
 export const DELETE_ATTACHMENT = 'deleteAttachment'
+export const GET_ATTACHMENT = 'getAttachment'
+export const PREVIEW_ATTACHMENT = 'previewAttachment'
 
 //Settings
 export const FIND_EXAM_SETTINGS = 'findExamSettings'

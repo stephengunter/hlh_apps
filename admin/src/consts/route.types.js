@@ -19,6 +19,8 @@ export const ROUTE_NAMES = {
 
 
    SYSTEM_APPS: 'systemApps',
+   HOSTS: 'hosts',
+   HOST_DETAILS: 'host-details',
    DATABASES: 'databases',
 
    KEYIN: 'keyin',

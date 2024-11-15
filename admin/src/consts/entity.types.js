@@ -1,4 +1,12 @@
 export const ENTITY_TYPES = {
+   HOST: {
+      name: 'host',
+      title: '主機'
+   },
+   CREDENTIALINFO: {
+      name: 'credentialInfo',
+      title: '驗證資訊'
+   },
    DATABASE: {
       name: 'database',
       title: '資料庫'

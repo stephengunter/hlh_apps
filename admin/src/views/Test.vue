@@ -10,13 +10,15 @@ const store = useStore()
 const initialState = {
 	form: {
 		roles: []
-	}
+	},
+	test: ''
 }
 const state = reactive(deepClone(initialState))
 const roles = computed(() => store.state.roles.list)
 onBeforeMount(init)
 
 function init() {
+	state.test = 'CredentialInfo'.toUpperCase()
 	store.dispatch(FETCH_ROLES)
 }
 function onSubmit() {
@@ -30,7 +32,7 @@ function onSubmit() {
 		<form @submit.prevent="onSubmit">
 			<v-row>
 				<v-col cols="4" v-for="role in roles">
-					
+					{{ state.test }}
 				</v-col>
 			</v-row>
 			<v-row>

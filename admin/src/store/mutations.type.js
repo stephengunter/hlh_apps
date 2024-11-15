@@ -18,7 +18,14 @@ export const SET_ROUTE = 'setRoute'
 export const SET_ERRORS = 'setErrors'
 export const CLEAR_ERRORS = 'clearErrors'
 
+//IT/Hosts
+export const SET_IT_HOSTS_INDEX_MODEL = 'setITHostsIndexModel'
+export const SET_IT_HOSTS = 'setITHosts'
+//IT/CredentialInfoes
+export const SET_IT_CREDENTIALINFO_LABLES = 'setITCredentialInfoLables'
+
 //IT/Databases
+export const SET_IT_DATABASES_INDEX_MODEL = 'setITDatabasesIndexModel'
 export const SET_IT_DATABASES = 'setITDatabases'
 //IT/SystemApps
 export const SET_IT_SYSTEM_APPS_INDEX_MODEL = 'setITSystemAppsIndexModel'
