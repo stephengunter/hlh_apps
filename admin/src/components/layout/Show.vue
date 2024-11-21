@@ -1,13 +1,14 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeMount } from 'vue'
+import { useClipboard } from '@vueuse/core'
 import { useStore } from 'vuex'
-import { deepClone, onErrors, isPreviewable, createBlobFromFileBytes, downloadFromBlobUrl } from '@/utils'
-import { SHOW_PASSWORD, SHOW_MODIFY_RECORDS, FETCH_MODIFY_RECORDS, PREVIEW_IMAGE, PREVIEW_ATTACHMENT, GET_ATTACHMENT } from '@/store/actions.type'
+import { onSuccess, deepClone, onErrors, isPreviewable, createBlobFromFileBytes, downloadFromBlobUrl } from '@/utils'
+import { SHOW_PASSWORD, GET_CRYPTO, SHOW_MODIFY_RECORDS, FETCH_MODIFY_RECORDS, PREVIEW_IMAGE, PREVIEW_ATTACHMENT, GET_ATTACHMENT } from '@/store/actions.type'
 import { WIDTH, ENTITY_TYPES } from '@/consts'
 
 const name = 'LayoutShow'
 const store = useStore()
-
+const { text, copy } = useClipboard()
 const initialState = {
    key: '',
    model: null,
@@ -22,6 +23,10 @@ const initialState = {
       url: '',
       width: 0,
       height: 0
+   },
+   password:{
+      value: '',
+      visible: false
    },
    active: false,
    width: WIDTH.M,
@@ -38,16 +43,19 @@ Bus.on(PREVIEW_ATTACHMENT, previewAttachment)
 // onMounted(() => {
 	
 // })
-function showPassword({ type, id }) {
+function showPassword({ type, id, title }) {
    if(type === ENTITY_TYPES.CREDENTIALINFO.name) {
-      
+      store.dispatch(GET_CRYPTO, { type, id })
+	   .then(data => {
+         state.password.visible = false
+         state.password.value = data
+         state.key = SHOW_PASSWORD
+         state.title = title ? title : ENTITY_TYPES.CREDENTIALINFO.title
+         state.width = WIDTH.S
+         state.active = true
+      })
+      .catch(error => onErrors(error)) 
    }
-   console.log(id)
-   console.log(type)
-   state.key = SHOW_PASSWORD
-   state.title = ''
-   state.width = WIDTH.S
-   state.active = true
 }
 
 function previewImage({ ext, fileBytes, title }) {
@@ -114,6 +122,10 @@ function showModifyRecords({type, id, action, title, width}) {
       state.active = true
    }
 }
+function copyPassword(val) {
+   copy(val)
+   onSuccess('複製成功')
+}
 function onCancel() {
    state.active = false
    if(state.attachment.url) {
@@ -129,8 +141,23 @@ function onCancel() {
 			@cancel="onCancel"
 			/>
          <v-card-text>
-            <div v-if="state.key === SHOW_PASSWORD">
-              damn
+            <div class="mt-3" v-if="state.key === SHOW_PASSWORD">
+               <v-row dense>
+                  <v-col cols="10">
+                     <v-text-field
+                     :append-inner-icon="state.password.visible ? 'mdi-eye-off' : 'mdi-eye'"
+                     :type="state.password.visible ? 'text' : 'password'"        
+                     v-model="state.password.value"
+                     @click:append-inner="state.password.visible = !state.password.visible"
+                     />
+                  </v-col>
+                  <v-col cols="2">
+                     <CommonButtonDefault class_name="float-left mt-3" size="x-small"
+                     tooltip="複製" icon="mdi-content-copy"
+                     @click="copyPassword(state.password.value)"
+                     />
+                  </v-col>
+               </v-row>
             </div>
             <ModifyRecordTable v-if="state.key === ENTITY_TYPES.MODIFY_RECORD" />
             <div v-if="state.key === PREVIEW_IMAGE">

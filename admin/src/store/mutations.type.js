@@ -21,6 +21,9 @@ export const CLEAR_ERRORS = 'clearErrors'
 //IT/Hosts
 export const SET_IT_HOSTS_INDEX_MODEL = 'setITHostsIndexModel'
 export const SET_IT_HOSTS = 'setITHosts'
+//IT/Servers
+export const SET_IT_SERVERS_INDEX_MODEL = 'setITServersIndexModel'
+export const SET_IT_SERVERS = 'setITServers'
 //IT/CredentialInfoes
 export const SET_IT_CREDENTIALINFO_LABLES = 'setITCredentialInfoLables'
 

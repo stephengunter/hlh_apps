@@ -11,6 +11,7 @@ const KEYIN = ENTITY_TYPES.KEYIN
 const CRIMINALS_RECORDS = ENTITY_TYPES.CRIMINALS_RECORDS
 const FETCHES_RECORDS = ENTITY_TYPES.FETCHES_RECORDS
 const HOST = ENTITY_TYPES.HOST
+const SERVER = ENTITY_TYPES.SERVER
 const DATABASE = ENTITY_TYPES.DATABASE
 const SYSTEM_APP = ENTITY_TYPES.SYSTEM_APP
 
@@ -191,6 +192,26 @@ new Page({
    title: `${HOST.title}管理`,
    menus: [],
    parent: ROUTE_NAMES.HOST
+}),
+
+//Groups IT/Servers
+new Page({
+   name: pluralization(SERVER.name),
+   path: `/it/${pluralization(SERVER.name)}`,
+   view: `it/${pluralization(SERVER.name)}/Index`,
+   icon: 'mdi-server',
+   title: `${SERVER.title}管理`,
+   menus: [MENUS.MAIN],
+   parent: pluralization(HOST.name),
+}),
+new Page({
+   name: ROUTE_NAMES.SERVER_DETAILS,
+   path: `/it/${pluralization(SERVER.name)}/:id`,
+   view: `it/${pluralization(SERVER.name)}/Details`,
+   icon: '', 
+   title: `${SERVER.title}管理`,
+   menus: [],
+   parent: ROUTE_NAMES.SERVER
 }),
 ]
 const guestLinks = [

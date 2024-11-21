@@ -1,12 +1,14 @@
-import BaseService from '@/common/baseService';
-import { API_URL } from '@/config';
+import BaseService from '@/common/baseService'
+import { API_URL } from '@/config'
 
-const source =`${API_URL}/admin/uploads`;
+const source =`${API_URL}/admin/uploads`
 
-const fetch = (params) => BaseService.fetch(source, params);
+const fetch = (params) => BaseService.fetch(source, params)
 
-const store = (model) => BaseService.post(source, model);
+const store = (model) => BaseService.post(source, model)
 
-const remove = (id) => BaseService.remove(`${source}/${id}`);
+const get = (id) => BaseService.fetch(`${source}/${id}`)
 
-export default { fetch, store, remove };
+const remove = (id) => BaseService.remove(`${source}/${id}`)
+
+export default { fetch, store, get, remove }

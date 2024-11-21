@@ -1,22 +1,26 @@
-import Service from '@/services/it/credentialInfoes.service'
-import PasswordService from '@/services/it/credentialInfoPassword.service'
+import Service from '@/services/it/servers.service'
 import { resolveErrorData, deepClone } from '@/utils'
 
 import {
-   INIT_IT_CREDENTIALINFOS, FETCH_IT_CREDENTIALINFOS, CREATE_IT_CREDENTIALINFO, STORE_IT_CREDENTIALINFO, 
-   IT_CREDENTIALINFO_DETAILS, EDIT_IT_CREDENTIALINFO, UPDATE_IT_CREDENTIALINFO, UPDATE_IT_CREDENTIALINFO_PASSWORD, 
-   REMOVE_IT_CREDENTIALINFO, EDIT_IT_CREDENTIALINFO_PASSWORD
+   INIT_IT_SERVERS, FETCH_IT_SERVERS, CREATE_IT_SERVER, STORE_IT_SERVER, 
+   IT_SERVER_DETAILS, EDIT_IT_SERVER, UPDATE_IT_SERVER, REMOVE_IT_SERVER
 } from '@/store/actions.type'
 
-import { SET_IT_CREDENTIALINFO_LABLES, SET_LOADING } from '@/store/mutations.type'
+import { SET_IT_SERVERS_INDEX_MODEL, SET_IT_SERVERS, SET_IT_CREDENTIALINFO_LABLES, SET_LOADING } from '@/store/mutations.type'
 
 
 const initialState = {
    query: {
    },
+   hosts: [],
+   providers: {
+      db: [],
+      web: []
+   },
+   types: [],
    labels: {
    },
-   pagedList: null
+   list: []
 }
 
 const state = deepClone(initialState)
@@ -27,39 +31,45 @@ const getters = {
 
 
 const actions = {
-   [INIT_IT_CREDENTIALINFOS](context) {
+   [INIT_IT_SERVERS](context) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.init()
             .then(model => {
-               //context.commit(SET_IT_CREDENTIALINFOS_INDEX_MODEL, model)
+               context.commit(SET_IT_SERVERS_INDEX_MODEL, model)
+               context.commit(SET_IT_CREDENTIALINFO_LABLES, model.credentialInfoLabels)
                resolve()
             })
             .catch(error => reject(error))
             .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [FETCH_IT_CREDENTIALINFOS](context, query) {
+   [FETCH_IT_SERVERS](context, query) {
+      console.log(FETCH_IT_SERVERS, query)
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.fetch(query)
             .then(list => {
-               resolve(list)
+               context.commit(SET_IT_SERVERS, list)
+               resolve()
             })
             .catch(error => reject(error))
             .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [CREATE_IT_CREDENTIALINFO](context) {
+   [CREATE_IT_SERVER](context) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.create()
-         .then(model => resolve(model))
+         .then(model => {
+            state.hosts = model.hosts
+            resolve(model.form)
+         })
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [STORE_IT_CREDENTIALINFO](context, model) {
+   [STORE_IT_SERVER](context, model) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.store(model)
@@ -68,7 +78,8 @@ const actions = {
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [IT_CREDENTIALINFO_DETAILS](context, id) {
+   
+   [IT_SERVER_DETAILS](context, id) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.details(id)
@@ -77,43 +88,28 @@ const actions = {
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [EDIT_IT_CREDENTIALINFO](context, id) {
+   [EDIT_IT_SERVER](context, id) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.edit(id)
-         .then(model => resolve(model))
+         .then(model => {
+            state.hosts = model.hosts
+            resolve(model.form)
+         })
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [EDIT_IT_CREDENTIALINFO_PASSWORD](context, id) {
+   [UPDATE_IT_SERVER](context, { id, model }) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         PasswordService.edit(id)
-         .then(model => resolve(model))
-         .catch(error => reject(error))
-         .finally(() => context.commit(SET_LOADING, false))
-      })
-   },
-   [UPDATE_IT_CREDENTIALINFO](context, model) {
-      context.commit(SET_LOADING, true)
-      return new Promise((resolve, reject) => {
-         Service.update(model)
+         Service.update({ id, model })
          .then(() => resolve())
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [UPDATE_IT_CREDENTIALINFO_PASSWORD](context, model) {
-      context.commit(SET_LOADING, true)
-      return new Promise((resolve, reject) => {
-         PasswordService.update(model)
-         .then(() => resolve())
-         .catch(error => reject(error))
-         .finally(() => context.commit(SET_LOADING, false))
-      })
-   },
-   [REMOVE_IT_CREDENTIALINFO](context, id) {
+   [REMOVE_IT_SERVER](context, id) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.remove(id)
@@ -126,8 +122,17 @@ const actions = {
 
 
 const mutations = {
-   [SET_IT_CREDENTIALINFO_LABLES](state, labels) {
-      state.labels = labels
+   [SET_IT_SERVERS_INDEX_MODEL](state, model) {
+      state.query = model.request
+      state.labels = model.labels
+      state.types = model.types
+      state.providers = {
+         db: model.dbProviders.slice(0),
+         web: model.webProviders.slice(0)
+      }
+   },
+   [SET_IT_SERVERS](state, list) {
+      state.list = list
    }
 }
 

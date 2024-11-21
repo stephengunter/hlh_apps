@@ -14,7 +14,7 @@ const props = defineProps({
       default: null
    }
 })
-const emit = defineEmits(['edit'])
+const emit = defineEmits(['edit', 'edit-pw'])
 function edit(id) {
 	emit('edit', id)
 }
@@ -25,6 +25,9 @@ function getLabel(key) {
 function showPw(id) {
 	showPassword({ type: ENTITY_TYPES.CREDENTIALINFO.name, id })
 }
+function editPw(id) {
+	emit('edit-pw', id)
+}
 
 </script>
 
@@ -32,14 +35,11 @@ function showPw(id) {
 	<v-table>
 		<thead>
 			<tr>
-				<th style="width: 10%;">					
+				<th style="width: 30%;" v-text="getLabel('username')">
 				</th>
-				<th style="width: 20%;" v-text="getLabel('username')">
+				<th style="width: 30%;" v-text="getLabel('password')">					
 				</th>
-				<th v-text="getLabel('password')">					
-				</th>
-				<th>
-					備註				
+				<th style="width: 30%;" v-text="getLabel('ps')">			
 				</th>
 				<th style="width: 10%;">
 					
@@ -48,14 +48,16 @@ function showPw(id) {
 		</thead>
 		<tbody>
 			<tr v-for="item in list" :key="item.id">
-				<td></td>
 				<td>{{ item.username }}</td>
 				<td>
-					<v-btn v-if="item.password" variant="outlined" density="comfortable" color="primary"
-					@click.prevent="showPw(item.id)"
-					>
-						點此查看
-					</v-btn>
+					<CommonButtonDefault size="x-small" color="warning"
+					tooltip="查看密碼" icon="mdi-eye"
+					@click="showPw(item.id)"
+					/>
+					<CommonButtonEdit class_name="ml-1" size="x-small" color="success"
+					tooltip="修改密碼" 
+					@edit="editPw(item.id)"					
+					/>
 				</td>
 				<td>{{ item.ps }}</td>
 				<td>

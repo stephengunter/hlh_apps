@@ -1,19 +1,25 @@
 <script setup>
-import { reactive, computed, onBeforeMount } from 'vue'
+import { ref, reactive, computed, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
 import { DIALOG_MAX_WIDTH } from '@/config'
 import { FETCH_ROLES, LOGIN
 } from '@/store/actions.type'
 import { deepClone, onErrors, setValues, downloadFile } from '@/utils'
+import { useClipboard } from '@vueuse/core'
 
+const { text, isSupported, copy } = useClipboard()
 const store = useStore()
+const input = ref('')
+
 const initialState = {
 	form: {
 		roles: []
 	},
-	test: ''
+	text: ''
 }
+
 const state = reactive(deepClone(initialState))
+
 const roles = computed(() => store.state.roles.list)
 onBeforeMount(init)
 
@@ -25,23 +31,24 @@ function onSubmit() {
 	
 	store.dispatch(LOGIN)
 }	
+function onCopy() {
+	copy(state.text)
+}	
 </script>
 
 <template>
 	<div>
-		<form @submit.prevent="onSubmit">
-			<v-row>
-				<v-col cols="4" v-for="role in roles">
-					{{ state.test }}
-				</v-col>
-			</v-row>
-			<v-row>
-				<v-col cols="12">
-					<v-btn color="success" @click.prevent="onSubmit">
-						存檔
-					</v-btn>
-				</v-col>
-			</v-row>
-		</form>
+		<div v-if="isSupported">
+			<p>
+				Current copied: <code>{{ text || 'none' }}</code>
+			</p>
+			<input v-model="state.text" type="text">
+			<button @click="onCopy">
+				Copy
+			</button>
+		</div>
+		<p v-else>
+			Your browser does not support Clipboard API
+		</p>
 	</div>
 </template>

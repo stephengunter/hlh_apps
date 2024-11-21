@@ -3,6 +3,9 @@ import { createStore } from 'vuex'
 import app from './modules/app.module'
 import auth from './modules/auth.module'
 import articles from './modules/articles.module'
+import attachments from './modules/attachments.module'
+import cryptoes from './modules/cryptoes.module'
+
 import locations from './modules/locations.module'
 import jobUserProfiles from './modules/job_user_profiles.module'
 import jobs from './modules/jobs.module'
@@ -22,6 +25,7 @@ import fetches_records from './modules/fetches/records.module'
 import fetches_systems from './modules/fetches/systems.module'
 
 import it_hosts from './modules/it/hosts.module'
+import it_servers from './modules/it/servers.module'
 import it_credentialInfoes from './modules/it/credentialInfoes.module'
 import it_databases from './modules/it/databases.module'
 import it_systemApps from './modules/it/systemApps.module'
@@ -31,7 +35,8 @@ const store = createStore({
       app,
       auth,
       articles,
-      
+      attachments,
+      cryptoes,
       locations,
       departments,
       jobs,
@@ -48,6 +53,7 @@ const store = createStore({
       fetches_records,
       fetches_systems,
       it_hosts,
+      it_servers,
       it_credentialInfoes,
       it_databases,
       it_systemApps

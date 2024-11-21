@@ -3,6 +3,10 @@ export const ENTITY_TYPES = {
       name: 'host',
       title: '主機'
    },
+   SERVER: {
+      name: 'server',
+      title: '伺服器'
+   },
    CREDENTIALINFO: {
       name: 'credentialInfo',
       title: '驗證資訊'

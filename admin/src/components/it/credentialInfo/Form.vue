@@ -16,14 +16,17 @@ const props = defineProps({
 	labels: {
 		type: Object,
 		default: null
-	}
+	},
+	can_remove: {
+		type: Boolean,
+		default: false
+	},
 })
 const emit = defineEmits(['submit', 'cancel', 'remove'])
 const store = useStore()
 
 const initialState = {
    form: {
-		id: 0,
 		username: '',
 		password: '',
 		title: '',
@@ -37,14 +40,17 @@ const initialState = {
 }
 const state = reactive(deepClone(initialState))
 const rules = computed(() => {
-	return {
+	let obj = {
 		username: { 
 			required: helpers.withMessage(VALIDATE_MESSAGES.REQUIRED(getLabel('username')), required)
-		},
-		password: {
-			required: helpers.withMessage(VALIDATE_MESSAGES.REQUIRED(getLabel('password')), required)
-   	} 
+		}
 	}
+	if(!props.model.id) {
+		obj.password = {
+			required: helpers.withMessage(VALIDATE_MESSAGES.REQUIRED(getLabel('password')), required)
+   	}
+	}
+	return obj
 })
 const ENTITY_TYPE = ENTITY_TYPES.CREDENTIALINFO
 const v$ = useVuelidate(rules, state.form)
@@ -52,7 +58,6 @@ const v$ = useVuelidate(rules, state.form)
 
 const canRemove = computed(() => {
 	if(!props.model.id) return false
-	if(props.model.active) return false
 	return true
 })
 const status_text = computed(() => statusText(state.form.active))
@@ -90,10 +95,12 @@ function onInputChanged(){
 				@input="v$.username.$touch"
 				@blur="v$.username.$touch"
 				/>
-				
 			</v-col>
 			<v-col cols="6">
-				<v-text-field :label="getLabel('password')"
+				<v-text-field v-if="props.model.id" :label="getLabel('password')"
+				readonly type="password" v-model="state.form.password"
+				/>
+				<v-text-field v-else :label="getLabel('password')"
 				:append-inner-icon="state.password.visible ? 'mdi-eye-off' : 'mdi-eye'"
             :type="state.password.visible ? 'text' : 'password'"        
 				v-model="state.form.password"
@@ -104,7 +111,7 @@ function onInputChanged(){
 				/>
 			</v-col>
 			<v-col cols="12">
-				<v-textarea auto-grow :label="getLabel('ps')"  
+				<v-textarea auto-grow  :label="getLabel('ps')"
 				v-model="state.form.ps"	
 				/>
 			</v-col>

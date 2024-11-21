@@ -3,7 +3,7 @@ import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } fr
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { ROUTE_NAMES, ENTITY_TYPES, WIDTH, ACTION_TYPES } from '@/consts'
-import { INIT_IT_HOSTS, FETCH_IT_HOSTS, CREATE_IT_HOST, STORE_IT_HOST } from '@/store/actions.type'
+import { INIT_IT_SERVERS, FETCH_IT_SERVERS, CREATE_IT_SERVER, STORE_IT_SERVER } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { isEmptyObject, deepClone , downloadFile,
 	onErrors, onSuccess, setValues, is400, 
@@ -11,11 +11,11 @@ import { isEmptyObject, deepClone , downloadFile,
 } from '@/utils'
 
 
-const name = 'ITHostsIndexView'
+const name = 'ITServersIndexView'
 const store = useStore()
 const route = useRoute()
 const router = useRouter()
-const ENTITY_TYPE = ENTITY_TYPES.HOST
+const ENTITY_TYPE = ENTITY_TYPES.SERVER
 const initialState = {
 	form: {
 		title: '',
@@ -27,16 +27,18 @@ const initialState = {
 	},
 }
 const state = reactive(deepClone(initialState))
-const query = computed(() => store.state.it_hosts.query)
-const labels = computed(() => store.state.it_hosts.labels)
-const providers = computed(() => store.state.it_hosts.providers)
-const pagedList = computed(() => store.state.it_hosts.pagedList)
-const provider_options = computed(() => {
-	if(providers.value && providers.value.length) {
+const query = computed(() => store.state.it_servers.query)
+const labels = computed(() => store.state.it_servers.labels)
+const types = computed(() => store.state.it_servers.types)
+const hosts = computed(() => store.state.it_servers.hosts)
+const providers = computed(() => store.state.it_servers.providers)
+const list = computed(() => store.state.it_servers.list)
+const type_options = computed(() => {
+	if(types.value && types.value.length) {
 		let options = []
-		providers.value.forEach(item => {
+		types.value.forEach(item => {
 			options.push({
-				value: item, title: item
+				value: item, title: `${item} Server`
 			})
 		})
 		return options
@@ -49,7 +51,7 @@ const head = ref(null)
 onMounted(() => {
 	if(!isEmptyObject(query.value)) init()
 	else {
-		store.dispatch(INIT_IT_HOSTS)
+		store.dispatch(INIT_IT_SERVERS)
 		.then(() => {
 			nextTick(init)
 		})
@@ -62,11 +64,8 @@ function init() {
 function fetchData(query) {
 	if(!query) query = head.value.getQuery()
 	store.commit(CLEAR_ERRORS)
-	store.dispatch(FETCH_IT_HOSTS, query)
+	store.dispatch(FETCH_IT_SERVERS, query)
 	.catch(error => onErrors(error))
-}
-function onOptionChanged(option) {
-	head.value.setPageOption(option)
 }
 
 function edit(id) {
@@ -84,12 +83,13 @@ function edit(id) {
 	})
 	.catch(error => onErrors(error))
 }
-function onCreate() {
-	state.form.title = `${ACTION_TYPES.CREATE.title}${ENTITY_TYPE.title}`,
-	store.dispatch(CREATE_IT_HOST)
+function onCreate(query) {
+	state.form.title = `${ACTION_TYPES.CREATE.title}${ENTITY_TYPE.title}`
+	store.dispatch(CREATE_IT_SERVER)
 	.then(model => {
-		state.form.model = model
-		state.form.action = STORE_IT_HOST
+		state.form.model = deepClone(model)
+		state.form.model.type = query.type
+		state.form.action = STORE_IT_SERVER
 		state.form.width = WIDTH.M
 		state.form.active = true
 	})
@@ -112,22 +112,23 @@ function onSubmit(form) {
 		else onErrors(error)
 	})
 }
-function details(id) {
-	router.push({ name: ROUTE_NAMES.HOST_DETAILS, params: { id } })
+function details(item) {
+	const id = item.id
+	router.push({ name: ROUTE_NAMES.SERVER_DETAILS, params: { id } })
 }
 </script>
 
 <template>
 	<div>
-		<ItHostHead ref="head" :query="query" 
+		<ItServerHead ref="head" :query="query" :labels="labels"
+		:type_options="type_options"
 		@submit="fetchData" @create="onCreate"
 		/>
 		<v-row dense>
 			<v-col cols="12">
-				<ItHostTable v-if="!isEmptyObject(pagedList)" 
-				:model="pagedList" :labels="labels"
+				<ItServerTable
+				:list="list" :labels="labels"
 				@select="details"
-				@options_changed="onOptionChanged"
 				/>
 			</v-col>
 		</v-row>
@@ -137,8 +138,8 @@ function details(id) {
 				@cancel="onCancel"  
 				/>
 				<v-card-text v-if="state.form.active">
-					<ItHostForm :model="state.form.model"
-					:labels="labels"
+					<ItServerForm :model="state.form.model" :providers="providers"
+					:labels="labels" :type_options="type_options" :hosts="hosts"
 					@submit="onSubmit"
 					/>
 				</v-card-text>

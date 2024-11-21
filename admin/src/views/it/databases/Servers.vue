@@ -2,8 +2,8 @@
 import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { ROUTE_NAMES, ENTITY_TYPES, WIDTH, ACTION_TYPES } from '@/consts'
-import { INIT_IT_HOSTS, FETCH_IT_HOSTS, CREATE_IT_HOST, STORE_IT_HOST } from '@/store/actions.type'
+import { ENTITY_TYPES, WIDTH } from '@/consts'
+import { INIT_IT_DATABASES, FETCH_IT_DATABASES, CREATE_IT_DATABASE, STORE_IT_DATABASE } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { isEmptyObject, deepClone , downloadFile,
 	onErrors, onSuccess, setValues, is400, 
@@ -11,11 +11,11 @@ import { isEmptyObject, deepClone , downloadFile,
 } from '@/utils'
 
 
-const name = 'ITHostsIndexView'
+const name = 'ITDatabasesIndexView'
 const store = useStore()
 const route = useRoute()
 const router = useRouter()
-const ENTITY_TYPE = ENTITY_TYPES.HOST
+const ENTITY_TYPE = ENTITY_TYPES.DATABASE
 const initialState = {
 	form: {
 		title: '',
@@ -27,10 +27,11 @@ const initialState = {
 	},
 }
 const state = reactive(deepClone(initialState))
-const query = computed(() => store.state.it_hosts.query)
-const labels = computed(() => store.state.it_hosts.labels)
-const providers = computed(() => store.state.it_hosts.providers)
-const pagedList = computed(() => store.state.it_hosts.pagedList)
+const query = computed(() => store.state.it_databases.query)
+const labels = computed(() => store.state.it_databases.labels)
+const type_options = computed(() => store.state.it_databases.type_options)
+const providers = computed(() => store.state.it_databases.providers)
+const pagedList = computed(() => store.state.it_databases.pagedList)
 const provider_options = computed(() => {
 	if(providers.value && providers.value.length) {
 		let options = []
@@ -49,7 +50,7 @@ const head = ref(null)
 onMounted(() => {
 	if(!isEmptyObject(query.value)) init()
 	else {
-		store.dispatch(INIT_IT_HOSTS)
+		store.dispatch(INIT_IT_DATABASES)
 		.then(() => {
 			nextTick(init)
 		})
@@ -60,9 +61,8 @@ function init() {
 	head.value.init()
 }
 function fetchData(query) {
-	if(!query) query = head.value.getQuery()
 	store.commit(CLEAR_ERRORS)
-	store.dispatch(FETCH_IT_HOSTS, query)
+	store.dispatch(FETCH_IT_DATABASES, query)
 	.catch(error => onErrors(error))
 }
 function onOptionChanged(option) {
@@ -85,11 +85,11 @@ function edit(id) {
 	.catch(error => onErrors(error))
 }
 function onCreate() {
-	state.form.title = `${ACTION_TYPES.CREATE.title}${ENTITY_TYPE.title}`,
-	store.dispatch(CREATE_IT_HOST)
+	state.form.title = `新增Db`,
+	store.dispatch(CREATE_IT_DATABASE)
 	.then(model => {
 		state.form.model = model
-		state.form.action = STORE_IT_HOST
+		state.form.action = STORE_IT_DATABASE
 		state.form.width = WIDTH.M
 		state.form.active = true
 	})
@@ -98,35 +98,19 @@ function onCreate() {
 function onCancel() {
 	state.form = deepClone(initialState.form)
 }
-function onSubmit(form) {
-	setValues(form, state.form.model)
-	store.dispatch(state.form.action, state.form.model)
-	.then(() => {
-		onCancel()
-		onSuccess()
-		fetchData()
-	})
-	.catch(error => {
-		let errors = resolveErrorData(error)
-		if(errors) store.commit(SET_ERRORS, Object.values(errors))
-		else onErrors(error)
-	})
-}
-function details(id) {
-	router.push({ name: ROUTE_NAMES.HOST_DETAILS, params: { id } })
-}
 </script>
 
 <template>
 	<div>
-		<ItHostHead ref="head" :query="query" 
+		<ItDatabaseHead ref="head" :query="query" :labels="labels"
+		:type_options="type_options"
 		@submit="fetchData" @create="onCreate"
 		/>
 		<v-row dense>
 			<v-col cols="12">
-				<ItHostTable v-if="!isEmptyObject(pagedList)" 
-				:model="pagedList" :labels="labels"
-				@select="details"
+				<ItDatabaseTable v-if="!isEmptyObject(pagedList)" 
+				:model="pagedList"
+				@select="edit"
 				@options_changed="onOptionChanged"
 				/>
 			</v-col>
@@ -137,9 +121,8 @@ function details(id) {
 				@cancel="onCancel"  
 				/>
 				<v-card-text v-if="state.form.active">
-					<ItHostForm :model="state.form.model"
-					:labels="labels"
-					@submit="onSubmit"
+					<ItDatabaseForm :model="state.form.model"
+					:labels="labels" :provider_options="provider_options"
 					/>
 				</v-card-text>
 			</v-card>

@@ -1,7 +1,7 @@
 import AttachmentService from '@/services/attachments.service'
 import { resolveErrorData, deepClone } from '@/utils'
 
-import { FETCH_ATTACHMENTS, STORE_ATTACHMENT, DELETE_ATTACHMENT } from '@/store/actions.type'
+import { FETCH_ATTACHMENTS, STORE_ATTACHMENT, GET_ATTACHMENT, DELETE_ATTACHMENT } from '@/store/actions.type'
 import { SET_ATTACHMENTS, SET_LOADING } from '@/store/mutations.type'
 
 const initialState = {
@@ -51,6 +51,15 @@ const actions = {
          .finally(() => { 
             context.commit(SET_LOADING, false)
          })
+      })
+   },
+   [GET_ATTACHMENT](context, id) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         AttachmentService.get(id)
+         .then(data => resolve(data))
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
       })
    },
    [DELETE_ATTACHMENT](context, id) {

@@ -2,7 +2,7 @@
 import { ref, reactive, computed, watch, onBeforeMount, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { INIT_IT_HOSTS, IT_HOST_DETAILS, PAGE_NOT_FOUND, FETCH_ROLES, EDIT_IT_HOST, UPDATE_IT_HOST
+import { INIT_IT_SERVERS, IT_SERVER_DETAILS, PAGE_NOT_FOUND, FETCH_ROLES, EDIT_IT_SERVER, UPDATE_IT_SERVER	
 } from '@/store/actions.type'
 
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
@@ -12,16 +12,16 @@ import { deepClone , is404, is400, isEmptyObject, showConfirm, hideConfirm, getV
 import { WIDTH, ENTITY_TYPES, ROUTE_NAMES, ACTION_TITLES, CREATE, EDIT, ERRORS } from '@/consts'
 
 
-const name = 'HostDetailsView'
+const name = 'ServerDetailsView'
 const store = useStore()
 const route = useRoute()
 const router = useRouter()
 
-const HOST = ENTITY_TYPES.HOST
+const SERVER = ENTITY_TYPES.SERVER
 const CREDENTIALINFO = ENTITY_TYPES.CREDENTIALINFO
 
 const initialState = {
-	host: {},
+	server: {},
 	form: {
 		active: false,
 		model: {},
@@ -39,15 +39,29 @@ const initialState = {
 }
 
 const state = reactive(deepClone(initialState))
-
 const lastPage = computed(() => store.getters.lastPage)
-const labels = computed(() => store.state.it_hosts.labels)
+const labels = computed(() => store.state.it_servers.labels)
 const credentialInfo_labels = computed(() => store.state.it_credentialInfoes.labels)
+const types = computed(() => store.state.it_servers.types)
+const hosts = computed(() => store.state.it_servers.hosts)
+const providers = computed(() => store.state.it_servers.providers)
+const type_options = computed(() => {
+	if(types.value && types.value.length) {
+		let options = []
+		types.value.forEach(item => {
+			options.push({
+				value: item, title: `${item} Server`
+			})
+		})
+		return options
+	}
+	return []
+})
 
 onBeforeMount(() => {
 	if(!isEmptyObject(labels.value)) init()
 	else {
-		store.dispatch(INIT_IT_HOSTS)
+		store.dispatch(INIT_IT_SERVERS)
 		.then(() => {
 			nextTick(init)
 		})
@@ -57,14 +71,15 @@ onBeforeMount(() => {
 watch(route, init)
 
 function init() {
+	console.log(route.params)
 	if(route.params.id) fetchData(route.params.id)
 	else store.dispatch(PAGE_NOT_FOUND, { router })
 }
 function fetchData(id) {
 	store.commit(CLEAR_ERRORS)
-	store.dispatch(IT_HOST_DETAILS, id)
-	.then(host => {
-		state.host = deepClone(host)
+	store.dispatch(IT_SERVER_DETAILS, id)
+	.then(server => {
+		state.server = deepClone(server)
 	})
 	.catch(error => {
 		if(is404(error)) store.dispatch(PAGE_NOT_FOUND, { router })
@@ -72,10 +87,9 @@ function fetchData(id) {
 	})
 }
 function getEntityId() {
-	if(state.host) return state.host.id
+	if(state.server) return state.server.id
 	return 0
 }
-
 function getLabel(key) {
 	if(isEmptyObject(labels.value)) return ''
    return getValue(labels.value, key)
@@ -85,12 +99,12 @@ function sortTabs(val) {
 }
 function edit() {
 	store.commit(CLEAR_ERRORS)
-	store.dispatch(EDIT_IT_HOST, getEntityId())
+	store.dispatch(EDIT_IT_SERVER, getEntityId())
 	.then(model => {
 		state.form.model = deepClone(model)
-		state.form.type = HOST.name
-		state.form.action = UPDATE_IT_HOST
-		state.form.title = `編輯${HOST.title}資料`
+		state.form.type = SERVER.name
+		state.form.action = UPDATE_IT_SERVER
+		state.form.title = `編輯${SERVER.title}資料`
 		state.form.active = true
 	})
 	.catch(error => onErrors(error))
@@ -100,10 +114,12 @@ function onCancel() {
 }
 function onSubmit(form) {
 	setValues(form, state.form.model)
-	if(state.form.type === HOST.name) updateHost()
+	if(state.form.type === SERVER.name) updateServer()
 }
-function updateHost() {
-	store.dispatch(UPDATE_IT_HOST, state.form.model)
+function updateServer() {
+	const id = getEntityId()
+	const model = state.form.model
+	store.dispatch(UPDATE_IT_SERVER, { id, model })
 	.then(() => {
 		fetchData(getEntityId())
 		onCancel()
@@ -120,19 +136,19 @@ function handelSubmitError(error) {
 	else onErrors(error)
 }
 function backToIndex() {
-	if(lastPage.value && lastPage.value.name === ROUTE_NAMES.HOSTS) {
-		router.back();
+	if(lastPage.value && lastPage.value.name === ROUTE_NAMES.SERVERS) {
+		router.back()
 	}
-	else router.push({ name: ROUTE_NAMES.HOSTS });
+	else router.push({ name: ROUTE_NAMES.SERVERS })
 }
 </script>
 
 <template>
 	<div>
-		<div v-if="!isEmptyObject(state.host)">
+		<div v-if="!isEmptyObject(state.server)">
 			<v-card>
-				<CommonCardTitle :id="getEntityId()" :title="HOST.title"
-				:tooltip="`編輯${HOST.title}資料`" :can_cancel="false"
+				<CommonCardTitle :id="getEntityId()" :title="SERVER.title"
+				:tooltip="`編輯${SERVER.title}資料`" :can_cancel="false"
 				@edit="edit" 
 				>
 					<CommonButtonBack class_name="float-right ml-3"
@@ -140,7 +156,7 @@ function backToIndex() {
 					/>
 				</CommonCardTitle>
 				<v-card-text>
-					<ItHostView :model="state.host" :labels="labels"
+					<ItServerView :model="state.server" :labels="labels"
 					/>
 				</v-card-text>
 			</v-card>
@@ -153,7 +169,7 @@ function backToIndex() {
 				</v-tabs>
 				<v-window v-model="state.tab.value">
 					<v-window-item :value="CREDENTIALINFO.name">
-						<ItCredentialInfoView :entity_type="HOST.name" :max_width="WIDTH.M"
+						<ItCredentialInfoView :entity_type="SERVER.name" :max_width="WIDTH.M"
 						:entity_id="getEntityId()" :labels="credentialInfo_labels"
 						/>
 					</v-window-item>
@@ -166,9 +182,11 @@ function backToIndex() {
 				@cancel="onCancel"
 				/>
 				<v-card-text>
-					<ItHostForm v-if="state.form.type === HOST.name"
-					:model="state.form.model" :labels="labels"
-					@submit="onSubmit" 
+					<ItServerForm v-if="state.form.type === SERVER.name"
+					:id="getEntityId()"
+					:model="state.form.model" :providers="providers"
+					:labels="labels" :type_options="type_options" :hosts="hosts"
+					@submit="onSubmit"
 					/>
 				</v-card-text>
       	</v-card>

@@ -5,19 +5,27 @@ import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import Errors from '@/common/errors'
 import { isEmptyObject, deepClone , copyFromQuery, areObjectsEqual, reviewedOptions,
-	setValues, badRequest, tryParseInt
+	setValues, badRequest, tryParseInt, getValue
 } from '@/utils'
 
 const name = 'ITDatabaseHead'
 const emit = defineEmits(['submit', 'create'])
 defineExpose({
-   init, setQuery, getQuery, setPageOption
+   init, setQuery, getQuery
 })
 
 const props = defineProps({
 	query: {
       type: Object,
       default: null
+   },
+	labels: {
+      type: Object,
+      default: null
+   },
+	server_options: {
+      type: Array,
+      default: () => []
    }
 })
 const store = useStore()
@@ -30,32 +38,30 @@ const initialState = {
 }
 const state = reactive(deepClone(initialState))
 
-const query = computed(() => store.state.it_databases.query)
 const query_match_route = computed(() => {
 	if(route.query) {
 		return areObjectsEqual(state.query, route.query, true)
 	} return false
 })
+const server_selected = computed(() => {
+   if(isEmptyObject(state.query)) {
+		return false
+	}
+   if(state.query.serverId) return true
+   return false
+})
 
 watch(route, init)
-// watch(query, (new_value) => {
-// 	setQuery(new_value)
-// })
 
 function init() {
-   initQuery()
-   emit('submit', state.query)
-}
-function initQuery() {
-	if(isEmptyObject(route.query)) {
+   if(isEmptyObject(route.query)) {
 		router.push({ path: route.path, query: { ...props.query } })
       return
 	}
 	
 	state.query = { ...route.query }
-	state.query.page = tryParseInt(state.query.page)
-	state.query.pageSize = tryParseInt(state.query.year)
-	state.query.month = tryParseInt(state.query.month)
+	state.query.serverId = tryParseInt(state.query.serverId)
+   emit('submit', state.query)
 }
 function setQuery(model) {
    setValues(model, state.query)
@@ -63,27 +69,23 @@ function setQuery(model) {
 function getQuery() {
    return state.query
 }
-function setPageOption(option) {
-	if(option.hasOwnProperty('page')) state.query.page = option.page
-	if(option.hasOwnProperty('size')) state.query.pageSize = option.size
-	onSubmit()
+function getLabel(key) {
+	if(isEmptyObject(props.labels)) return ''
+   return getValue(props.labels, key)
 }
-function checkQuery() {
-	let errors = new Errors()
-	// const year = state.params.year
-   // if(!checkYear(year)) errors.set('year', [`錯誤的${labels['year']}`])
-
-   // const num = state.params.num
-   // if(!checkNum(num)) errors.set('num', [`錯誤的${labels['num']}`])
-
-	return errors
+function onQueryChanged() {
+   onSubmit()
 }
 function onSubmit() {
 	if(query_match_route.value) emit('submit', state.query)
 	else router.push({ path: route.path, query: { ...state.query } })	
 }
 function createDb() {
-   emit('create')
+   emit('create', state.query)
+}
+
+function createServer() {
+   emit('create-server')
 }
 
 </script>
@@ -93,7 +95,10 @@ function createDb() {
    <form v-show="!isEmptyObject(state.query)" @submit.prevent="onSubmit">
       <v-row dense>
 			<v-col cols="3">
-
+				<v-select density="compact" :label="getLabel('server')"
+				:items="server_options" v-model="state.query.serverId"
+				@update:modelValue="onQueryChanged"
+				/>
          </v-col>
          <v-col cols="3">
 
@@ -102,9 +107,13 @@ function createDb() {
 
          </v-col>
          <v-col cols="3">
-            <CommonButtonCreate class_name="float-right" 
+            <CommonButtonCreate v-if="server_selected" class_name="float-right" 
 				tooltip="新增"
 				@create="createDb"
+				/>
+            <CommonButtonCreate v-else class_name="float-right" color="purple"
+				tooltip="新增Db Server"
+				@create="createServer"
 				/>
          </v-col>
       </v-row>

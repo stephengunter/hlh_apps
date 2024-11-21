@@ -17,11 +17,12 @@ export const ROUTE_NAMES = {
    NOT_FOUND: '404',
    CLOSE: 'close',
 
-
-   SYSTEM_APPS: 'systemApps',
    HOSTS: 'hosts',
    HOST_DETAILS: 'host-details',
+   SERVERS: 'servers',
+   SERVER_DETAILS: 'server-details',
    DATABASES: 'databases',
+   SYSTEM_APPS: 'systemApps',
 
    KEYIN: 'keyin',
    KEYIN_UPLOAD: 'keyin-upload',

@@ -3,7 +3,7 @@ import { isEmptyObject, getValue, showPassword } from '@/utils'
 import { ENTITY_TYPES } from '@/consts'
 
 
-const name = 'ITDatabaseTable'
+const name = 'ITServerTable'
 const props = defineProps({
 	list: {
       type: Array,
@@ -22,6 +22,10 @@ function getLabel(key) {
 	if(isEmptyObject(props.labels)) return ''
    return getValue(props.labels, key)
 }
+function getTitle(model) {
+   if(model.title) return model.title
+   return `${model.host.ip} ${model.provider}`
+}
 function select(item) {
    emit('select', item)
 }
@@ -38,13 +42,13 @@ function editPw(id) {
 	<v-table>
 		<thead>
 			<tr>
-            <th style="width: 15%;" v-text="getLabel('name')">
+            <th style="width: 15%;" v-text="getLabel('title')">
 				</th>
-            <th style="width: 15%;" v-text="getLabel('server')">			
+            <th style="width: 15%;" v-text="getLabel('host')">			
 				</th>
-				<th style="width: 15%;" v-text="getLabel('title')">
+				<th style="width: 15%;" v-text="getLabel('type')">
 				</th>
-				<th style="width: 15%;" v-text="getLabel('ps')">					
+				<th style="width: 15%;" v-text="getLabel('provider')">					
 				</th>
 				
 				<th style="width: 10%;">
@@ -55,11 +59,11 @@ function editPw(id) {
 		<tbody>
 			<tr v-for="item in list" :key="item.id">
 				<td>
-               <a @click.prevent="select(item)" href="#" v-text="item.name"></a>
+               <a @click.prevent="select(item)" href="#" v-text="getTitle(item)"></a>
             </td>
-				<td>{{ item.name }}</td>
-				<td>{{ item.title }}</td>
-				<td>{{ item.ps }}</td>
+				<td>{{ item.host.name }}</td>
+				<td>{{ item.type }}</td>
+				<td>{{ item.provider }}</td>
 			</tr>
 		</tbody>
   </v-table>

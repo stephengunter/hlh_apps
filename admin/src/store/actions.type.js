@@ -18,6 +18,13 @@ export const REFRESH_TOKEN = 'refreshToken'
 //AppAdmin
 export const FETCH_EXCEPTIONS = 'fetchExceptions'
 
+//Attachments
+export const FETCH_ATTACHMENTS = 'fetchAttachments'
+export const STORE_ATTACHMENT = 'storeAttachment'
+export const DELETE_ATTACHMENT = 'deleteAttachment'
+export const GET_ATTACHMENT = 'getAttachment'
+export const PREVIEW_ATTACHMENT = 'previewAttachment'
+
 //Cryptoes
 export const GET_CRYPTO = 'getCrypto'
 
@@ -74,6 +81,15 @@ export const IT_HOST_DETAILS = 'ITHostDetails'
 export const EDIT_IT_HOST = 'editITHost'
 export const UPDATE_IT_HOST = 'updateITHost'
 export const REMOVE_IT_HOST = 'removeITHost'
+//IT/Servers
+export const INIT_IT_SERVERS = 'initITServers'
+export const FETCH_IT_SERVERS = 'fetchITServers'
+export const CREATE_IT_SERVER = 'createITServer'
+export const STORE_IT_SERVER = 'storeITServer'
+export const IT_SERVER_DETAILS = 'ITServerDetails'
+export const EDIT_IT_SERVER = 'editITServer'
+export const UPDATE_IT_SERVER = 'updateITServer'
+export const REMOVE_IT_SERVER = 'removeITServer'
 //IT/CredentialInfos
 export const INIT_IT_CREDENTIALINFOS = 'initITCredentialInfos'
 export const FETCH_IT_CREDENTIALINFOS = 'fetchITCredentialInfos'
@@ -81,7 +97,9 @@ export const CREATE_IT_CREDENTIALINFO = 'createITCredentialInfo'
 export const STORE_IT_CREDENTIALINFO = 'storeITCredentialInfo'
 export const IT_CREDENTIALINFO_DETAILS = 'ITCredentialInfoDetails'
 export const EDIT_IT_CREDENTIALINFO = 'editITCredentialInfo'
+export const EDIT_IT_CREDENTIALINFO_PASSWORD = 'editITCredentialInfoPassword'
 export const UPDATE_IT_CREDENTIALINFO = 'updateITCredentialInfo'
+export const UPDATE_IT_CREDENTIALINFO_PASSWORD = 'updateITCredentialInfoPassword'
 export const REMOVE_IT_CREDENTIALINFO = 'removeITCredentialInfo'
 //IT/Databases
 export const INIT_IT_DATABASES = 'initITDatabases'
@@ -91,7 +109,6 @@ export const STORE_IT_DATABASE = 'storeITDatabase'
 export const EDIT_IT_DATABASE = 'editITDatabase'
 export const UPDATE_IT_DATABASE = 'updateITDatabase'
 export const REMOVE_IT_DATABASE = 'removeITDatabase'
-
 //IT/SystemApps
 export const INIT_IT_SYSTEM_APPS = 'initITSystemApps'
 export const FETCH_IT_SYSTEM_APPS = 'fetchITSystemApps'
@@ -200,13 +217,6 @@ export const CHANGE_PASSWORD = 'changePassword'
 export const INIT_MEDIAS = 'initMedias'
 export const ADD_MEDIA = 'addMedia'
 export const REMOVE_MEDIA = 'removeMedia'
-
-//Attachments
-export const FETCH_ATTACHMENTS = 'fetchAttachments'
-export const STORE_ATTACHMENT = 'storeAttachment'
-export const DELETE_ATTACHMENT = 'deleteAttachment'
-export const GET_ATTACHMENT = 'getAttachment'
-export const PREVIEW_ATTACHMENT = 'previewAttachment'
 
 //Settings
 export const FIND_EXAM_SETTINGS = 'findExamSettings'

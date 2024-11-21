@@ -12,10 +12,10 @@ import { SET_IT_DATABASES_INDEX_MODEL, SET_IT_DATABASES, SET_LOADING } from '@/s
 const initialState = {
    query: {
    },
-   providers: [],
+   servers: [],
    labels: {
    },
-   pagedList: null
+   list: []
 }
 
 const state = deepClone(initialState)
@@ -102,10 +102,10 @@ const mutations = {
    [SET_IT_DATABASES_INDEX_MODEL](state, model) {
       state.query = model.request
       state.labels = model.labels
-      state.providers = model.providers
+      state.servers = model.servers
    },
-   [SET_IT_DATABASES](state, pagedList) {
-      state.pagedList = pagedList
+   [SET_IT_DATABASES](state, list) {
+      state.list = list
    }
 }
 
