@@ -78,7 +78,6 @@ const actions = {
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   
    [IT_SERVER_DETAILS](context, id) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {

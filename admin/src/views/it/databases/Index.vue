@@ -56,7 +56,7 @@ function getServerOptions(empty = false) {
 		let options = []
 		if(empty) {
 			options.push({
-				value: 0, title: '--------'
+				value: null, title: '--------'
 			})
 		}
 		servers.value.forEach(item => {
@@ -120,6 +120,16 @@ function createServer() {
 function onCancel() {
 	state.form = deepClone(initialState.form)
 }
+function details(item) {
+	const id = item.id
+	console.log('details', id)
+	console.log(ROUTE_NAMES.DATABASE_DETAILS)
+	router.push({ name: ROUTE_NAMES.DATABASE_DETAILS, params: { id } })
+}
+function checkServer(id) {
+	const routeUrl = router.resolve({ name: ROUTE_NAMES.SERVER_DETAILS, params: { id } }).href
+	window.open(routeUrl, '_blank')
+}
 </script>
 
 <template>
@@ -127,7 +137,7 @@ function onCancel() {
 		<ItDatabaseHead ref="head" :query="query" :labels="labels"
 		:server_options="getServerOptions(true)"
 		@submit="fetchData" @create="onCreate"
-		@create-server="createServer"
+		@create-server="createServer" @check-server="checkServer"
 		/>
 		<v-row dense>
 			<v-col cols="12">

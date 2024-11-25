@@ -28,6 +28,7 @@ import it_hosts from './modules/it/hosts.module'
 import it_servers from './modules/it/servers.module'
 import it_credentialInfoes from './modules/it/credentialInfoes.module'
 import it_databases from './modules/it/databases.module'
+import it_dbBackupPlans from './modules/it/dbBackupPlans.module'
 import it_systemApps from './modules/it/systemApps.module'
 
 const store = createStore({
@@ -56,6 +57,7 @@ const store = createStore({
       it_servers,
       it_credentialInfoes,
       it_databases,
+      it_dbBackupPlans,
       it_systemApps
    }
 })

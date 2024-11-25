@@ -15,6 +15,10 @@ export const ENTITY_TYPES = {
       name: 'database',
       title: '資料庫'
    },
+   DBBACKUPPLAN: {
+      name: 'dbBackUpPlan',
+      title: '備份計畫'
+   },
    SYSTEM_APP: {
       name: 'systemApp',
       title: '系統應用'

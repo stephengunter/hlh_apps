@@ -3,7 +3,7 @@ import { isEmptyObject, getValue, showPassword } from '@/utils'
 import { ENTITY_TYPES } from '@/consts'
 
 
-const name = 'ITDatabaseTable'
+const name = 'ITCredentialInfoTable'
 const props = defineProps({
 	list: {
       type: Array,
@@ -14,16 +14,13 @@ const props = defineProps({
       default: null
    }
 })
-const emit = defineEmits(['edit', 'select'])
+const emit = defineEmits(['edit', 'edit-pw'])
 function edit(id) {
 	emit('edit', id)
 }
 function getLabel(key) {
 	if(isEmptyObject(props.labels)) return ''
    return getValue(props.labels, key)
-}
-function select(item) {
-   emit('select', item)
 }
 function showPw(id) {
 	showPassword({ type: ENTITY_TYPES.CREDENTIALINFO.name, id })
@@ -38,15 +35,12 @@ function editPw(id) {
 	<v-table>
 		<thead>
 			<tr>
-            <th style="width: 15%;" v-text="getLabel('name')">
+				<th style="width: 30%;" v-text="getLabel('username')">
 				</th>
-            <th style="width: 15%;" v-text="getLabel('server')">			
+				<th style="width: 30%;" v-text="getLabel('password')">					
 				</th>
-				<th style="width: 15%;" v-text="getLabel('title')">
+				<th style="width: 30%;" v-text="getLabel('ps')">			
 				</th>
-				<th style="width: 15%;" v-text="getLabel('ps')">					
-				</th>
-				
 				<th style="width: 10%;">
 					
 				</th>
@@ -54,12 +48,23 @@ function editPw(id) {
 		</thead>
 		<tbody>
 			<tr v-for="item in list" :key="item.id">
+				<td>{{ item.username }}</td>
 				<td>
-               <a @click.prevent="select(item)" href="#" v-text="item.id"></a>
-            </td>
-				<td>{{ item.server.name }}</td>
-				<td>{{ item.title }}</td>
+					<CommonButtonDefault size="x-small" color="warning"
+					tooltip="查看密碼" icon="mdi-eye"
+					@click="showPw(item.id)"
+					/>
+					<CommonButtonEdit class_name="ml-1" size="x-small" color="success"
+					tooltip="修改密碼" 
+					@edit="editPw(item.id)"					
+					/>
+				</td>
 				<td>{{ item.ps }}</td>
+				<td>
+					<CommonButtonEdit size="x-small" 
+					@edit="edit(item.id)"
+					/>
+				</td>
 			</tr>
 		</tbody>
   </v-table>

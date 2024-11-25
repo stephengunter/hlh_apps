@@ -17,11 +17,13 @@ export const ROUTE_NAMES = {
    NOT_FOUND: '404',
    CLOSE: 'close',
 
+   //IT
    HOSTS: 'hosts',
    HOST_DETAILS: 'host-details',
    SERVERS: 'servers',
    SERVER_DETAILS: 'server-details',
    DATABASES: 'databases',
+   DATABASE_DETAILS: 'database-details',
    SYSTEM_APPS: 'systemApps',
 
    KEYIN: 'keyin',

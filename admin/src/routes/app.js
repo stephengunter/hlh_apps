@@ -193,8 +193,6 @@ new Page({
    menus: [],
    parent: ROUTE_NAMES.HOST
 }),
-
-//Groups IT/Servers
 new Page({
    name: pluralization(SERVER.name),
    path: `/it/${pluralization(SERVER.name)}`,
@@ -212,6 +210,16 @@ new Page({
    title: `${SERVER.title}管理`,
    menus: [],
    parent: ROUTE_NAMES.SERVER
+}),
+//Groups IT/Databases
+new Page({
+   name: ROUTE_NAMES.DATABASE_DETAILS,
+   path: `/it/${pluralization(DATABASE.name)}/:id`,
+   view: `it/${pluralization(DATABASE.name)}/Details`,
+   icon: '', 
+   title: `${DATABASE.title}管理`,
+   menus: [],
+   parent: ROUTE_NAMES.DATABASE
 }),
 ]
 const guestLinks = [

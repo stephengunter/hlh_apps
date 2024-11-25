@@ -30,6 +30,7 @@ export const SET_IT_CREDENTIALINFO_LABLES = 'setITCredentialInfoLables'
 //IT/Databases
 export const SET_IT_DATABASES_INDEX_MODEL = 'setITDatabasesIndexModel'
 export const SET_IT_DATABASES = 'setITDatabases'
+export const SET_IT_DBBACKUPPLANS_LABELS = 'setITDbBackupPlanLabels'
 //IT/SystemApps
 export const SET_IT_SYSTEM_APPS_INDEX_MODEL = 'setITSystemAppsIndexModel'
 export const SET_IT_SYSTEM_APPS = 'setITSystemApps'

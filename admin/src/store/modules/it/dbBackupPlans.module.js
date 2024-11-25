@@ -1,21 +1,17 @@
-import Service from '@/services/it/databases.service'
+import Service from '@/services/it/dbBackupPlans.service'
 import { resolveErrorData, deepClone } from '@/utils'
 
 import {
-   INIT_IT_DATABASES, FETCH_IT_DATABASES, CREATE_IT_DATABASE, STORE_IT_DATABASE, IT_DATABASE_DETAILS,
-   EDIT_IT_DATABASE, UPDATE_IT_DATABASE, REMOVE_IT_DATABASE
+   INIT_IT_DBBACKUPPLANS, FETCH_IT_DBBACKUPPLANS, CREATE_IT_DBBACKUPPLAN, STORE_IT_DBBACKUPPLAN, IT_DBBACKUPPLAN_DETAILS,
+   EDIT_IT_DBBACKUPPLAN, UPDATE_IT_DBBACKUPPLAN, REMOVE_IT_DBBACKUPPLAN
 } from '@/store/actions.type'
 
-import { SET_IT_DATABASES_INDEX_MODEL, SET_IT_DBBACKUPPLANS_LABELS, SET_IT_DATABASES, SET_LOADING } from '@/store/mutations.type'
+import { SET_IT_DBBACKUPPLANS_LABELS, SET_LOADING } from '@/store/mutations.type'
 
 
 const initialState = {
-   query: {
-   },
-   servers: [],
    labels: {
-   },
-   list: []
+   }
 }
 
 const state = deepClone(initialState)
@@ -26,32 +22,18 @@ const getters = {
 
 
 const actions = {
-   [INIT_IT_DATABASES](context) {
-      context.commit(SET_LOADING, true)
-      return new Promise((resolve, reject) => {
-         Service.init()
-            .then(model => {
-               context.commit(SET_IT_DBBACKUPPLANS_LABELS, model.backupPlanLabels)
-               context.commit(SET_IT_DATABASES_INDEX_MODEL, model)
-               resolve()
-            })
-            .catch(error => reject(error))
-            .finally(() => context.commit(SET_LOADING, false))
-      })
-   },
-   [FETCH_IT_DATABASES](context, query) {
+   [FETCH_IT_DBBACKUPPLANS](context, query) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.fetch(query)
-            .then(model => {
-               context.commit(SET_IT_DATABASES, model)
-               resolve()
+            .then(list => {
+               resolve(list)
             })
             .catch(error => reject(error))
             .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [CREATE_IT_DATABASE](context) {
+   [CREATE_IT_DBBACKUPPLAN](context) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.create()
@@ -60,7 +42,7 @@ const actions = {
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [STORE_IT_DATABASE](context, model) {
+   [STORE_IT_DBBACKUPPLAN](context, model) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.store(model)
@@ -69,7 +51,7 @@ const actions = {
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [IT_DATABASE_DETAILS](context, id) {
+   [IT_DBBACKUPPLAN_DETAILS](context, id) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.details(id)
@@ -78,7 +60,7 @@ const actions = {
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [EDIT_IT_DATABASE](context, id) {
+   [EDIT_IT_DBBACKUPPLAN](context, id) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.edit(id)
@@ -90,7 +72,7 @@ const actions = {
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [UPDATE_IT_DATABASE](context, { id, model }) {
+   [UPDATE_IT_DBBACKUPPLAN](context, { id, model }) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.update({ id, model })
@@ -99,7 +81,7 @@ const actions = {
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [REMOVE_IT_DATABASE](context, id) {
+   [REMOVE_IT_DBBACKUPPLAN](context, id) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.remove(id)
@@ -112,13 +94,8 @@ const actions = {
 
 
 const mutations = {
-   [SET_IT_DATABASES_INDEX_MODEL](state, model) {
-      state.query = model.request
-      state.labels = model.labels
-      state.servers = model.servers
-   },
-   [SET_IT_DATABASES](state, list) {
-      state.list = list
+   [SET_IT_DBBACKUPPLANS_LABELS](state, labels) {
+      state.labels = labels
    }
 }
 

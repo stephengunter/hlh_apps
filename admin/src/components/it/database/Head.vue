@@ -9,7 +9,7 @@ import { isEmptyObject, deepClone , copyFromQuery, areObjectsEqual, reviewedOpti
 } from '@/utils'
 
 const name = 'ITDatabaseHead'
-const emit = defineEmits(['submit', 'create'])
+const emit = defineEmits(['submit', 'create', 'create-server', 'check-server'])
 defineExpose({
    init, setQuery, getQuery
 })
@@ -60,7 +60,8 @@ function init() {
 	}
 	
 	state.query = { ...route.query }
-	state.query.serverId = tryParseInt(state.query.serverId)
+   
+   if(state.query.serverId) state.query.serverId = tryParseInt(state.query.serverId)
    emit('submit', state.query)
 }
 function setQuery(model) {
@@ -87,7 +88,9 @@ function createDb() {
 function createServer() {
    emit('create-server')
 }
-
+function checkServer() {
+   emit('check-server', state.query.serverId)
+}
 </script>
 
 
@@ -99,12 +102,19 @@ function createServer() {
 				:items="server_options" v-model="state.query.serverId"
 				@update:modelValue="onQueryChanged"
 				/>
+            
          </v-col>
-         <v-col cols="3">
+         <v-col cols="1">
+            <CommonButtonDefault v-if="server_selected"
+            class_name="float-left" icon="mdi-link"
+				tooltip="查看Server資訊"
+				@click="checkServer"
+				/>
+         </v-col>
+         <v-col cols="2">
 
          </v-col>
          <v-col cols="3">
-
          </v-col>
          <v-col cols="3">
             <CommonButtonCreate v-if="server_selected" class_name="float-right" 

@@ -2,7 +2,7 @@
 import { ref, reactive, computed, watch, onBeforeMount, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { INIT_IT_SERVERS, IT_SERVER_DETAILS, PAGE_NOT_FOUND, FETCH_ROLES, EDIT_IT_SERVER, UPDATE_IT_SERVER	
+import { INIT_IT_DATABASES, IT_DATABASE_DETAILS, PAGE_NOT_FOUND, FETCH_ROLES, EDIT_IT_DATABASE, UPDATE_IT_DATABASE	
 } from '@/store/actions.type'
 
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
@@ -12,16 +12,16 @@ import { deepClone , is404, is400, isEmptyObject, showConfirm, hideConfirm, getV
 import { WIDTH, ENTITY_TYPES, ROUTE_NAMES, ACTION_TITLES, CREATE, EDIT, ERRORS } from '@/consts'
 
 
-const name = 'ServerDetailsView'
+const name = 'DatabaseDetailsView'
 const store = useStore()
 const route = useRoute()
 const router = useRouter()
 
-const SERVER = ENTITY_TYPES.SERVER
-const CREDENTIALINFO = ENTITY_TYPES.CREDENTIALINFO
+const DATABASE = ENTITY_TYPES.DATABASE
+const DBBACKUPPLAN = ENTITY_TYPES.DBBACKUPPLAN
 
 const initialState = {
-	server: {},
+	database: {},
 	form: {
 		active: false,
 		model: {},
@@ -31,26 +31,24 @@ const initialState = {
 		can_remove: false
 	},
 	tab: {
-		value: CREDENTIALINFO.name,
+		value: DBBACKUPPLAN.name,
 		items: [{
-			value: CREDENTIALINFO.name, title: CREDENTIALINFO.title
+			value: DBBACKUPPLAN.name, title: DBBACKUPPLAN.title
 		}]
 	} 
 }
 
 const state = reactive(deepClone(initialState))
 const lastPage = computed(() => store.getters.lastPage)
-const labels = computed(() => store.state.it_servers.labels)
-const credentialInfo_labels = computed(() => store.state.it_credentialInfoes.labels)
-const types = computed(() => store.state.it_servers.types)
-const hosts = computed(() => store.state.it_servers.hosts)
-const providers = computed(() => store.state.it_servers.providers)
-const type_options = computed(() => {
-	if(types.value && types.value.length) {
+const labels = computed(() => store.state.it_databases.labels)
+const backupPlans_labels = computed(() => store.state.it_dbBackupPlans.labels)
+const servers = computed(() => store.state.it_databases.servers)
+const server_options = computed(() => {
+	if(servers.value && servers.value.length) {
 		let options = []
-		types.value.forEach(item => {
+		servers.value.forEach(item => {
 			options.push({
-				value: item, title: `${item} Server`
+				value: item.id, title: `${item.name}`
 			})
 		})
 		return options
@@ -61,7 +59,7 @@ const type_options = computed(() => {
 onBeforeMount(() => {
 	if(!isEmptyObject(labels.value)) init()
 	else {
-		store.dispatch(INIT_IT_SERVERS)
+		store.dispatch(INIT_IT_DATABASES)
 		.then(() => {
 			nextTick(init)
 		})
@@ -71,14 +69,15 @@ onBeforeMount(() => {
 watch(route, init)
 
 function init() {
+	console.log(route.params)
 	if(route.params.id) fetchData(route.params.id)
 	else store.dispatch(PAGE_NOT_FOUND, { router })
 }
 function fetchData(id) {
 	store.commit(CLEAR_ERRORS)
-	store.dispatch(IT_SERVER_DETAILS, id)
-	.then(server => {
-		state.server = deepClone(server)
+	store.dispatch(IT_DATABASE_DETAILS, id)
+	.then(database => {
+		state.database = deepClone(database)
 	})
 	.catch(error => {
 		if(is404(error)) store.dispatch(PAGE_NOT_FOUND, { router })
@@ -86,7 +85,7 @@ function fetchData(id) {
 	})
 }
 function getEntityId() {
-	if(state.server) return state.server.id
+	if(state.database) return state.database.id
 	return 0
 }
 function getLabel(key) {
@@ -98,12 +97,12 @@ function sortTabs(val) {
 }
 function edit() {
 	store.commit(CLEAR_ERRORS)
-	store.dispatch(EDIT_IT_SERVER, getEntityId())
+	store.dispatch(EDIT_IT_DATABASE, getEntityId())
 	.then(model => {
 		state.form.model = deepClone(model)
-		state.form.type = SERVER.name
-		state.form.action = UPDATE_IT_SERVER
-		state.form.title = `編輯${SERVER.title}資料`
+		state.form.type = DATABASE.name
+		state.form.action = UPDATE_IT_DATABASE
+		state.form.title = `編輯${DATABASE.title}資料`
 		state.form.active = true
 	})
 	.catch(error => onErrors(error))
@@ -113,12 +112,12 @@ function onCancel() {
 }
 function onSubmit(form) {
 	setValues(form, state.form.model)
-	if(state.form.type === SERVER.name) updateServer()
+	if(state.form.type === DATABASE.name) updateDatabase()
 }
-function updateServer() {
+function updateDatabase() {
 	const id = getEntityId()
 	const model = state.form.model
-	store.dispatch(UPDATE_IT_SERVER, { id, model })
+	store.dispatch(UPDATE_IT_DATABASE, { id, model })
 	.then(() => {
 		fetchData(getEntityId())
 		onCancel()
@@ -135,56 +134,59 @@ function handelSubmitError(error) {
 	else onErrors(error)
 }
 function backToIndex() {
-	if(lastPage.value && lastPage.value.name === ROUTE_NAMES.SERVERS) {
+	if(lastPage.value && lastPage.value.name === ROUTE_NAMES.DATABASES) {
 		router.back()
 	}
-	else router.push({ name: ROUTE_NAMES.SERVERS })
+	else router.push({ name: ROUTE_NAMES.DATABASES })
 }
 </script>
 
 <template>
 	<div>
-		<div v-if="!isEmptyObject(state.server)">
-			<v-card>
-				<CommonCardTitle :id="getEntityId()" :title="SERVER.title"
-				:tooltip="`編輯${SERVER.title}資料`" :can_cancel="false"
-				@edit="edit" 
-				>
-					<CommonButtonBack class_name="float-right ml-3"
-					@back="backToIndex"
-					/>
-				</CommonCardTitle>
-				<v-card-text>
-					<ItServerView :model="state.server" :labels="labels"
-					/>
-				</v-card-text>
-			</v-card>
-			
-			<v-card class="mt-3">
-				<v-tabs v-model="state.tab.value" color="info" @update:modelValue="sortTabs">
-					<v-tab v-for="item in state.tab.items" :key="item.value"  class="text-h6" :value="item.value">
-						{{  item.title  }}
-					</v-tab>
-				</v-tabs>
-				<v-window v-model="state.tab.value">
-					<v-window-item :value="CREDENTIALINFO.name">
-						<ItCredentialInfoView :entity_type="SERVER.name" :max_width="WIDTH.M"
-						:entity_id="getEntityId()" :labels="credentialInfo_labels"
+		<v-row dense v-if="!isEmptyObject(state.database)">
+			<v-col cols="4">
+				<v-card>
+					<CommonCardTitle :id="getEntityId()" :title="DATABASE.title"
+					:tooltip="`編輯${DATABASE.title}資料`" :can_cancel="false"
+					@edit="edit" 
+					>
+						<CommonButtonBack class_name="float-right ml-3"
+						@back="backToIndex"
 						/>
-					</v-window-item>
-				</v-window>
-			</v-card>
-		</div>
+					</CommonCardTitle>
+					<v-card-text>
+						<ItDatabaseView :model="state.database" :labels="labels"
+						/>
+					</v-card-text>
+				</v-card>
+			</v-col>
+			<v-col cols="8">
+				<v-card>
+					<v-tabs v-model="state.tab.value" color="info" @update:modelValue="sortTabs">
+						<v-tab v-for="item in state.tab.items" :key="item.value"  class="text-h6" :value="item.value">
+							{{  item.title  }}
+						</v-tab>
+					</v-tabs>
+					<v-window v-model="state.tab.value">
+						<v-window-item :value="DBBACKUPPLAN.name">
+							<ItDbBackupPlanView :database="state.database" :max_width="WIDTH.L"
+							:labels="backupPlans_labels"
+							/>
+						</v-window-item>
+					</v-window>
+				</v-card>
+			</v-col>
+		</v-row dense>
 		<v-dialog persistent v-model="state.form.active" :width="WIDTH.M + 50">
 			<v-card v-if="state.form.active" :max-width="WIDTH.M">
 				<CommonCardTitle :title="state.form.title" 
 				@cancel="onCancel"
 				/>
 				<v-card-text>
-					<ItServerForm v-if="state.form.type === SERVER.name"
+					<ItDatabaseForm v-if="state.form.type === DATABASE.name"
 					:id="getEntityId()"
-					:model="state.form.model" :providers="providers"
-					:labels="labels" :type_options="type_options" :hosts="hosts"
+					:model="state.form.model"
+					:labels="labels" :server_options="server_options"
 					@submit="onSubmit"
 					/>
 				</v-card-text>
