@@ -5,10 +5,14 @@ import { useVuelidate } from '@vuelidate/core'
 import { required, alphaNum, ipAddress, helpers } from '@vuelidate/validators'
 import { CLEAR_ERRORS } from '@/store/mutations.type'
 import { VALIDATE_MESSAGES, WIDTH, HEIGHT, ACTION_TITLES, ENTITY_TYPES } from '@/consts'
-import { setValues, getValue, statusText, deepClone, isEmptyObject } from '@/utils'
+import { setValues, getValue, deepClone, isEnableText, isEmptyObject, isAlphaNumeric } from '@/utils'
 
 const name = 'ITHostForm'
 const props = defineProps({
+	id: {
+		type: Number,
+		default: 0
+	},
    model: {
 		type: Object,
 		default: null
@@ -27,6 +31,7 @@ const initialState = {
 		ip: '',
 		title: '',
 		key: '',
+		active: false,
 		ps: ''
 
    },
@@ -46,7 +51,7 @@ const rules = computed(() => {
 		},
 		key: {
 			required: helpers.withMessage(VALIDATE_MESSAGES.REQUIRED(getLabel('key')), required),
-			alphaNum: helpers.withMessage(VALIDATE_MESSAGES.ALPHA_NUM(getLabel('key')), alphaNum)
+			alphaNum: helpers.withMessage(VALIDATE_MESSAGES.ALPHA_NUM(getLabel('key')), isAlphaNumeric)
 		}
 	}
 })
@@ -55,11 +60,10 @@ const v$ = useVuelidate(rules, state.form)
 
 
 const canRemove = computed(() => {
-	if(!props.model.id) return false
-	if(props.model.active) return false
-	return true
+	if(!props.id) return false
+	return props.model.canRemove
 })
-const status_text = computed(() => statusText(state.form.active))
+const status_text = computed(() => isEnableText(state.form.active))
 
 onBeforeMount(init)
 
@@ -69,6 +73,9 @@ function init() {
 function getLabel(key) {
 	if(isEmptyObject(props.labels)) return ''
    return getValue(props.labels, key)
+}
+function isAlphaNum(val) {
+	return alphaNum(val)
 }
 function onSubmit() {
 	v$.value.$validate().then(valid => {
@@ -86,22 +93,16 @@ function onInputChanged(){
 
 <template>
 	<form @submit.prevent="onSubmit" @input="onInputChanged">
-		<v-row>
-			<v-col cols="6">
+		<v-row dense>
+			<v-col cols="4">
 				<v-text-field :label="labels['title']"           
 				v-model="state.form.title"
 				:error-messages="v$.title.$errors.map(e => e.$message)"                     
 				@input="v$.title.$touch"
 				@blur="v$.title.$touch"
 				/>
-				<v-text-field :label="labels['ip']"           
-				v-model="state.form.ip"
-				:error-messages="v$.ip.$errors.map(e => e.$message)"                     
-				@input="v$.ip.$touch"
-				@blur="v$.ip.$touch"
-				/>
 			</v-col>
-			<v-col cols="6">
+			<v-col cols="4">
 				<v-text-field :label="labels['key']"           
 				v-model="state.form.key"
 				:error-messages="v$.key.$errors.map(e => e.$message)"                     
@@ -109,6 +110,30 @@ function onInputChanged(){
 				@blur="v$.key.$touch"
 				/>
 			</v-col>
+			<v-col cols="4">
+				<v-text-field :label="labels['ip']"           
+				v-model="state.form.ip"
+				:error-messages="v$.ip.$errors.map(e => e.$message)"                     
+				@input="v$.ip.$touch"
+				@blur="v$.ip.$touch"
+				/>
+			</v-col>
+		</v-row>
+		<v-row dense>
+			<v-col cols="4">
+				<v-switch
+				v-model="state.form.active"
+				color="success" :label="status_text"
+				/>				
+			</v-col>
+			<v-col cols="4">
+				
+			</v-col>
+			<v-col cols="4">
+			</v-col>
+			
+		</v-row>
+		<v-row dense>
 			<v-col cols="12">
 				<v-textarea auto-grow :label="labels['ps']"  
 				v-model="state.form.ps"	

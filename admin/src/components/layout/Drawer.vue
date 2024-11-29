@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, computed } from 'vue'
+import { reactive, computed, watch, onBeforeMount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { SET_DRAWER } from '@/store/mutations.type'
@@ -11,10 +11,12 @@ const store = useStore()
 const router = useRouter()
 
 const initialState = {
-   open: []
+   open: [],
+   version: 0
 }
 const state = reactive(deepClone(initialState))
 
+const current = computed(() => store.state.app.route.to)
 const menus = computed(() => store.state.app.menus)
 
 const drawer = computed({
@@ -26,8 +28,14 @@ const drawer = computed({
 	}
 })
 
-const current = computed(() => store.state.app.route.to)
+watch(() => menus.value, init ,{
+   deep: true
+})
 
+function init() {
+   state.version += 1
+   console.log('init menus', state.version)
+}
 function onSelected(item) {
    router.push({ path: item.path })
 }  
@@ -54,7 +62,7 @@ function onSelected(item) {
       <v-divider class="mb-2" />
       <v-list density="compact">
          <MenuDrawer  v-for="item in menus" :key="item.name" 
-         :item="item" :current="current"
+         :item="item" :current="current" :version="state.version"
          @select="onSelected"
          />
       </v-list>

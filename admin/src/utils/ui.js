@@ -35,3 +35,5 @@ export const yearOptions = (begin, end) => {
 }
 
 export const statusText = (active) => active ? '上架中' : '已下架'
+
+export const isEnableText = (active) => active ? '啟用' : '停用'

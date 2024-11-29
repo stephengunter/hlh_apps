@@ -2,7 +2,7 @@
 import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { ROUTE_NAMES, ENTITY_TYPES, WIDTH, ACTION_TYPES } from '@/consts'
+import { ROUTE_NAMES, ENTITY_TYPES, WIDTH, ACTION_TYPES, SERVER_TYPES } from '@/consts'
 import { INIT_IT_SERVERS, FETCH_IT_SERVERS, CREATE_IT_SERVER, STORE_IT_SERVER } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { isEmptyObject, deepClone , downloadFile,
@@ -24,27 +24,15 @@ const initialState = {
 		},
 		action: '',
 		width: WIDTH.L
-	},
+	}
 }
 const state = reactive(deepClone(initialState))
 const query = computed(() => store.state.it_servers.query)
 const labels = computed(() => store.state.it_servers.labels)
-const types = computed(() => store.state.it_servers.types)
 const hosts = computed(() => store.state.it_servers.hosts)
 const providers = computed(() => store.state.it_servers.providers)
+const type_options = computed(() => store.state.it_servers.type_options)
 const list = computed(() => store.state.it_servers.list)
-const type_options = computed(() => {
-	if(types.value && types.value.length) {
-		let options = []
-		types.value.forEach(item => {
-			options.push({
-				value: item, title: `${item} Server`
-			})
-		})
-		return options
-	}
-	return []
-})
 
 const head = ref(null)
 

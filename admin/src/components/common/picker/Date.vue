@@ -1,7 +1,6 @@
 <script setup>
 import { reactive, computed, onBeforeMount, watch } from 'vue'
 import { deepClone, dateToText, textToDate, isValidDate } from '@/utils'
-import { STORE_DEPARTMENT } from '@/store/actions.type';
 
 const name = 'CommonPickerDate'
 const props = defineProps({
@@ -16,9 +15,21 @@ const props = defineProps({
    error_message: {
       type: String,
 		default: ''
+	},
+   lower_limit: {
+      type: Date,
+		default: () => null
+	},
+	upper_limit: {
+      type: Date,
+		default: () => null
+	},
+   clearable: {
+      type: Boolean,
+		default: true
 	}
 })
-const emit = defineEmits(['selected'])
+const emit = defineEmits(['ready', 'selected'])
 
 const initialState = {
    active: false,
@@ -27,6 +38,14 @@ const initialState = {
       text: ''
    }
 }
+const min  = computed(() => {
+   if(props.lower_limit) return dateToText(props.lower_limit)
+   return ''
+})
+const max  = computed(() => {
+   if(props.upper_limit) return dateToText(props.upper_limit)
+   return ''
+})
 const state = reactive(deepClone(initialState))
 const errorMessages = computed(() => props.error_message ? [props.error_message] : [])
 
@@ -39,10 +58,12 @@ function init() {
    const date = textToDate(props.value)
    if(isValidDate(date)) {
       state.date.model = date
+      state.date.text = props.value
    }else {
       state.date.model = null
       state.date.text = ''
    }
+   emit('ready', state.date)
 }
 
 function onSelected(val) {
@@ -59,7 +80,8 @@ function onSelected(val) {
 <template>
 	<v-menu :close-on-content-click="false" v-model="state.active">
       <template v-slot:activator="{ props }">
-         <v-text-field :label="label" readonly v-bind="props" clearable
+         <v-text-field :label="label" readonly v-bind="props" :clearable="clearable"
+         density="compact" variant="outlined"
          :model-value="state.date.text"
          :error-messages="errorMessages"
          @click:clear="onSelected(null)"
@@ -67,6 +89,7 @@ function onSelected(val) {
       </template>
       <v-locale-provider locale="zhTW">
          <v-date-picker  color="primary" :hide-header="true" header="" v-model="state.date.model"
+         :min="min"  :max="max"
          @update:modelValue="onSelected"
          />
       </v-locale-provider>

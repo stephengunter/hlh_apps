@@ -4,8 +4,9 @@ import { useStore } from 'vuex'
 import { useVuelidate } from '@vuelidate/core'
 import { required, alphaNum, ipAddress, helpers } from '@vuelidate/validators'
 import { CLEAR_ERRORS } from '@/store/mutations.type'
-import { VALIDATE_MESSAGES, WIDTH, HEIGHT, ACTION_TITLES, ENTITY_TYPES } from '@/consts'
-import { setValues, getValue, statusText, deepClone, isEmptyObject } from '@/utils'
+import { VALIDATE_MESSAGES, WIDTH, HEIGHT, ACTION_TITLES, ENTITY_TYPES, SERVER_TYPES } from '@/consts'
+import { setValues, getValue, isAlphaNumeric, deepClone, isEmptyObject } from '@/utils'
+import TypeSelector from './TypeSelector.vue'
 
 const name = 'ITServerForm'
 const props = defineProps({
@@ -42,10 +43,12 @@ const initialState = {
 		hostId: 0,
 		type: '',
 		provider: '',
+		root: '',
 		title: '',
 		key: '',
 		ps: ''
    },
+   type_selected: null,
 	providers_options: [],
 	host_options: []
 }
@@ -57,6 +60,9 @@ const rules = computed(() => {
 		},
 		hostId: {
 			isValid: helpers.withMessage(VALIDATE_MESSAGES.MUST_SELECT(getLabel('host')), checkHost)
+		},
+		root: {
+			isValid: helpers.withMessage(VALIDATE_MESSAGES.REQUIRED(getLabel('root')), checkRoot)
 		}
 	}
 })
@@ -69,12 +75,15 @@ const canRemove = computed(() => {
 	if(props.model.active) return false
 	return true
 })
+const isFTP = computed(() => state.form.type.toLowerCase() === SERVER_TYPES.FTP.name.toLowerCase())
 
 onBeforeMount(init)
 
 function init() {
 	setValues(props.model, state.form)
-	onTypeChanged(state.form.type)
+
+	state.type_selected = props.type_options.find(x => x.value === props.model.type)   
+	onTypeSelected(state.form.type)
 	let options = props.hosts.map(host => {
 		return {
 			value: host.id,
@@ -90,38 +99,31 @@ function getLabel(key) {
 	if(isEmptyObject(props.labels)) return ''
    return getValue(props.labels, key)
 }
-function onTypeChanged(val) {
-	let providers = []
-	if(val.toLowerCase() === 'web') {
-		providers = getProviders('web')
-	}else if(val.toLowerCase() === 'db') {
-		providers = getProviders('db')
-	}
-	if(providers.length) {
-		if(!providers.includes(state.form.provider)) {
-			console.log('4545', props.id)
-			if(!props.id) state.form.provider = providers[0]
-		}
-		state.providers_options = providers.map(item => ({
-			value: item, title: item
-		}))
-	}else {
-		state.form.provider = ''
-		state.providers_options = []
-	}
-	
-}
-function getProviders(key) {
-	if(isEmptyObject(props.providers)) return []
-   return getValue(props.providers, key)
-}
 function checkHost(val) {
-	console.log('checkHost', val)
 	return val > 0
+}
+function checkRoot(val) {
+	if(state.form.type.toLowerCase() === SERVER_TYPES.FTP.name.toLowerCase()) {
+		if(val) return true
+		return false
+	}
+	return true
+}
+
+function onTypeSelected(val) {
+	state.type_selected = props.type_options.find(x => x.value === val)
+   state.form.type = val
+
+	state.providers_options = props.providers[val.toLowerCase()]
+	if(!state.providers_options.includes(state.form.provider)) {
+		if(props.id) state.form.provider = ''
+		else state.form.provider = state.providers_options[0]
+	}
 }
 
 function onSubmit() {
 	v$.value.$validate().then(valid => {
+		console.log(valid)
 		if(!valid) return
 		emit('submit', state.form)
 	})
@@ -138,10 +140,10 @@ function onInputChanged(){
 	<form @submit.prevent="onSubmit" @input="onInputChanged">
 		<v-row dense>
 			<v-col cols="6">
-				<v-select :label="getLabel('type')"
-				:items="props.type_options" v-model="state.form.type"
-				@update:modelValue="onTypeChanged"
-				/>
+				<TypeSelector :type_options="type_options" :type_selected="state.type_selected"
+            @selected="onTypeSelected"
+            />
+				
 			</v-col>
 			<v-col cols="6">
 				<v-select :label="getLabel('provider')"
@@ -151,16 +153,24 @@ function onInputChanged(){
 			</v-col>
 		</v-row>
 		<v-row dense>
-			<v-col cols="12">
+			<v-col cols="6">
 				<v-select :label="getLabel('host')" 
 				:items="state.host_options" v-model="state.form.hostId"
 				:error-messages="v$.hostId.$errors.map(e => e.$message)" 
 				/>
 			</v-col>
+			<v-col cols="6">
+				<v-text-field v-if="isFTP" :label="labels['root']"           
+				v-model="state.form.root"
+				:error-messages="v$.root.$errors.map(e => e.$message)"
+				@input="v$.root.$touch"
+				@blur="v$.root.$touch"
+				/>
+			</v-col>
 		</v-row>
 		<v-row dense>
 			<v-col cols="6">
-				<v-text-field :label="labels['title']"           
+				<v-text-field :label="labels['title']"       
 				v-model="state.form.title"
 				/>
 			</v-col>

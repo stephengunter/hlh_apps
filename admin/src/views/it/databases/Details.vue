@@ -12,6 +12,7 @@ import { deepClone , is404, is400, isEmptyObject, showConfirm, hideConfirm, getV
 import { WIDTH, ENTITY_TYPES, ROUTE_NAMES, ACTION_TITLES, CREATE, EDIT, ERRORS } from '@/consts'
 
 
+
 const name = 'DatabaseDetailsView'
 const store = useStore()
 const route = useRoute()
@@ -29,6 +30,9 @@ const initialState = {
 		type: '',
 		title: '',
 		can_remove: false
+	},
+	backup_plans: {
+		version: 0
 	},
 	tab: {
 		value: DBBACKUPPLAN.name,
@@ -69,7 +73,6 @@ onBeforeMount(() => {
 watch(route, init)
 
 function init() {
-	console.log(route.params)
 	if(route.params.id) fetchData(route.params.id)
 	else store.dispatch(PAGE_NOT_FOUND, { router })
 }
@@ -78,6 +81,7 @@ function fetchData(id) {
 	store.dispatch(IT_DATABASE_DETAILS, id)
 	.then(database => {
 		state.database = deepClone(database)
+		state.backup_plans.version += 1
 	})
 	.catch(error => {
 		if(is404(error)) store.dispatch(PAGE_NOT_FOUND, { router })
@@ -170,7 +174,7 @@ function backToIndex() {
 					<v-window v-model="state.tab.value">
 						<v-window-item :value="DBBACKUPPLAN.name">
 							<ItDbBackupPlanView :database="state.database" :max_width="WIDTH.L"
-							:labels="backupPlans_labels"
+							:labels="backupPlans_labels" :version="state.backup_plans.version"
 							/>
 						</v-window-item>
 					</v-window>

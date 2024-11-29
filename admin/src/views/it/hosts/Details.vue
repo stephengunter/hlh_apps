@@ -2,7 +2,7 @@
 import { ref, reactive, computed, watch, onBeforeMount, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { INIT_IT_HOSTS, IT_HOST_DETAILS, PAGE_NOT_FOUND, FETCH_ROLES, EDIT_IT_HOST, UPDATE_IT_HOST
+import { INIT_IT_HOSTS, IT_HOST_DETAILS, PAGE_NOT_FOUND, REMOVE_IT_HOST, EDIT_IT_HOST, UPDATE_IT_HOST
 } from '@/store/actions.type'
 
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
@@ -23,6 +23,7 @@ const CREDENTIALINFO = ENTITY_TYPES.CREDENTIALINFO
 const initialState = {
 	host: {},
 	form: {
+		id: 0,
 		active: false,
 		model: {},
 		action: '',
@@ -67,6 +68,8 @@ function fetchData(id) {
 		state.host = deepClone(host)
 	})
 	.catch(error => {
+		console.log('error', error)
+		console.log('is404', is404(error))
 		if(is404(error)) store.dispatch(PAGE_NOT_FOUND, { router })
 		else onErrors(error)
 	})
@@ -87,10 +90,12 @@ function edit() {
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(EDIT_IT_HOST, getEntityId())
 	.then(model => {
-		state.form.model = deepClone(model)
+		state.form.id = getEntityId()
+		state.form.model = deepClone(model.form)
 		state.form.type = HOST.name
 		state.form.action = UPDATE_IT_HOST
 		state.form.title = `編輯${HOST.title}資料`
+		state.form.can_remove = model.canRemove
 		state.form.active = true
 	})
 	.catch(error => onErrors(error))
@@ -103,7 +108,9 @@ function onSubmit(form) {
 	if(state.form.type === HOST.name) updateHost()
 }
 function updateHost() {
-	store.dispatch(UPDATE_IT_HOST, state.form.model)
+	const id = state.form.id
+	const model = state.form.model
+	store.dispatch(UPDATE_IT_HOST, { id, model })
 	.then(() => {
 		fetchData(getEntityId())
 		onCancel()
@@ -118,6 +125,27 @@ function handelSubmitError(error) {
 		else onErrors(error)
 	}
 	else onErrors(error)
+}
+function onRemove() {
+	showConfirm({
+		type: ERRORS,
+		title: `確定要刪除${HOST.title}嗎`,
+		on_ok: removeHost,
+		cancel: '取消',
+		on_cancel: hideConfirm
+	})
+}
+function removeHost() {
+	store.dispatch(REMOVE_IT_HOST, getEntityId())
+	.then(() => {
+		hideConfirm()
+		
+		onSuccess(`${HOST.title}已刪除`)
+		onCancel()
+		backToIndex()
+		
+	})
+	.catch(error => handelSubmitError(error))
 }
 function backToIndex() {
 	if(lastPage.value && lastPage.value.name === ROUTE_NAMES.HOSTS) {
@@ -160,15 +188,15 @@ function backToIndex() {
 				</v-window>
 			</v-card>
 		</div>
-		<v-dialog persistent v-model="state.form.active" :width="WIDTH.M + 50">
-			<v-card v-if="state.form.active" :max-width="WIDTH.M">
+		<v-dialog persistent v-model="state.form.active" :width="WIDTH.L + 50">
+			<v-card v-if="state.form.active" :max-width="WIDTH.L">
 				<CommonCardTitle :title="state.form.title" 
 				@cancel="onCancel"
 				/>
 				<v-card-text>
-					<ItHostForm v-if="state.form.type === HOST.name"
+					<ItHostForm v-if="state.form.type === HOST.name" :id="getEntityId()"
 					:model="state.form.model" :labels="labels"
-					@submit="onSubmit" 
+					@submit="onSubmit" @remove="onRemove"
 					/>
 				</v-card-text>
       	</v-card>

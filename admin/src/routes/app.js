@@ -191,7 +191,7 @@ new Page({
    icon: '', 
    title: `${HOST.title}管理`,
    menus: [],
-   parent: ROUTE_NAMES.HOST
+   parent: ROUTE_NAMES.HOSTS
 }),
 new Page({
    name: pluralization(SERVER.name),
@@ -209,7 +209,7 @@ new Page({
    icon: '', 
    title: `${SERVER.title}管理`,
    menus: [],
-   parent: ROUTE_NAMES.SERVER
+   parent: ROUTE_NAMES.SERVERS
 }),
 //Groups IT/Databases
 new Page({
@@ -219,7 +219,7 @@ new Page({
    icon: '', 
    title: `${DATABASE.title}管理`,
    menus: [],
-   parent: ROUTE_NAMES.DATABASE
+   parent: ROUTE_NAMES.DATABASES
 }),
 ]
 const guestLinks = [
@@ -242,6 +242,9 @@ guestLinks.forEach(page => page.setType(ROUTE_TYPES.GUEST_ONLY))
 const appRoutes = applinks.concat(adminlinks).concat(guestLinks)
 
 appRoutes.forEach((page, index) => {
+   // if(page.name === ROUTE_NAMES.HOST_DETAILS) {
+   //    console.log(page.hasParent('hosts'))
+   // }
    page.setSubs(appRoutes.filter(item => item.hasParent(page.name)))
    page.setOrder(index)
 })

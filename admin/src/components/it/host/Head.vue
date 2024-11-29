@@ -4,7 +4,7 @@ import { ref, reactive, computed, watch, onBeforeMount, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import Errors from '@/common/errors'
-import { isEmptyObject, deepClone , copyFromQuery, areObjectsEqual, reviewedOptions,
+import { isEmptyObject, deepClone , copyFromQuery, areObjectsEqual, isTrue,
 	setValues, badRequest, tryParseInt
 } from '@/utils'
 
@@ -24,6 +24,12 @@ const store = useStore()
 const route = useRoute()
 const router = useRouter()
 
+const status_options = [{
+   value: true, title: '啟用中'
+},{
+   value: false, title: '已停用'
+}]
+
 const initialState = {
 	query: {
 	},
@@ -36,9 +42,7 @@ const query_match_route = computed(() => {
 })
 
 watch(route, init)
-// watch(query, (new_value) => {
-// 	setQuery(new_value)
-// })
+
 
 function init() {
    if(isEmptyObject(route.query)) {
@@ -48,8 +52,8 @@ function init() {
 	
 	state.query = { ...route.query }
 	state.query.page = tryParseInt(state.query.page)
-	state.query.pageSize = tryParseInt(state.query.year)
-	state.query.month = tryParseInt(state.query.month)
+	state.query.pageSize = tryParseInt(state.query.pageSize)
+	state.query.active = isTrue(state.query.active)
 
    emit('submit', state.query)
 }
@@ -64,15 +68,8 @@ function setPageOption(option) {
 	if(option.hasOwnProperty('size')) state.query.pageSize = option.size
 	onSubmit()
 }
-function checkQuery() {
-	let errors = new Errors()
-	// const year = state.params.year
-   // if(!checkYear(year)) errors.set('year', [`錯誤的${labels['year']}`])
-
-   // const num = state.params.num
-   // if(!checkNum(num)) errors.set('num', [`錯誤的${labels['num']}`])
-
-	return errors
+function onQueryChanged() {
+   onSubmit()
 }
 function onSubmit() {
 	if(query_match_route.value) emit('submit', state.query)
@@ -89,6 +86,11 @@ function create() {
    <form v-show="!isEmptyObject(state.query)" @submit.prevent="onSubmit">
       <v-row dense>
 			<v-col cols="3">
+            <v-radio-group v-model="state.query.active" inline @update:modelValue="onQueryChanged">
+					<v-radio v-for="(item, index) in status_options" :key="index"
+					:label="item.title" :value="item.value"
+					/>
+				</v-radio-group>
          </v-col>
          <v-col cols="3">
 

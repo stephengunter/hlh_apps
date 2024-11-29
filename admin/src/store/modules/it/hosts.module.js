@@ -87,10 +87,10 @@ const actions = {
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [UPDATE_IT_HOST](context, model) {
+   [UPDATE_IT_HOST](context, { id, model }) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         Service.update(model)
+         Service.update({ id, model })
          .then(() => resolve())
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
@@ -113,6 +113,7 @@ const mutations = {
       state.query = model.request
       state.labels = model.labels
       state.providers = model.providers
+      console.log('state.query', state.query)
    },
    [SET_IT_HOSTS](state, pagedList) {
       state.pagedList = pagedList

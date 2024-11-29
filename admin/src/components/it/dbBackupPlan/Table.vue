@@ -1,9 +1,10 @@
 <script setup>
-import { isEmptyObject, getValue, showPassword } from '@/utils'
-import { ENTITY_TYPES } from '@/consts'
+import { ENTITY_TYPES, DB_BACKUP_TYPES } from '@/consts'
+import { getValue, isEmptyObject, formatTime, isValidTime, isEnableText } from '@/utils'
 
 
-const name = 'ITCredentialInfoTable'
+
+const name = 'ITDbBackupPlanTable'
 const props = defineProps({
 	list: {
       type: Array,
@@ -14,7 +15,7 @@ const props = defineProps({
       default: null
    }
 })
-const emit = defineEmits(['edit', 'edit-pw'])
+const emit = defineEmits(['edit'])
 function edit(id) {
 	emit('edit', id)
 }
@@ -22,11 +23,22 @@ function getLabel(key) {
 	if(isEmptyObject(props.labels)) return ''
    return getValue(props.labels, key)
 }
-function showPw(id) {
-	showPassword({ type: ENTITY_TYPES.CREDENTIALINFO.name, id })
+function getTypeTitle(item) {
+	if(item.type === DB_BACKUP_TYPES.FULL.name) return DB_BACKUP_TYPES.FULL.title
+	else if(item.type === DB_BACKUP_TYPES.DIFF.name) return DB_BACKUP_TYPES.DIFF.title
+	return ''
 }
-function editPw(id) {
-	emit('edit-pw', id)
+
+function getStatusText(val) {
+	return isEnableText(val)
+}
+function getTimeTitle(val) {
+	return formatTime(val)
+}
+function getIntervalTitle(item) {
+	if(item.type === DB_BACKUP_TYPES.FULL.name) return ''
+	else if(item.type === DB_BACKUP_TYPES.DIFF.name) return item.minutesInterval
+	return ''
 }
 
 </script>
@@ -35,11 +47,18 @@ function editPw(id) {
 	<v-table>
 		<thead>
 			<tr>
-				<th style="width: 30%;" v-text="getLabel('username')">
+				<th style="width: 10%;">
+					狀態
 				</th>
-				<th style="width: 30%;" v-text="getLabel('password')">					
+				<th style="width: 15%;" v-text="getLabel('title')">
 				</th>
-				<th style="width: 30%;" v-text="getLabel('ps')">			
+				<th style="width: 15%;" v-text="getLabel('type')">
+				</th>
+				<th style="width: 15%;" v-text="getLabel('startTime')">					
+				</th>
+				<th style="width: 15%;" v-text="getLabel('minutesInterval')">			
+				</th>
+				<th style="width: 15%;" v-text="getLabel('ps')">			
 				</th>
 				<th style="width: 10%;">
 					
@@ -48,17 +67,17 @@ function editPw(id) {
 		</thead>
 		<tbody>
 			<tr v-for="item in list" :key="item.id">
-				<td>{{ item.username }}</td>
 				<td>
-					<CommonButtonDefault size="x-small" color="warning"
-					tooltip="查看密碼" icon="mdi-eye"
-					@click="showPw(item.id)"
-					/>
-					<CommonButtonEdit class_name="ml-1" size="x-small" color="success"
-					tooltip="修改密碼" 
-					@edit="editPw(item.id)"					
-					/>
+					<v-chip size="small" :color="item.active ? 'success' : ''">					
+					{{ getStatusText(item.active) }}
+					</v-chip>
+      		</td>
+				<td>{{ item.title }}</td>
+				<td>{{ getTypeTitle(item) }}</td>
+				<td>
+					{{ getTimeTitle(item.startTime) }}
 				</td>
+				<td>{{ getIntervalTitle(item) }}</td>
 				<td>{{ item.ps }}</td>
 				<td>
 					<CommonButtonEdit size="x-small" 

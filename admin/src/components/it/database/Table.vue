@@ -55,7 +55,7 @@ function editPw(id) {
 		<tbody>
 			<tr v-for="item in list" :key="item.id">
 				<td>
-               <a @click.prevent="select(item)" href="#" v-text="item.id"></a>
+               <a @click.prevent="select(item)" href="#" v-text="item.name"></a>
             </td>
 				<td>{{ item.server.name }}</td>
 				<td>{{ item.title }}</td>

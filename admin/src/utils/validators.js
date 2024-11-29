@@ -19,6 +19,11 @@ export const clearErrors = (errors, keys = []) => {
    })
 	return errors;
 }
+export const isAlphaNumeric = (input) => {
+    // Allow letters, numbers, spaces, dashes (-), and underscores (_)
+    const regex = /^[a-zA-Z0-9\s-_]+$/;
+    return regex.test(input);
+}
 
 export const isValidUserName = (input) => {
    var pattern = /^[a-zA-Z0-9_.@]*$/    

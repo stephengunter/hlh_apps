@@ -1,6 +1,6 @@
 import Service from '@/services/it/servers.service'
 import { resolveErrorData, deepClone } from '@/utils'
-
+import { SERVER_TYPES } from '@/consts'
 import {
    INIT_IT_SERVERS, FETCH_IT_SERVERS, CREATE_IT_SERVER, STORE_IT_SERVER, 
    IT_SERVER_DETAILS, EDIT_IT_SERVER, UPDATE_IT_SERVER, REMOVE_IT_SERVER
@@ -14,10 +14,8 @@ const initialState = {
    },
    hosts: [],
    providers: {
-      db: [],
-      web: []
    },
-   types: [],
+   type_options: [],
    labels: {
    },
    list: []
@@ -124,11 +122,15 @@ const mutations = {
    [SET_IT_SERVERS_INDEX_MODEL](state, model) {
       state.query = model.request
       state.labels = model.labels
-      state.types = model.types
-      state.providers = {
-         db: model.dbProviders.slice(0),
-         web: model.webProviders.slice(0)
+      state.providers = model.providers
+      let options = []
+      for(const [key, obj] of Object.entries(SERVER_TYPES)) {
+         const value = obj.name
+         const title = obj.title
+         const icon = obj.icon
+         options.push({ value, title, icon})
       }
+      state.type_options = options
    },
    [SET_IT_SERVERS](state, list) {
       state.list = list

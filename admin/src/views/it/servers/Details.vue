@@ -9,7 +9,7 @@ import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { deepClone , is404, is400, isEmptyObject, showConfirm, hideConfirm, getValue,
 	resolveErrorData, onErrors, onSuccess, setValues, badRequest, resort, upperFirstLetter
 } from '@/utils'
-import { WIDTH, ENTITY_TYPES, ROUTE_NAMES, ACTION_TITLES, CREATE, EDIT, ERRORS } from '@/consts'
+import { WIDTH, ENTITY_TYPES, ROUTE_NAMES } from '@/consts'
 
 
 const name = 'ServerDetailsView'
@@ -39,24 +39,13 @@ const initialState = {
 }
 
 const state = reactive(deepClone(initialState))
+
 const lastPage = computed(() => store.getters.lastPage)
 const labels = computed(() => store.state.it_servers.labels)
 const credentialInfo_labels = computed(() => store.state.it_credentialInfoes.labels)
-const types = computed(() => store.state.it_servers.types)
 const hosts = computed(() => store.state.it_servers.hosts)
 const providers = computed(() => store.state.it_servers.providers)
-const type_options = computed(() => {
-	if(types.value && types.value.length) {
-		let options = []
-		types.value.forEach(item => {
-			options.push({
-				value: item, title: `${item} Server`
-			})
-		})
-		return options
-	}
-	return []
-})
+const type_options = computed(() => store.state.it_servers.type_options)
 
 onBeforeMount(() => {
 	if(!isEmptyObject(labels.value)) init()
@@ -144,37 +133,41 @@ function backToIndex() {
 
 <template>
 	<div>
-		<div v-if="!isEmptyObject(state.server)">
-			<v-card>
-				<CommonCardTitle :id="getEntityId()" :title="SERVER.title"
-				:tooltip="`編輯${SERVER.title}資料`" :can_cancel="false"
-				@edit="edit" 
-				>
-					<CommonButtonBack class_name="float-right ml-3"
-					@back="backToIndex"
-					/>
-				</CommonCardTitle>
-				<v-card-text>
-					<ItServerView :model="state.server" :labels="labels"
-					/>
-				</v-card-text>
-			</v-card>
-			
-			<v-card class="mt-3">
-				<v-tabs v-model="state.tab.value" color="info" @update:modelValue="sortTabs">
-					<v-tab v-for="item in state.tab.items" :key="item.value"  class="text-h6" :value="item.value">
-						{{  item.title  }}
-					</v-tab>
-				</v-tabs>
-				<v-window v-model="state.tab.value">
-					<v-window-item :value="CREDENTIALINFO.name">
-						<ItCredentialInfoView :entity_type="SERVER.name" :max_width="WIDTH.M"
-						:entity_id="getEntityId()" :labels="credentialInfo_labels"
+		<v-row dense v-if="!isEmptyObject(state.server)">
+			<v-col cols="4">
+				<v-card>
+					<CommonCardTitle :id="getEntityId()" :title="SERVER.title"
+					:tooltip="`編輯${SERVER.title}資料`" :can_cancel="false"
+					@edit="edit" 
+					>
+						<CommonButtonBack class_name="float-right ml-3"
+						@back="backToIndex"
 						/>
-					</v-window-item>
-				</v-window>
-			</v-card>
-		</div>
+					</CommonCardTitle>
+					<v-card-text>
+						<ItServerView :model="state.server" :labels="labels"
+					:type_options="type_options"
+					/>
+					</v-card-text>
+				</v-card>
+			</v-col>
+			<v-col cols="8">
+				<v-card>
+					<v-tabs v-model="state.tab.value" color="info" @update:modelValue="sortTabs">
+						<v-tab v-for="item in state.tab.items" :key="item.value"  class="text-h6" :value="item.value">
+							{{  item.title  }}
+						</v-tab>
+					</v-tabs>
+					<v-window v-model="state.tab.value">
+						<v-window-item :value="CREDENTIALINFO.name">
+							<ItCredentialInfoView :entity_type="SERVER.name" :max_width="WIDTH.M"
+							:entity_id="getEntityId()" :labels="credentialInfo_labels"
+							/>
+						</v-window-item>
+					</v-window>
+				</v-card>
+			</v-col>
+		</v-row dense>
 		<v-dialog persistent v-model="state.form.active" :width="WIDTH.M + 50">
 			<v-card v-if="state.form.active" :max-width="WIDTH.M">
 				<CommonCardTitle :title="state.form.title" 

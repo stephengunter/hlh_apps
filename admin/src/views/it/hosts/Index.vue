@@ -88,7 +88,7 @@ function onCreate() {
 	state.form.title = `${ACTION_TYPES.CREATE.title}${ENTITY_TYPE.title}`,
 	store.dispatch(CREATE_IT_HOST)
 	.then(model => {
-		state.form.model = model
+		state.form.model = deepClone(model.form)
 		state.form.action = STORE_IT_HOST
 		state.form.width = WIDTH.M
 		state.form.active = true

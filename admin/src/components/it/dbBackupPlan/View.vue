@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, computed, onBeforeMount } from 'vue'
+import { reactive, computed, onBeforeMount, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import {
@@ -13,6 +13,7 @@ import { deepClone , is404, is400, isEmptyObject, showConfirm, hideConfirm, getV
 	resolveErrorData, onErrors, onSuccess, setValues, badRequest, resort, upperFirstLetter
 } from '@/utils'
 import { WIDTH, ENTITY_TYPES, ROUTE_NAMES, ACTION_TITLES, CREATE, EDIT, ERRORS } from '@/consts'
+import { version } from 'vuex/dist/vuex.cjs.js'
 
 
 const name = 'ITDbBackupPlanView'
@@ -22,6 +23,10 @@ const props = defineProps({
 	database: {
       type: Object,
       default: null
+   },
+	version: {
+      type: Number,
+      default: 0
    },
 	labels: {
 		type: Object,
@@ -37,6 +42,7 @@ const initialState = {
 	list: [],
 	type_options: [],
 	form: {
+		id: 0,
 		active: false,
 		model: {},
 		action: '',
@@ -46,6 +52,11 @@ const initialState = {
 	}
 }
 const state = reactive(deepClone(initialState))
+watch(() => props.version, () => {
+   init()
+})
+onBeforeMount(init)
+
 const db_options = computed(() => {
 	if(props.database) {
 		let options = []
@@ -56,11 +67,10 @@ const db_options = computed(() => {
 	}
 	return []
 })
-onBeforeMount(() => {
-	if(props.database.list) state.list = props.database.list.slice(0)
-	state.db_options
-})
 
+function init() {
+	if(props.database) fetchData()
+}
 function fetchData() {
 	const query = {
 		dbId: props.database.id
@@ -80,6 +90,7 @@ function add() {
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(CREATE_IT_DBBACKUPPLAN)
 	.then(model => {
+		state.form.id = 0
 		state.type_options = model.typeOptions
 		state.form.model = deepClone(model.form)
 		state.form.model.databaseId = props.database.id
@@ -100,6 +111,7 @@ function edit(id) {
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(EDIT_IT_DBBACKUPPLAN, id)
 	.then(model => {
+		state.form.id = id
 		state.form.model = deepClone(model)
 		state.form.type = DBBACKUPPLAN.name
 		state.form.action = UPDATE_IT_DBBACKUPPLAN
@@ -111,11 +123,23 @@ function edit(id) {
 }
 function onSubmit(form) {
 	setValues(form, state.form.model)
-	save()
+	if(state.form.id) update()
+	else {
+		store.commit(CLEAR_ERRORS)
+		store.dispatch(state.form.action, state.form.model)
+		.then(() => {
+			onSuccess()
+			fetchData()
+			onCancel()
+		})
+		.catch(error => handelSubmitError(error))
+	}
 }
-function save() {
+function update() {
+	const id = state.form.id
+	const model = state.form.model
 	store.commit(CLEAR_ERRORS)
-	store.dispatch(state.form.action, state.form.model)
+	store.dispatch(state.form.action, { id, model })
 	.then(() => {
 		onSuccess()
 		fetchData()
@@ -133,7 +157,7 @@ function confirmRemove() {
 	})
 }
 function remove() {
-	store.dispatch(REMOVE_IT_DBBACKUPPLAN, state.form.model.id)
+	store.dispatch(REMOVE_IT_DBBACKUPPLAN, state.form.id)
 	.then(() => {
 		hideConfirm()
 		fetchData()
@@ -164,7 +188,7 @@ function remove() {
 				@cancel="onCancel"
 				/>
 				<v-card-text>
-					<ItDbBackupPlanForm 
+					<ItDbBackupPlanForm :id="state.form.id"
 					:model="state.form.model" :can_remove="state.form.can_remove"
 					:labels="labels" :type_options="state.type_options" :db_options="db_options"
 					@submit="onSubmit" @remove="confirmRemove"

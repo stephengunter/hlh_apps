@@ -10,13 +10,27 @@ class Page {
          icon, title, menus, parent
       }
       if(alias) this.alias = alias
-   }
 
+      this.active = false
+      this.expand = false
+   }
+   setActive(val) {
+      this.active = val
+   }
+   setExpand(val) {
+      this.expand = val
+   }
    setType(type) {
       this.meta['type'] = type
    }
    setOrder(order) {
       this.meta['order'] = order
+   }
+   hasSubs() {
+      if(this.hasOwnProperty('meta') && this.meta.hasOwnProperty('subs')) {
+         return this.meta.subs.length > 0
+      }
+      return false
    }
    setSubs(subs) {
       this.meta['subs'] = subs

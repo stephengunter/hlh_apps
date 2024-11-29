@@ -32,18 +32,9 @@ const props = defineProps({
 const initialState = {
 	
 }
-
 const state = reactive(deepClone(initialState))
 
-const entity_type = ENTITY_TYPES.DATABASE
-
 const emit = defineEmits(['select'])
-const query = computed(() => store.state.it_databases.query)
-
-watch(query, (new_value) => {
-   // state.checkAll = false
-   // state.checked_ids = []
-})
 
 const headers = [
 {
@@ -109,17 +100,6 @@ function onPageSizeChanged(size) {
       size 
    })
 }
-function checkReviewRecords(id) {
-   // showModifyRecords({
-   //    type:entity_type.name, id: id, 
-   //    action: ACTION_TYPES.REVIEW.name, title: `${ACTION_TYPES.REVIEW.title}紀錄`, width: WIDTH.L
-   // })
-}
-function onCheckAll(val) {
-   // if(val) {
-   //    state.checked_ids = list.value.map(item => item.id)
-   // }else state.checked_ids = []
-}
 
 </script>
 
@@ -136,7 +116,7 @@ function onCheckAll(val) {
          <a href="#" @click.prevent="select(item.id)">{{ item.ip }}</a>
       </template>
 		<template v-slot:bottom="{ item }">
-         <CommonTablePager  :model="model"
+         <CommonTablePager :model="model"
          @page_changed="onPageChanged" @size_changed="onPageSizeChanged"
          />
       </template>

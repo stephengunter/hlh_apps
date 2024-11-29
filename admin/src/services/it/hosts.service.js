@@ -15,7 +15,7 @@ const details = (id) => BaseService.fetch(`${source}/${id}`)
 
 const edit = (id) => BaseService.fetch(`${source}/edit/${id}`)
 
-const update = (model) => BaseService.put(`${source}/${model.id}`, model)
+const update = ({ id, model }) => BaseService.put(`${source}/${id}`, model)
 
 const remove = (id) => BaseService.remove(`${source}/${id}`)
 

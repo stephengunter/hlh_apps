@@ -49,9 +49,13 @@ const actions = {
    [GET_MENUS](context, auth) {
       if(auth) context.commit(SET_MENUS, appRoutes.filter(item => item.isMainMenuItem()).filter(item => item.isRoot()))
       else context.commit(SET_MENUS, [])
+      
+
    },
    [PAGE_NOT_FOUND](context, { router, returnUrl }) {
-      if(!returnUrl) returnUrl = state.route.from.fullPath
+      if(!returnUrl) {
+         if(state.route.from) returnUrl = state.route.from.fullPath
+      } 
       router.push({ name: ROUTE_NAMES.NOT_FOUND, query: { returnUrl } })
    }
 }
@@ -80,6 +84,31 @@ const mutations = {
       state.route.from = deepClone(from)
    },
    [SET_MENUS](state, menus) {
+      const current = state.route.to
+      if(current) {
+         menus.forEach(item => {
+            if(item.name === current.name) {
+               
+               item.setActive(true)
+               item.getSubitems().forEach(sub => {
+                  sub.setActive(false)
+               })
+            }else {
+               item.setActive(false)
+               let subActive = 0
+               if(item.hasSubs()) {
+                  item.getSubitems().forEach(sub => {
+                     if(sub.name === current.name) {
+                        sub.setActive(true)
+                        subActive += 1
+                     }else sub.setActive(false)
+                  })
+               }
+               item.setExpand(subActive > 0)
+            }
+            
+         })
+      }
       state.menus = menus
    }
 }
