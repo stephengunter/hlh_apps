@@ -64,10 +64,7 @@ const actions = {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.edit(id)
-         .then(model => {
-            state.servers = model.servers
-            resolve(model.form)
-         })
+         .then(model => resolve(model))
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })

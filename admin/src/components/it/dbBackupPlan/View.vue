@@ -43,6 +43,7 @@ const initialState = {
 	type_options: [],
 	form: {
 		id: 0,
+		ftp_servers: [],
 		active: false,
 		model: {},
 		action: '',
@@ -56,18 +57,6 @@ watch(() => props.version, () => {
    init()
 })
 onBeforeMount(init)
-
-const db_options = computed(() => {
-	if(props.database) {
-		let options = []
-		options.push({
-			value: props.database.id, title: `${props.database.name}`
-		})
-		return options
-	}
-	return []
-})
-
 function init() {
 	if(props.database) fetchData()
 }
@@ -112,7 +101,8 @@ function edit(id) {
 	store.dispatch(EDIT_IT_DBBACKUPPLAN, id)
 	.then(model => {
 		state.form.id = id
-		state.form.model = deepClone(model)
+		state.form.ftp_servers = model.servers
+		state.form.model = deepClone(model.form)
 		state.form.type = DBBACKUPPLAN.name
 		state.form.action = UPDATE_IT_DBBACKUPPLAN
 		state.form.title = `編輯${DBBACKUPPLAN.title}`
@@ -190,7 +180,8 @@ function remove() {
 				<v-card-text>
 					<ItDbBackupPlanForm :id="state.form.id"
 					:model="state.form.model" :can_remove="state.form.can_remove"
-					:labels="labels" :type_options="state.type_options" :db_options="db_options"
+					:labels="labels" :type_options="state.type_options" :database="database"
+					:ftp_servers="state.form.ftp_servers"
 					@submit="onSubmit" @remove="confirmRemove"
 					/>
 				</v-card-text>

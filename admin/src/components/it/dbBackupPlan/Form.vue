@@ -15,11 +15,15 @@ const props = defineProps({
 		type: Object,
 		default: null
 	},
+	database: {
+		type: Object,
+		default: null
+	},
 	type_options: {
 		type: Array,
       default: () => []
 	},
-	db_options: {
+	ftp_servers: {
 		type: Array,
       default: () => []
 	},
@@ -38,6 +42,8 @@ const store = useStore()
 const initialState = {
    form: {
 		title: '',
+		targetServerId: '',
+		targetPath: '',
 		ps: '',
 		type: '',
 		active: true,
@@ -45,6 +51,7 @@ const initialState = {
 		minutesInterval: 0,
 		databaseId: 0
    },
+	ftp_server_options: [],
 	interval_options: [],
 	startTime: {
 		value: ''
@@ -61,6 +68,16 @@ const rules = computed(() => {
 	}
 	return obj
 })
+const db_options = computed(() => {
+	if(props.database) {
+		let options = []
+		options.push({
+			value: props.database.id, title: `${props.database.name}`
+		})
+		return options
+	}
+	return []
+})
 const ENTITY_TYPE = ENTITY_TYPES.CREDENTIALINFO
 const v$ = useVuelidate(rules, state.form)
 const status_text = computed(() => isEnableText(state.form.active))
@@ -68,6 +85,11 @@ const status_text = computed(() => isEnableText(state.form.active))
 onBeforeMount(init)
 
 function init() {
+	console.log(props.database)
+	state.ftp_server_options = [{ value: null, title: 'localhost' }]
+	props.ftp_servers.forEach(x => {
+		state.ftp_server_options.push({ value: x.id, title: x.name })
+	})
 	setValues(props.model, state.form)
 	state.startTime.value = formatTime(state.form.startTime)
 	for(let i = 30; i <= 300; i += 30) {
@@ -75,6 +97,7 @@ function init() {
 			value: i, title: i
 		})
 	}
+	onTargetServerChanged(state.form.targetServerId)
 }
 function getLabel(key) {
 	if(isEmptyObject(props.labels)) return ''
@@ -94,6 +117,14 @@ function checkStartTime() {
 function onStartTimeSelected(val) {
 	state.startTime.value = val
 	checkStartTime()
+}
+function onTargetServerChanged(val) {
+	const db = props.database
+	if(val) {
+		state.form.targetPath = `/db_backups/${db.server.name}/${db.name}`
+	}else {
+		state.form.targetPath = `d:/db_backups/${db.server.name}/${db.name}`
+	}
 }
 function getErrorMessages(key) {
 	if(state.errors.has(key)) {
@@ -138,7 +169,7 @@ function onInputChanged(){
 		<v-row dense>
 			<v-col cols="6">
 				<v-select :label="getLabel('database')" readonly
-				:items="props.db_options" v-model="state.form.databaseId"
+				:items="db_options" v-model="state.form.databaseId"
 				/>
 			</v-col>
 			<v-col cols="6">
@@ -157,6 +188,18 @@ function onInputChanged(){
 				:items="state.interval_options" v-model="state.form.minutesInterval"
 				:error-messages="getErrorMessages('minutesInterval')"
 				@update:modelValue="checkMinutesInterval"
+				/>
+			</v-col>
+			<v-col cols="6">
+				<v-select :label="getLabel('targetServerId')" 
+				:items="state.ftp_server_options" v-model="state.form.targetServerId"
+				:error-messages="getErrorMessages('minutesInterval')"
+				@update:modelValue="onTargetServerChanged"
+				/>
+			</v-col>
+			<v-col cols="6">
+				<v-text-field :label="getLabel('targetPath')" readonly
+				v-model="state.form.targetPath"	
 				/>
 			</v-col>
 			<v-col cols="6">

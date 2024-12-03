@@ -35,6 +35,12 @@ function getStatusText(val) {
 function getTimeTitle(val) {
 	return formatTime(val)
 }
+function getTargetServer(item) {
+	if(item.targetServerId) {
+		return item.targetServer.name
+	}
+	return 'localhost'
+}
 function getIntervalTitle(item) {
 	if(item.type === DB_BACKUP_TYPES.FULL.name) return ''
 	else if(item.type === DB_BACKUP_TYPES.DIFF.name) return item.minutesInterval
@@ -50,15 +56,15 @@ function getIntervalTitle(item) {
 				<th style="width: 10%;">
 					狀態
 				</th>
-				<th style="width: 15%;" v-text="getLabel('title')">
-				</th>
 				<th style="width: 15%;" v-text="getLabel('type')">
 				</th>
 				<th style="width: 15%;" v-text="getLabel('startTime')">					
 				</th>
 				<th style="width: 15%;" v-text="getLabel('minutesInterval')">			
 				</th>
-				<th style="width: 15%;" v-text="getLabel('ps')">			
+				<th style="width: 15%;" v-text="getLabel('targetServerId')">			
+				</th>
+				<th style="width: 15%;" v-text="getLabel('targetPath')">			
 				</th>
 				<th style="width: 10%;">
 					
@@ -72,13 +78,13 @@ function getIntervalTitle(item) {
 					{{ getStatusText(item.active) }}
 					</v-chip>
       		</td>
-				<td>{{ item.title }}</td>
 				<td>{{ getTypeTitle(item) }}</td>
 				<td>
 					{{ getTimeTitle(item.startTime) }}
 				</td>
 				<td>{{ getIntervalTitle(item) }}</td>
-				<td>{{ item.ps }}</td>
+				<td>{{ getTargetServer(item) }}</td>
+				<td>{{ item.targetPath }}</td>
 				<td>
 					<CommonButtonEdit size="x-small" 
 					@edit="edit(item.id)"
