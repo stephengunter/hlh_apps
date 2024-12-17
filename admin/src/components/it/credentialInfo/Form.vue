@@ -67,7 +67,7 @@ onBeforeMount(init)
 function init() {
 	setValues(props.model, state.form)
 }
-function getLabel(key) {
+function (key) {
 	if(isEmptyObject(props.labels)) return ''
    return getValue(props.labels, key)
 }
@@ -89,7 +89,7 @@ function onInputChanged(){
 	<form @submit.prevent="onSubmit" @input="onInputChanged">
 		<v-row>
 			<v-col cols="6">
-				<v-text-field :label="getLabel('username')"           
+				<v-text-field :label="('username')"           
 				v-model="state.form.username"
 				:error-messages="v$.username.$errors.map(e => e.$message)"                     
 				@input="v$.username.$touch"

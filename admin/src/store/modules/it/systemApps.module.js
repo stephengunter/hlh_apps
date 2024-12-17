@@ -13,7 +13,10 @@ import { SET_IT_SYSTEM_APPS_INDEX_MODEL, SET_IT_SYSTEM_APPS, SET_LOADING } from 
 const initialState = {
    query: {
    },
+   servers: [],
    labels: {
+   },
+   options: {
    },
    pagedList: null
 }
@@ -54,7 +57,10 @@ const actions = {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          SystemAppsService.create()
-         .then(model => resolve(model))
+         .then(model => {
+            state.servers = model.servers
+            resolve(model.form)
+         })
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })
@@ -100,10 +106,10 @@ const actions = {
 
 const mutations = {
    [SET_IT_SYSTEM_APPS_INDEX_MODEL](state, model) {
-      console.log(model)
       state.query = model.request
       state.labels = model.labels
-      console.log(state.labels)
+      state.options.importance = model.importanceOptions
+      state.options.type = model.typeOptions
    },
    [SET_IT_SYSTEM_APPS](state, pagedList) {
       state.pagedList = pagedList

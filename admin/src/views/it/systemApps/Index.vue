@@ -6,7 +6,7 @@ import { ACTION_TYPES, ENTITY_TYPES, WIDTH } from '@/consts'
 import { INIT_IT_SYSTEM_APPS, FETCH_IT_SYSTEM_APPS, CREATE_IT_SYSTEM_APP, STORE_IT_SYSTEM_APP,
 	EDIT_IT_SYSTEM_APP } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
-import { isEmptyObject, deepClone , downloadFile,
+import { isEmptyObject, deepClone , downloadFile, getValue,
 	onErrors, onSuccess, setValues, is400, 
 	resolveErrorData
 } from '@/utils'
@@ -24,18 +24,29 @@ const initialState = {
 		model: {},
 		action: '',
 		actions: [],
-		width: WIDTH.M
+		width: WIDTH.L
 	},
 }
 const state = reactive(deepClone(initialState))
 
 const query = computed(() => store.state.it_systemApps.query)
 const labels = computed(() => store.state.it_systemApps.labels)
+const servers = computed(() => store.state.it_systemApps.servers)
 const pagedList = computed(() => store.state.it_systemApps.pagedList)
+const options = computed(() => store.state.it_systemApps.options)
+
+const server_options = computed(() => {
+	if(servers.value) {
+		return servers.value.map(item => ({
+			value: item.id, title: item.name
+		}))
+	}
+	return []
+})
+
 const head = ref(null)
 
 onMounted(() => {
-	//init()
 	if(!isEmptyObject(labels.value)) init()
 	else {
 		store.dispatch(INIT_IT_SYSTEM_APPS)
@@ -49,20 +60,25 @@ function init() {
 	head.value.init()
 }
 function fetchData(query) {
-	console.log('fetchData', query)
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(FETCH_IT_SYSTEM_APPS, query)
 	.catch(error => onErrors(error))
 }
-function onCreate() {
+function getOptions(key) {
+	if(options.value) {
+		if(isEmptyObject(options.value)) return []
+   	return getValue(options.value, key)
+	}
+	return []
+}
+function onCreate(query) {
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(CREATE_IT_SYSTEM_APP)
 	.then(model => {
-		state.form.title = `${ACTION_TYPES.CREATE.title}${ENTITY_TYPE.title}`,
 		state.form.model = deepClone(model)
-
+		//state.form.model.type = query.type
 		state.form.action = STORE_IT_SYSTEM_APP
-		state.form.width = WIDTH.M
+		state.form.width = WIDTH.L
 		state.form.active = true
 	})
 	.catch(error => onErrors(error))
@@ -87,6 +103,20 @@ function edit(id) {
 	})
 	.catch(error => onErrors(error))
 }
+function onSubmit(form) {
+	setValues(form, state.form.model)
+	store.dispatch(state.form.action, state.form.model)
+	.then(() => {
+		onCancel()
+		onSuccess()
+		fetchData()
+	})
+	.catch(error => {
+		let errors = resolveErrorData(error)
+		if(errors) store.commit(SET_ERRORS, Object.values(errors))
+		else onErrors(error)
+	})
+}
 function onCancel() {
 	state.form = deepClone(initialState.form)
 }
@@ -99,11 +129,11 @@ function onCancel() {
 		/>
 		<v-row dense>
 			<v-col cols="12">
-				<!-- <ItDatabaseTable v-if="!isEmptyObject(pagedList)" 
+				<ItDatabaseTable v-if="!isEmptyObject(pagedList)" 
 				:model="pagedList"
 				@select="edit"
 				@options_changed="onOptionChanged"
-				/> -->
+				/>
 			</v-col>
 		</v-row>
 		<v-dialog persistent v-model="state.form.active" :width="state.form.width + 50">
@@ -111,13 +141,11 @@ function onCancel() {
 				<CommonCardTitle :title="state.form.title"
 				@cancel="onCancel"  
 				/>
-				<v-card-text>
-					<div style="padding-right: 10px;">
-						<ItSystemAppForm 
-						:model="state.form.model" :labels="labels"
-						@submit="onFormSubmit" @remove="remove"
-						/>
-					</div>
+				<v-card-text v-if="state.form.active">
+					<ItSystemAppForm :model="state.form.model" :server_options="server_options"
+					:labels="labels" :type_options="getOptions('type')" :importance_options="getOptions('importance')"
+					@submit="onSubmit"
+					/>
 				</v-card-text>
 			</v-card>
 		</v-dialog>
