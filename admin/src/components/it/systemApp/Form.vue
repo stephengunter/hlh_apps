@@ -40,10 +40,14 @@ const store = useStore()
 
 const initialState = {
    form: {
-		serverId: 0,
+		centralized: false,
+		parentId: null,
+		serverId: null,
 		importance: 0,
+		type: '',
 		title: '',
 		key: '',
+		url: '',
 		ps: ''
    },
 	errors: new Errors()
@@ -65,7 +69,7 @@ const canRemove = computed(() => {
 	if(props.model.active) return false
 	return true
 })
-const status_text = computed(() => statusText(state.form.active))                                
+const status_text = computed(() => statusText(state.form.active))                      
 
 onBeforeMount(init)
 
@@ -78,6 +82,7 @@ function init() {
 			if(props.type_options.length) state.form.type = props.type_options[0].value
 		}
 	}
+	onCentralizedChanged(state.form.centralized)
 }
 function getLabel(key) {
 	if(isEmptyObject(props.labels)) return ''
@@ -86,6 +91,16 @@ function getLabel(key) {
 function onTypeChanged(val) {
 	console.log('onTypeChanged', val)
 }
+function onCentralizedChanged(val) {
+	if(val) {
+		state.form.serverId = null
+	}
+}
+function checkUrl(val) {
+	console.log('checkUrl', val)
+}
+
+
 function onSubmit() {
 	v$.value.$validate().then(valid => {
 		if(!valid) return
@@ -104,7 +119,15 @@ function onInputChanged(){
 <template>
 	<form @submit.prevent="onSubmit" @input="onInputChanged">
 		<v-row dense>
-			<v-col cols="4">
+			<v-col cols="12">
+				{{ state.form }}
+				/>
+			</v-col>
+			<v-col cols="3">
+				<v-text-field :label="labels['parentId']" 
+				/>
+			</v-col>
+			<v-col cols="3">
 				<v-text-field :label="labels['title']"           
 				v-model="state.form.title"
 				:error-messages="v$.title.$errors.map(e => e.$message)"
@@ -112,28 +135,40 @@ function onInputChanged(){
 				@blur="v$.title.$touch"
 				/>
 			</v-col>
-			<v-col cols="4">
+			<v-col cols="3">
 				<v-text-field :label="labels['key']"           
 				v-model="state.form.key"
 				/>
 			</v-col>
+			<v-col cols="3">
+				<v-switch class="ml-3"
+				v-model="state.form.active"
+				color="success" :label="status_text"
+				/>
+			</v-col>
 		</v-row>
 		<v-row dense>
-			<v-col cols="4">
+			<v-col cols="3">
+				<v-switch :label="labels['centralized']"
+				v-model="state.form.centralized" 
+				color="success"
+				@update:modelValue="onCentralizedChanged"
+				/>
+			</v-col>
+			<v-col cols="3">
 				<v-select :label="getLabel('type')" 
 				:items="type_options" v-model="state.form.type"
 				@update:modelValue="onTypeChanged"
 				/>
 			</v-col>
-			<v-col cols="4">
-				<v-select :label="getLabel('server')" 
+			<v-col cols="3">
+				<v-select :label="getLabel('server')"
+				:disabled="state.form.centralized"
 				:items="server_options" v-model="state.form.serverId"
 				/>
 			</v-col>
-			<v-col cols="4">
-				<v-text-field :label="labels['key']"           
-				v-model="state.form.key"
-				/>
+			<v-col cols="3">
+				
 			</v-col>
 		</v-row>	
 		<v-row dense>	
@@ -147,11 +182,13 @@ function onInputChanged(){
 					</v-btn>
 				</v-btn-toggle>
 			</v-col>
-			<v-col cols="4">
-				
-			</v-col>
-			<v-col cols="4">
-				
+			<v-col cols="8">
+				<v-text-field :label="labels['url']"           
+				v-model="state.form.url"
+				:error_message="state.errors.get('url')"
+				@input="checkUrl"
+				@blur="checkUrl"
+				/>
 			</v-col>
 		</v-row>
 		<v-row dense>

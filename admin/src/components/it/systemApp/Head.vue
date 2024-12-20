@@ -26,6 +26,10 @@ const props = defineProps({
 	labels: {
       type: Object,
       default: null
+   },
+	centralized_options: {
+      type: Array,
+      default: () => []
    }
 })
 const initialState = {
@@ -55,6 +59,7 @@ function initQuery() {
 	
 	state.query = { ...route.query }
 	state.query.active = isTrue(state.query.active)
+	state.query.centralized = tryParseInt(state.query.centralized)
 	state.query.page = tryParseInt(state.query.page)
 	state.query.pageSize = tryParseInt(state.query.pageSize)
 }
@@ -69,7 +74,7 @@ function setPageOption(option) {
 	if(option.hasOwnProperty('size')) state.query.pageSize = option.size
 	onSubmit()
 }
-function onParamsChanged() {
+function onQueryChanged() {
 	onSubmit()
 }
 function onSubmit() {
@@ -87,14 +92,17 @@ function onCreate() {
    <form v-show="!isEmptyObject(state.query)" @submit.prevent="onSubmit">
 		<v-row dense>
 			<v-col cols="3">
-				<v-radio-group v-model="state.query.active" inline @update:modelValue="onParamsChanged">
+				<v-radio-group v-model="state.query.active" inline @update:modelValue="onQueryChanged">
 					<v-radio v-for="(item, index) in active_options" :key="index"
 					:label="item.title" :value="item.value"
 					/>
 				</v-radio-group>
 			</v-col>
          <v-col cols="3">
-				
+				<v-select density="compact" label="維運"
+				:items="centralized_options" v-model="state.query.centralized"
+				@update:modelValue="onQueryChanged"
+				/>
 			</v-col>
 			<v-col cols="3">
 				<v-text-field label="關鍵字"  density="compact" clearable    

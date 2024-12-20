@@ -4,10 +4,14 @@ import { useStore } from 'vuex'
 import { isEmptyObject, deepClone } from '@/utils'
 import { ENTITY_TYPES, ACTION_TYPES, WIDTH } from '@/consts'
 
-const name = 'ITDatabaseTable'
+const name = 'ITSystemAppTable'
 const store = useStore()
 const props = defineProps({
    model: {
+		type: Object,
+		default: null
+	},
+   labels: {
 		type: Object,
 		default: null
 	},
@@ -34,7 +38,7 @@ const state = reactive(deepClone(initialState))
 const entity_type = ENTITY_TYPES.DATABASE
 
 const emit = defineEmits(['select'])
-const labels = computed(() => store.state.it_databases.labels)
+//const labels = computed(() => store.state.it_databases.labels)
 const query = computed(() => store.state.it_databases.query)
 
 watch(query, (new_value) => {
@@ -44,25 +48,32 @@ watch(query, (new_value) => {
 
 const headers = [
 {
-   title: `${labels.value['title']}`,
+   title: props.labels['title'],
    align: '',
    width: '10%',
    sortable: false,
    key: 'title',
 },
 {
-   title: labels.value['key'],
+   title: props.labels['importance'],
    align: 'start',
    width: '10%',
    sortable: false,
-   key: 'key',
+   key: 'importance',
 },
 {
-   title: labels.value['provider'],
+   title: '維運',
    align: 'start',
    width: '10%',
    sortable: false,
-   key: 'provider',
+   key: 'centralized',
+},
+{
+   title: props.labels['url'],
+   align: 'start',
+   width: '10%',
+   sortable: false,
+   key: 'url',
 }
 ]
 
@@ -82,10 +93,10 @@ const table_headers = computed(() => {
 })
 
 const list = computed(() => isEmptyObject(props.model) ? [] : props.model.viewList)
-const modify_record_actions = computed(() => {
-   const actions = [ACTION_TYPES.CREATE, ACTION_TYPES.UPDATE, ACTION_TYPES.REVIEW]
-   return actions.map(item => item.name)
-})
+// const modify_record_actions = computed(() => {
+//    const actions = [ACTION_TYPES.CREATE, ACTION_TYPES.UPDATE, ACTION_TYPES.REVIEW]
+//    return actions.map(item => item.name)
+// })
 function select(id) {
    emit('select', id)
 }
@@ -99,17 +110,6 @@ function onPageSizeChanged(size) {
       size 
    })
 }
-function checkReviewRecords(id) {
-   // showModifyRecords({
-   //    type:entity_type.name, id: id, 
-   //    action: ACTION_TYPES.REVIEW.name, title: `${ACTION_TYPES.REVIEW.title}紀錄`, width: WIDTH.L
-   // })
-}
-function onCheckAll(val) {
-   // if(val) {
-   //    state.checked_ids = list.value.map(item => item.id)
-   // }else state.checked_ids = []
-}
 
 </script>
 
@@ -122,10 +122,16 @@ function onCheckAll(val) {
    :loading="props.loading"
    :items="list"
    >
-		<template v-slot:item.action="{ item }">
-         <CommonButtonEdit size="x-small"  
-			@edit="select(item.id)"
-			/>
+		<template v-slot:item.title="{ item }">
+         <a @click.prevent="select(item.id)" href="#" v-text="item.title"></a>
+      </template>
+      <template v-slot:item.importance="{ item }">
+         <v-chip size="small">
+            Default
+         </v-chip>
+      </template>
+      <template v-slot:item.centralized="{ item }">
+         {{ item.centralized ? labels['centralized'] : '本院維運' }}
       </template>
 		<template v-slot:bottom="{ item }">
          <CommonTablePager  :model="model"

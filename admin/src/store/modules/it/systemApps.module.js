@@ -108,6 +108,7 @@ const mutations = {
    [SET_IT_SYSTEM_APPS_INDEX_MODEL](state, model) {
       state.query = model.request
       state.labels = model.labels
+      state.options.centralized = model.centralizedOptions
       state.options.importance = model.importanceOptions
       state.options.type = model.typeOptions
    },

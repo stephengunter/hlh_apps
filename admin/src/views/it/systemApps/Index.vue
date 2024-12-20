@@ -125,12 +125,13 @@ function onCancel() {
 <template>
 	<div>
 		<ItSystemAppHead ref="head" :labels="labels" :query="query"
+		:centralized_options="getOptions('centralized')"
 		@submit="fetchData" @create="onCreate"
 		/>
 		<v-row dense>
 			<v-col cols="12">
-				<ItDatabaseTable v-if="!isEmptyObject(pagedList)" 
-				:model="pagedList"
+				<ItSystemAppTable v-if="!isEmptyObject(pagedList)" 
+				:model="pagedList" :labels="labels"
 				@select="edit"
 				@options_changed="onOptionChanged"
 				/>
