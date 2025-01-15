@@ -107,6 +107,15 @@ new Page({
    parent: ''
 }),
 new Page({
+   name: pluralization(SERVER.name),
+   path: `/it/${pluralization(SERVER.name)}`,
+   view: `it/${pluralization(SERVER.name)}/Index`,
+   icon: 'mdi-server',
+   title: `${SERVER.title}管理`,
+   menus: [MENUS.MAIN],
+   parent: pluralization(HOST.name),
+}),
+new Page({
    name: ROUTE_NAMES.DATABASES,
    path: `/it/${pluralization(DATABASE.name)}`,
    view: `it/${pluralization(DATABASE.name)}/Index`,
@@ -193,15 +202,7 @@ new Page({
    menus: [],
    parent: ROUTE_NAMES.HOSTS
 }),
-new Page({
-   name: pluralization(SERVER.name),
-   path: `/it/${pluralization(SERVER.name)}`,
-   view: `it/${pluralization(SERVER.name)}/Index`,
-   icon: 'mdi-server',
-   title: `${SERVER.title}管理`,
-   menus: [MENUS.MAIN],
-   parent: pluralization(HOST.name),
-}),
+//Groups IT/Servers
 new Page({
    name: ROUTE_NAMES.SERVER_DETAILS,
    path: `/it/${pluralization(SERVER.name)}/:id`,
@@ -220,6 +221,16 @@ new Page({
    title: `${DATABASE.title}管理`,
    menus: [],
    parent: ROUTE_NAMES.DATABASES
+}),
+//Groups IT/SystemApps
+new Page({
+   name: ROUTE_NAMES.SYSTEM_APP_DETAILS,
+   path: `/it/${pluralization(SYSTEM_APP.name)}/:id`,
+   view: `it/${pluralization(SYSTEM_APP.name)}/Details`,
+   icon: '', 
+   title: `${SYSTEM_APP.title}管理`,
+   menus: [],
+   parent: ROUTE_NAMES.SYSTEM_APPS
 }),
 ]
 const guestLinks = [
@@ -245,8 +256,9 @@ appRoutes.forEach((page, index) => {
    // if(page.name === ROUTE_NAMES.HOST_DETAILS) {
    //    console.log(page.hasParent('hosts'))
    // }
-   page.setSubs(appRoutes.filter(item => item.hasParent(page.name)))
+   //page.setSubs(appRoutes.filter(item => item.hasParent(page.name)))
+   page.loadSubItems(appRoutes)
    page.setOrder(index)
 })
-
+console.log('appRoutes', appRoutes)
 export default appRoutes

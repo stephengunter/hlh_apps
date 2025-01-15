@@ -2,7 +2,7 @@
 import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { ACTION_TYPES, ENTITY_TYPES, WIDTH } from '@/consts'
+import { ROUTE_NAMES, ACTION_TYPES, ENTITY_TYPES, WIDTH } from '@/consts'
 import { INIT_IT_SYSTEM_APPS, FETCH_IT_SYSTEM_APPS, CREATE_IT_SYSTEM_APP, STORE_IT_SYSTEM_APP,
 	EDIT_IT_SYSTEM_APP } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
@@ -120,6 +120,9 @@ function onSubmit(form) {
 function onCancel() {
 	state.form = deepClone(initialState.form)
 }
+function details(id) {
+	router.push({ name: ROUTE_NAMES.SYSTEM_APP_DETAILS, params: { id } })
+}
 </script>
 
 <template>
@@ -132,7 +135,7 @@ function onCancel() {
 			<v-col cols="12">
 				<ItSystemAppTable v-if="!isEmptyObject(pagedList)" 
 				:model="pagedList" :labels="labels"
-				@select="edit"
+				@select="details"
 				@options_changed="onOptionChanged"
 				/>
 			</v-col>

@@ -3,6 +3,7 @@ import { ref, reactive, computed, watch, onBeforeMount, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { isEmptyObject, deepClone } from '@/utils'
 import { ENTITY_TYPES, ACTION_TYPES, WIDTH } from '@/consts'
+import ImportanceChip from './Importance.vue'
 
 const name = 'ITSystemAppTable'
 const store = useStore()
@@ -93,10 +94,7 @@ const table_headers = computed(() => {
 })
 
 const list = computed(() => isEmptyObject(props.model) ? [] : props.model.viewList)
-// const modify_record_actions = computed(() => {
-//    const actions = [ACTION_TYPES.CREATE, ACTION_TYPES.UPDATE, ACTION_TYPES.REVIEW]
-//    return actions.map(item => item.name)
-// })
+
 function select(id) {
    emit('select', id)
 }
@@ -126,9 +124,8 @@ function onPageSizeChanged(size) {
          <a @click.prevent="select(item.id)" href="#" v-text="item.title"></a>
       </template>
       <template v-slot:item.importance="{ item }">
-         <v-chip size="small">
-            Default
-         </v-chip>
+         <ImportanceChip :value="item.importance"
+			/>
       </template>
       <template v-slot:item.centralized="{ item }">
          {{ item.centralized ? labels['centralized'] : '本院維運' }}

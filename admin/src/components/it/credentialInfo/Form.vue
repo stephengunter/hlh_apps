@@ -67,7 +67,7 @@ onBeforeMount(init)
 function init() {
 	setValues(props.model, state.form)
 }
-function (key) {
+function getLabel(key) {
 	if(isEmptyObject(props.labels)) return ''
    return getValue(props.labels, key)
 }
