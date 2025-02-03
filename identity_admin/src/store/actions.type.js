@@ -15,8 +15,13 @@ export const CHECK_AUTH = 'checkAuth'
 export const REFRESH_TOKEN = 'refreshToken'
 export const SIGN_IN_CALLBACK = 'signinCallback'
 
-//AppAdmin
+//Apps
+export const INIT_APPS = 'initApps'
 export const FETCH_APPS = 'fetchApps'
+export const CREATE_APP = 'createApp'
+export const STORE_APP = 'storeApp'
+export const EDIT_APP = 'editApp'
+export const UPDATE_APP = 'updateApp'
 
 //Cryptoes
 export const GET_CRYPTO = 'getCrypto'

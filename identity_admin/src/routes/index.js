@@ -37,13 +37,13 @@ const authDone = (next, to, auth = false) => {
 	store.dispatch(GET_MENUS, auth)
 	return next()
 }
-const refreshToken = (next, to) => {
-	store.dispatch(REFRESH_TOKEN)
-		.then(token => {
-			if (token) return redirect(next, { path: to.path })
-			else return redirect(next, { path: '/login' })
-		})
-}
+// const refreshToken = (next, to) => {
+// 	store.dispatch(REFRESH_TOKEN)
+// 		.then(token => {
+// 			if (token) return redirect(next, { path: to.path })
+// 			else return redirect(next, { path: '/login' })
+// 		})
+// }
 
 const router = createRouter({
 	history, routes

@@ -150,7 +150,6 @@ Bus.on(SUCCESS, onSuccess)
 Bus.on(WARNING, onWarning)
 Bus.on(SHOW_CONFIRM, showConfirm)
 Bus.on(HIDE_CONFIRM, hideConfirm)
-Bus.on(RE_LOGIN, reLogin)
 
 </script>
 <template>

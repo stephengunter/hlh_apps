@@ -34,6 +34,10 @@ export const SET_EXCEPTIONS = 'setExceptions'
 export const SET_EXCEPTION_TYPES = 'setExceptionTypes'
 export const SET_EXCEPTION_PERIOD = 'setExceptionPeriod'
 
+//Apps
+export const SET_APPS_INDEX_MODEL = 'setAppsIndexModel'
+export const SET_APPS_LIST = 'setAppsList'
+
 //Users
 export const SET_USERS_INDEX_MODEL = 'setUsersIndexModel'
 export const SET_USERS = 'setUsers'

@@ -37,11 +37,17 @@ export const isValidPhoneNumber = (input) => {
 }
 
 export const isValidURL = (str) => {
-   const pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-    '(\\?[&a-z\\d%_.~+=-]*)?'+ // query string
-    '(\\#[-a-z\\d_]*)?$','i') // fragment locator
+   const pattern = new RegExp(
+      '^' +
+        '(https?:\\/\\/)?' + // Optional protocol
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}' + // Domain name
+        '|localhost|' + // Allow 'localhost'
+        '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR IPv4 address
+        '(\\:\\d+)?' + // Optional port
+        '(\\/[-a-z\\d%_.~+]*)*' + // Optional path
+        '(\\?[&a-z\\d%_.~+=-]*)?' + // Optional query string
+        '(\\#[-a-z\\d_]*)?$', // Optional fragment
+      'i'
+   )
    return !!pattern.test(str)
 }
