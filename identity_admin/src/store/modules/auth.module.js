@@ -69,7 +69,6 @@ const actions = {
       return new Promise((resolve) => {
          userManager.getUser()
          .then(user => {
-            console.log(user)
             if(user && !user.expired) {
                const accessToken = user.access_token
                BaseService.setHeader(accessToken)

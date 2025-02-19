@@ -9,12 +9,16 @@ const props = defineProps({
       type: Array,
       default: () => []
    },
+	roles: {
+      type: Array,
+      default: () => []
+   },
 	labels: {
       type: Object,
       default: null
    }
 })
-const emit = defineEmits(['edit', 'select'])
+const emit = defineEmits(['edit', 'select', 'reset-pw'])
 function edit(id) {
 	emit('edit', id)
 }
@@ -22,9 +26,20 @@ function getLabel(key) {
 	if(isEmptyObject(props.labels)) return ''
    return getValue(props.labels, key)
 }
-function getTitle(model) {
-   if(model.DisplayName) return model.title
-   return `${model.host.ip} ${model.provider}`
+function getRoles(model) {
+   if(model.roles) {
+		let roleNames = model.roles.split(',')
+		let roles = []
+		roleNames.forEach(roleName => {
+			let role = props.roles.find(x => x.value === roleName)
+			roles.push({ name: roleName, title: role.title })
+		})
+		return roles
+	}
+   return []
+}
+function resetClientSecret(id) {
+	emit('reset-pw', id)
 }
 
 </script>
@@ -35,20 +50,17 @@ function getTitle(model) {
 			<tr>
 				<th style="width: 7%;">
 				</th>
-            <th style="width: 15%;" v-text="getLabel('displayName')">
+            <th style="width: 15%;" v-text="getLabel('name')">
 				</th>
             <th style="width: 15%;" v-text="getLabel('clientId')">			
 				</th>
-				<th style="width: 15%;">
-					ClientType
+				<th style="width: 15%;" v-text="getLabel('type')">	
 				</th>
-				<th style="width: 25%;" v-text="getLabel('redirectUris')">					
+				<th style="width: 25%;" v-text="getLabel('url')">					
 				</th>
-				<th style="width: 15%;" v-text="getLabel('postLogoutRedirectUris')">					
+				<th style="width: 15%;" v-text="getLabel('roles')">					
 				</th>
-				<th style="width: 10%;">
-					
-				</th>
+				
 			</tr>
 		</thead>
 		<tbody>
@@ -58,24 +70,33 @@ function getTitle(model) {
 					:tooltip="ACTION_TYPES.EDIT.title"
 					@edit="edit(item.id)"
 					/>
+					<CommonButtonDefault v-if="item.type.toLowerCase() === 'api'" tooltip="重設密碼" class_name="ml-1"
+					icon="mdi-lock-reset" color="warning" size="x-small"
+					@click="resetClientSecret(item.id)" 
+					/>
             </td>
 				<td>
-					{{ item.displayName }}
+					{{ item.name }}
             </td>
 				<td>
 					{{ item.clientId }}
 				</td>
 				<td>
-					{{ item.clientType }}
+					{{ item.type }}
 				</td>
 				<td>
-					<ul style="list-style: none;">
+					{{ item.url }}
+					<!-- <ul style="list-style: none;">
 						<li v-for="uri in item.redirectUris" :key="item.uri">
 							{{ uri }}
 						</li>
-					</ul>
+					</ul> -->
 				</td>
-				<td></td>
+				<td>
+					<UserRoleLabel v-for="(role, index) in getRoles(item)" :key="index"
+					:model="role" :index="index"
+					/>
+				</td>
 			</tr>
 		</tbody>
   </v-table>

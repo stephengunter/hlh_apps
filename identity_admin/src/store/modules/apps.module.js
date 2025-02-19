@@ -1,7 +1,9 @@
 import Errors from '@/common/errors'
 import Service from '@/services/apps.service'
-import { INIT_APPS, FETCH_APPS, CREATE_APP, STORE_APP, EDIT_APP, UPDATE_APP } from '@/store/actions.type'
-import { SET_LOADING, SET_APPS_INDEX_MODEL, SET_APPS_LIST } from '@/store/mutations.type'
+import { INIT_APPS, FETCH_APPS, CREATE_APP, STORE_APP, EDIT_APP, UPDATE_APP, 
+   REMOVE_APP, RESET_APP_CLIENT_SECRET 
+} from '@/store/actions.type'
+import { SET_LOADING, SET_APPS_INDEX_MODEL, SET_APPS_LIST, SET_APPS_API_OPTIONS } from '@/store/mutations.type'
 import { deepClone } from '@/utils'
 import { ROUTE_NAMES } from '@/consts'
 
@@ -10,7 +12,9 @@ const initialState = {
    },
    providers: {
    },
+   role_options: [],
    type_options: [],
+   api_options: [],
    labels: {
    },
    list: []
@@ -52,7 +56,10 @@ const actions = {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.create()
-         .then(model => resolve(model))
+         .then(model => {
+            context.commit(SET_APPS_API_OPTIONS, model.apiOptions)
+            resolve(model.form)
+         })
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })
@@ -70,13 +77,16 @@ const actions = {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.edit(id)
-         .then(model => resolve(model))
+         .then(model => {
+            console.log(model)
+            context.commit(SET_APPS_API_OPTIONS, model.apiOptions)
+            resolve(model.form)
+         })
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
    [UPDATE_APP](context, { id, model }) {
-      console.log(UPDATE_APP)
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.update({ id, model })
@@ -85,6 +95,24 @@ const actions = {
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
+   [REMOVE_APP](context, id) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         Service.remove(id)
+         .then(() => resolve())
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
+   [RESET_APP_CLIENT_SECRET](context, id) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         Service.resetClientSecret(id)
+         .then(() => resolve())
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })
+   }
 }
 
 const mutations = {
@@ -94,9 +122,15 @@ const mutations = {
       state.type_options = model.types.map(type => {
          return { value: type, title: type }
       })
+      state.role_options = model.roles.map(role => {
+         return { value: role.name, title: role.title }
+      })
    },
    [SET_APPS_LIST](state, list) {
       state.list = list
+   },
+   [SET_APPS_API_OPTIONS](state, options) {
+      state.api_options = options
    }
 }
 

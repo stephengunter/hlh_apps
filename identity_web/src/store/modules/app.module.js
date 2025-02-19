@@ -99,6 +99,7 @@ const mutations = {
       state.drawer = !state.drawer
    },
    [SET_ERRORS](state, errors) {
+      console.log(SET_ERRORS, errors)
       state.errors.record(errors)
    },
    [CLEAR_ERRORS](state) {

@@ -35,10 +35,10 @@ const blob = (requestType, url, data) => new Promise((resolve, reject) => {
 	.catch(error => reject(error.response))
 })
 
-const post = (url, data, headers = {}) => submit('post', url, data)
+const post = (url, data, headers = {}) => submit('post', url, data, headers)
 
-const put = (url, data, headers = {}) => submit('put', url, data)
+const put = (url, data, headers = {}) => submit('put', url, data, headers)
 
-const remove = (url, data, headers = {}) => submit('delete', url, data)
+const remove = (url, data, headers = {}) => submit('delete', url, data, headers)
 
 export default { setHeader, fetch, submit, post, put, remove, blob }

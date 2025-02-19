@@ -7,16 +7,17 @@ import { onErrors } from '@/utils'
 const store = useStore()
 
 onBeforeMount(() => {
-	store.dispatch(FETCH_APPS)
-	.then(data => {
-		console.log(data)
-	})
-	.catch(error => onErrors(error))
+	// store.dispatch(FETCH_APPS)
+	// .then(data => {
+	// 	console.log(data)
+	// })
+	// .catch(error => onErrors(error))
 })
 const apps = [{
 	title: 'app1',
 	url: 'http://localhost:3000'
 }]
+
 function logout() {
 	store.dispatch(LOGOUT)
 		.then(() => {
@@ -27,7 +28,7 @@ function logout() {
 </script>
 
 <template>
-	<v-responsive class="align-centerfill-height mx-auto" max-width="900">
+	<v-responsive>
 		<v-row>
 			<v-col cols="6" v-for="app in apps">
 				<v-card append-icon="mdi-open-in-new" class="py-4" color="surface-variant" :title="app.title"

@@ -14,4 +14,8 @@ const edit = (id) => BaseService.fetch(`${source}/edit/${id}`)
 
 const update = ({ id, model }) => BaseService.put(`${source}/${id}`, model)
 
-export default { init, fetch, create, store, edit, update }
+const remove = (id) => BaseService.remove(`${source}/${id}`)
+
+const resetClientSecret = (id) => BaseService.put(`${source}/reset-client-secret/${id}`)
+
+export default { init, fetch, create, store, edit, update, remove, resetClientSecret }

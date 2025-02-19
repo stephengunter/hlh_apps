@@ -37,6 +37,7 @@ export const SET_EXCEPTION_PERIOD = 'setExceptionPeriod'
 //Apps
 export const SET_APPS_INDEX_MODEL = 'setAppsIndexModel'
 export const SET_APPS_LIST = 'setAppsList'
+export const SET_APPS_API_OPTIONS = 'setAppsApiOptions'
 
 //Users
 export const SET_USERS_INDEX_MODEL = 'setUsersIndexModel'

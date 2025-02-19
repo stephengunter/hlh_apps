@@ -143,5 +143,4 @@ appRoutes.forEach((page, index) => {
    page.loadSubItems(appRoutes)
    page.setOrder(index)
 })
-console.log('appRoutes', appRoutes)
 export default appRoutes

@@ -1,10 +1,11 @@
 import { UserManager } from 'oidc-client-ts'
 import Errors from '@/common/errors'
 import BaseService from '@/common/baseService'
+import Service from '@/services/auth.service'
 import { OIDC } from '@/config'
 import { resolveUserFromClaims, isAdmin, isEmptyObject, deepClone } from '@/utils'
 
-import { CHECK_AUTH, LOGIN, SIGN_IN_CALLBACK, LOGOUT, REFRESH_TOKEN } from '@/store/actions.type'
+import { CHECK_AUTH, LOGIN, SIGN_IN_CALLBACK, LOGOUT, PASSWORD_LOGIN, REFRESH_TOKEN } from '@/store/actions.type'
 import { PURGE_AUTH, SET_USER, SET_LOADING } from '@/store/mutations.type'
 
 const userManager = new UserManager(OIDC)
@@ -29,6 +30,20 @@ const defaultError = {
 }
 
 const actions = {
+   [PASSWORD_LOGIN](context, model) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         Service.login(model)
+         .then(data => {
+            console.log(data)
+            resolve(true)
+         })
+         .catch(error => reject(error))
+         .finally(() => { 
+            context.commit(SET_LOADING, false)
+         })
+      })     
+   },
    [LOGIN](context) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
@@ -43,8 +58,11 @@ const actions = {
    [SIGN_IN_CALLBACK](context) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         userManager.signinCallback()
-         .then(() => resolve(true))
+         userManager.signinRedirectCallback()
+         .then(user => {
+            console.log(user)
+            resolve(true)
+         })
          .catch(error => reject(error))
          .finally(() => { 
             context.commit(SET_LOADING, false)
@@ -54,7 +72,8 @@ const actions = {
    [LOGOUT](context) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         userManager.removeUser()
+         userManager.signoutRedirect()
+         //userManager.removeUser()
          .then(() => {
             context.commit(PURGE_AUTH)
             resolve(true)

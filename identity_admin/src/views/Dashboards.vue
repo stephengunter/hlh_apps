@@ -2,7 +2,6 @@
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { deepClone, photoCustomTag, onSuccess, dateToText, textToDate } from '@/utils'
 
-
 const initialState = {
 	class_name: 'float-right',
 	date: '',
@@ -31,12 +30,13 @@ const tiptap = ref(null)
 
 onMounted(() => {
 	
+	
 })
 function onDragEnd ({ oldIndex, newIndex }) {
    console.log('onDragEnd', oldIndex, newIndex )
 }
-function test(val) {
-	console.log(val)
+function test() {
+	console.log('test')
 	//console.log(dateToText(val))
 }
 </script>
@@ -45,7 +45,7 @@ function test(val) {
 	<div>
 	<v-row>
 		<v-col cols="12">
-
+			<a href="#" @click.prevent="test">test</a>
 		</v-col>
 		<v-col cols="12">
 			

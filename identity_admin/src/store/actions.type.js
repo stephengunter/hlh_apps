@@ -22,6 +22,8 @@ export const CREATE_APP = 'createApp'
 export const STORE_APP = 'storeApp'
 export const EDIT_APP = 'editApp'
 export const UPDATE_APP = 'updateApp'
+export const REMOVE_APP = 'removeApp'
+export const RESET_APP_CLIENT_SECRET = 'resetAppClientSecret'
 
 //Cryptoes
 export const GET_CRYPTO = 'getCrypto'

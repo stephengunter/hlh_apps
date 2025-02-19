@@ -34,6 +34,8 @@ const routes = appRoutes.map(item => {
 const redirect = (next, route) => next(route)
 
 const authDone = (next, to, auth = false) => {
+	//const utmSource = sessionStorage.getItem("source") || "Unknown";
+
 	store.dispatch(GET_MENUS, auth)
 	return next()
 }
@@ -52,6 +54,13 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
 	if (APP_CLOSED && to.name !== ROUTE_NAMES.CLOSE) return redirect(next, { name: ROUTE_NAMES.CLOSE })
+	// if(to.path === '/') {
+	// 	const urlParams = new URLSearchParams(window.location.search)
+  	// 	const source = urlParams.get('source')
+	// 	if (source) {
+	// 		sessionStorage.setItem('source', source);
+	// 	}
+	// }
 
 	store.commit(SET_ROUTE, { to: appRoutes.find(page => page.name === to.name), from: appRoutes.find(page => page.name === from.name) })
 	store.commit(CLEAR_ERRORS)
@@ -60,6 +69,7 @@ router.beforeEach((to, from, next) => {
 		if (to.meta.type === ROUTE_TYPES.FOR_ALL) return authDone(next, to, auth)
 
 		if (auth) {
+			if (to.name === ROUTE_NAMES.LOGIN) return authDone(next, to, auth)
 			if (to.meta.type === ROUTE_TYPES.GUEST_ONLY) return redirect(next, { path: '/' })
 			return authDone(next, to, auth)
 		} else {
@@ -67,7 +77,7 @@ router.beforeEach((to, from, next) => {
 			if (to.meta.type === ROUTE_TYPES.GUEST_ONLY) return authDone(next, to, auth)
 			else {
 				let query = { ...to.query, returnUrl: to.path }
-				return redirect(next, { path: '/login', query })
+				return redirect(next, { name: ROUTE_NAMES.LOGIN, query })
 			}
 		}
 	})

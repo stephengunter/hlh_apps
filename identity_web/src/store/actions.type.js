@@ -9,6 +9,7 @@ export const GET_MENUS = 'getMenus'
 
 //Auth
 export const LOGIN = 'login'
+export const PASSWORD_LOGIN = 'passwordLogin'
 export const LOGOUT = 'logout'
 export const RE_LOGIN = 'reLogin'
 export const CHECK_AUTH = 'checkAuth'

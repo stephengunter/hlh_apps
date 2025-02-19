@@ -1,9 +1,9 @@
 <script setup>
-import { reactive, computed, watch, onMounted, nextTick } from 'vue'
+import { reactive, computed, watch, onBeforeMount, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { LOGIN } from '@/store/actions.type'
-import { SITE_TITLE } from '@/config'
+import { IDENTITY_API } from '@/config'
 import { isEmptyObject, deepClone , 
 	resolveErrorData, onErrors, onSuccess, setValues, badRequest, is400
 } from '@/utils'
@@ -17,12 +17,28 @@ const initialState = {
 	
 }
 const state = reactive(deepClone(initialState))
+const isAuthenticated = computed(() => store.getters.isAuthenticated)
 
+onBeforeMount(init)
+
+function init() {
+	if(fromIdentity()) onSubmit()
+	else {
+		if(isAuthenticated.value) {
+			router.push({ path: '/', query: { } })
+		}
+	}
+}
+function fromIdentity() {
+	if(isEmptyObject(route.query)) return false
+	const source = route.query['source']
+	if(source && source === IDENTITY_API) return true
+	return false
+}
 function onSubmit() {
 	store.dispatch(LOGIN)
 	.then(() => {})
-	.catch(error => onErrors(error))
-	
+	.catch(error => onErrors(error))	
 }
 </script>
 

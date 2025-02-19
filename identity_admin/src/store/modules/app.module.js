@@ -57,7 +57,6 @@ const activateSubitems = (item, current) => {
    // Iterate through subitems
    item.getSubitems().forEach(sub => {
       if (sub.name === current.name) {
-         console.log('match', sub)
          if(sub.isMainMenuItem()) sub.setActive(true)
          else item.setActive(true)
          

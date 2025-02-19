@@ -18,7 +18,7 @@ function getTitle() {
 </script>
 <template>
    <v-app-bar id="app-bar" app absolute>
-      <v-toolbar-title class="font-weight-bold text-center" style="font-size: 48px;"
+      <v-toolbar-title class="font-weight-bold" style="font-size: 48px;"
       v-text="getTitle()"
       />
       <MenuUser v-if="isAuthenticated" :user="currentUser" />

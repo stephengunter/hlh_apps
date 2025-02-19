@@ -2,9 +2,8 @@ import { ROLE_TYPES } from '@/consts'
 
 export const resolveUserFromClaims = (claims) => {
    return {
-      id: claims.id,
-      email: claims.sub,
-      picture: claims.picture,
+      id: claims.sub,
+      email: claims.email,
       name: claims.name,
       roles: claims.roles ? claims.roles.split(',') : []
    }
@@ -35,8 +34,8 @@ export const isAdmin = (user) => {
    return isBoss(user)
 }
 
-export const getRoleColor = (role) => {
-   if(role.name === ROLE_TYPES.BOSS || role.name === ROLE_TYPES.DEV) return 'red'
-   else if(role.name === ROLE_TYPES.CLERK) return 'green'
+export const getRoleColor = (role, key = 'name') => {
+   if(role[key] === ROLE_TYPES.BOSS || role[key] === ROLE_TYPES.DEV) return 'red'
+   else if(role[key] === ROLE_TYPES.IT) return 'info'
    else return ''
 }

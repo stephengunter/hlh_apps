@@ -11,7 +11,7 @@ export const OIDC = {
    redirect_uri: `${CLIENT_URL}/signin-callback`,
    post_logout_redirect_uri: `${CLIENT_URL}`,
    response_type: 'code',
-   scope: 'openid offline_access identity-api',
+   scope: 'openid profile email',
    userStore: new WebStorageStateStore({ store: window.localStorage })
 }
 

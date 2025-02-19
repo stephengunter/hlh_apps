@@ -2,10 +2,12 @@
 import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { ROUTE_NAMES, ENTITY_TYPES, WIDTH, ACTION_TYPES } from '@/consts'
-import { INIT_APPS, FETCH_APPS, CREATE_APP, STORE_APP, EDIT_APP, UPDATE_APP } from '@/store/actions.type'
+import { ROUTE_NAMES, ENTITY_TYPES, WIDTH, ACTION_TYPES, WARNING, ERRORS } from '@/consts'
+import { INIT_APPS, FETCH_APPS, CREATE_APP, STORE_APP, EDIT_APP, UPDATE_APP, 
+	RESET_APP_CLIENT_SECRET, REMOVE_APP 
+} from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
-import { isEmptyObject, deepClone , downloadFile,
+import { isEmptyObject, deepClone , downloadFile, showConfirm, hideConfirm,
 	onErrors, onSuccess, setValues, is400, 
 	resolveErrorData
 } from '@/utils'
@@ -25,12 +27,17 @@ const initialState = {
 		},
 		action: '',
 		width: WIDTH.L
+	},
+	reset_pw: {
+		id: ''
 	}
 }
 const state = reactive(deepClone(initialState))
 const query = computed(() => store.state.apps.query)
 const labels = computed(() => store.state.apps.labels)
 const type_options = computed(() => store.state.apps.type_options)
+const role_options = computed(() => store.state.apps.role_options)
+const api_options = computed(() => store.state.apps.api_options)
 const list = computed(() => store.state.apps.list)
 
 const head = ref(null)
@@ -61,7 +68,7 @@ function onCreate(query) {
 		state.form.model = deepClone(model)
 		state.form.model.type = query.type
 		state.form.action = STORE_APP
-		state.form.width = WIDTH.M
+		state.form.width = WIDTH.L
 		state.form.active = true
 	})
 	.catch(error => onErrors(error))
@@ -97,11 +104,7 @@ function storeApp(form) {
 		onSuccess()
 		fetchData()
 	})
-	.catch(error => {
-		let data = resolveErrorData(error)
-		if(data && data.errors) store.commit(SET_ERRORS, data.errors)
-		else onErrors(error)
-	})
+	.catch(error => onSubmitError(error))
 }
 function updateApp(form) {
 	let model = state.form.model
@@ -113,11 +116,63 @@ function updateApp(form) {
 		onSuccess()
 		fetchData()
 	})
-	.catch(error => {
-		let data = resolveErrorData(error)
-		if(data && data.errors) store.commit(SET_ERRORS, data.errors)
-		else onErrors(error)
+	.catch(error => onSubmitError(error))
+}
+function onSubmitError(error) {
+	let data = resolveErrorData(error)
+	if(data && data.errors) store.commit(SET_ERRORS, data.errors)
+	else onErrors(error)
+}
+function confirmResetClientSecret(id) {
+	state.reset_pw.id = id
+	let confirm = {
+		type: WARNING, 
+		title: '確定要重設密碼?', 
+		text: '', 
+		ok:'確定', 
+		cancel: '取消', 
+		on_ok: resetClientSecret, 
+		on_cancel: null, 
+		max_width: 0 
+	}
+	showConfirm(confirm)
+}
+function resetClientSecret() {
+	let id = state.reset_pw.id
+	store.dispatch(RESET_APP_CLIENT_SECRET, id)
+	.then(() => {
+		hideConfirm()
+		onCancel()
+		onSuccess()
+
+		fetchData()
 	})
+	.catch(error => onSubmitError(error))
+}
+function confirmRemove() {
+	let confirm = {
+		type: ERRORS, 
+		title: '確定要刪除?', 
+		text: '', 
+		ok:'確定', 
+		cancel: '取消', 
+		on_ok: remove, 
+		on_cancel: null, 
+		max_width: 0 
+	}
+	showConfirm(confirm)
+}
+function remove() {
+	let id = state.form.id
+	store.dispatch(REMOVE_APP, id)
+	.then(() => {
+		hideConfirm()
+		onCancel()
+		onSuccess()
+
+		fetchData()
+	})
+	.catch(error => onSubmitError(error))
 }
 </script>
 
@@ -130,8 +185,8 @@ function updateApp(form) {
 		<v-row dense>
 			<v-col cols="12">
 				<AppTable 
-				:list="list" :labels="labels"
-				@edit="edit"
+				:list="list" :roles="role_options" :labels="labels"
+				@edit="edit" @reset-pw="confirmResetClientSecret"
 				/>
 			</v-col>
 		</v-row>
@@ -141,9 +196,10 @@ function updateApp(form) {
 				@cancel="onCancel"  
 				/>
 				<v-card-text v-if="state.form.active">
-					<AppForm :model="state.form.model" 
+					<AppForm :id="state.form.id" :model="state.form.model" 
+					:api_options="api_options" :role_options="role_options"
 					:labels="labels" :type_options="type_options"
-					@submit="onSubmit"
+					@submit="onSubmit" @remove="confirmRemove"
 					/>
 				</v-card-text>
 			</v-card>
