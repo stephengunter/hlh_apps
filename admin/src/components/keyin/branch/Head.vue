@@ -56,7 +56,6 @@ const ready = computed(() => store.state.it_systemApps.pagedList != null)
 watch(route, init)
 
 function init() {
-	console.log(props.year_options)
    initQuery()
    emit('submit', state.query)
 }
@@ -69,9 +68,6 @@ function initQuery() {
 	state.query = { ...route.query }
 	state.query.year = tryParseInt(state.query.year)
 	state.query.month = tryParseInt(state.query.month)
-
-	
-	
 }
 function setQuery(model) {
    setValues(model, state.query)

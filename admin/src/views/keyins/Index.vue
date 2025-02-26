@@ -81,7 +81,6 @@ function fetchData(query) {
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(FETCH_KEYINS_PERSONS, query)
 	.then(list => {
-		console.log(list)
 		state.can_report = list.length > 0
 	})
 	.catch(error => onErrors(error))

@@ -68,22 +68,6 @@ function fetchData(query) {
 function onOptionChanged(option) {
 	head.value.setPageOption(option)
 }
-
-function edit(id) {
-	state.form.id = id
-	store.commit(CLEAR_ERRORS)
-	store.dispatch(EDIT_JUDGEBOOKFILE, id)
-	.then(data => {
-		state.form.title = `${ACTION_TYPES.EDIT.title}${ENTITY_TYPE.title}`,
-		state.form.model = deepClone(data.model)
-		state.form.actions = data.actions
-
-		state.form.action = UPDATE_JUDGEBOOKFILE
-		state.form.width = WIDTH.L
-		state.form.active = true
-	})
-	.catch(error => onErrors(error))
-}
 function onCreate() {
 	state.form.title = `${ACTION_TYPES.CREATE.title}${ENTITY_TYPE.title}`,
 	store.dispatch(CREATE_IT_HOST)

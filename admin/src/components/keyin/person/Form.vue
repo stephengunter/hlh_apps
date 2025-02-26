@@ -48,11 +48,13 @@ function onSubmit() {
 }
 
 function onFileAdded(files) {
+	const year = props.model.year
+	const month = props.model.month
 	if(!files.length) {
 		state.form.records = []
 		return
 	} 
-	store.dispatch(UPLOAD_KEYINS_PERSONS, { file: files[0]})
+	store.dispatch(UPLOAD_KEYINS_PERSONS, { year, month, file: files[0]})
 	.then(records => {
 		state.form.records = records.slice(0)
 	})

@@ -56,7 +56,7 @@ const actions = {
       for (const key in model) {
          if (key === 'file' && model[key]) {
             formData.append(key, model[key], model[key].name);
-         } else if (item[key] != null) {
+         } else if (model[key] != null) {
             formData.append(key, model[key])
          }
       }

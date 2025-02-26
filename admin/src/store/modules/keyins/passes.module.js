@@ -1,7 +1,8 @@
 import Service from '@/services/keyins/passes.service'
 import { resolveErrorData, deepClone } from '@/utils'
 import {
-   FETCH_KEYINS_PASSES, UPLOAD_KEYINS_PASSES, STORE_KEYINS_PASSES, EXPORT_KEYINS_PASSES_REPORT 
+   FETCH_KEYINS_PASSES, REMOVE_KEYINS_PASSES, CREATE_KEYINS_PASSES, STORE_KEYINS_PASSES, 
+   EDIT_KEYINS_PASSES, UPDATE_KEYINS_PASSES, EXPORT_KEYINS_PASSES_REPORT 
 } from '@/store/actions.type'
 
 import { SET_LOADING } from '@/store/mutations.type'
@@ -22,7 +23,7 @@ const actions = {
    [FETCH_KEYINS_PASSES](context, query) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         Service.fetch()
+         Service.fetch(query)
             .then(list => {
                resolve(list)
             })
@@ -30,19 +31,10 @@ const actions = {
             .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [UPLOAD_KEYINS_PASSES](context, model) {
-      const formData = new FormData()
-      for (const key in model) {
-         if (key === 'file' && model[key]) {
-            formData.append(key, model[key], model[key].name);
-         } else if (item[key] != null) {
-            formData.append(key, model[key])
-         }
-      }
-
+   [UPDATE_KEYINS_PASSES](context, { id, model }) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         Service.upload(formData)
+         Service.update({ id, model })
          .then(data => resolve(data))
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
@@ -53,6 +45,24 @@ const actions = {
       return new Promise((resolve, reject) => {
          Service.store(model)
          .then(data => resolve(data))
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
+   [EDIT_KEYINS_PASSES](context, id) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         Service.edit(id)
+         .then(model => resolve(model))
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
+   [REMOVE_KEYINS_PASSES](context, id) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         Service.remove(id)
+         .then(() => resolve())
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })

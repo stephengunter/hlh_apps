@@ -47,8 +47,11 @@ export const EXPORT_KEYINS_PERSONS_REPORT = 'exportKeyinsPersonsReport'
 
 
 export const FETCH_KEYINS_PASSES = 'fetchKeyinsPasses'
-export const UPLOAD_KEYINS_PASSES = 'uploadKeyinsPasses'
+export const CREATE_KEYINS_PASSES = 'createKeyinsPasses'
+export const REMOVE_KEYINS_PASSES = 'removeKeyinsPasses'
 export const STORE_KEYINS_PASSES = 'storeKeyinsPasses'
+export const EDIT_KEYINS_PASSES = 'editKeyinsPasses'
+export const UPDATE_KEYINS_PASSES = 'updateKeyinsPasses'
 export const EXPORT_KEYINS_PASSES_REPORT = 'exportKeyinsPassesReport'
 
 

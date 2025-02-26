@@ -184,11 +184,11 @@ new Page({
 }),
 
 new Page({
-   name: 'keyins-passes',
-   path: `/${pluralization(KEYIN.name)}/passes`,
-   view: `${pluralization(KEYIN.name)}/Passes`,
+   name: 'keyins-persons',
+   path: `/${pluralization(KEYIN.name)}/persons`,
+   view: `${pluralization(KEYIN.name)}/Persons`,
    icon: 'mdi-check-circle',
-   title: `免測人員`,
+   title: `聽打人員`,
    menus: [MENUS.MAIN],
    parent: pluralization(KEYIN.name),
 }),
