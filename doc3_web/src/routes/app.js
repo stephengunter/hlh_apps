@@ -2,13 +2,6 @@ import { ROUTE_TYPES, ROUTE_NAMES, MENUS, ENTITY_TYPES } from '@/consts'
 import { isNullOrEmpty, upperFirstLetter, pluralization } from '@/utils'
 import Page from '@/models/page'
 
-const APP = ENTITY_TYPES.APP
-const POST = ENTITY_TYPES.POST
-const PROFILES = ENTITY_TYPES.PROFILES
-const DEPARTMENT = ENTITY_TYPES.DEPARTMENT
-const JOB = ENTITY_TYPES.JOB
-const LOCATION = ENTITY_TYPES.LOCATION
-
 
 const applinks = [
 new Page({

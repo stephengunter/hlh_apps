@@ -34,7 +34,23 @@ const router = useRouter()
 const initialState = {
 	query: {
 	},
-   type_selected: null
+   datePicker: {
+      roc: false,
+      labels: [],
+
+      dates: [],
+      values: [],
+      
+      required_start: false,
+      required_end: false,
+      allow_same: true,
+
+      key: '',
+      title: '',
+      lower_limit: null,
+      upper_limit: null,
+      active: false
+   },
 }
 const state = reactive(deepClone(initialState))
 const query_match_route = computed(() => {
@@ -81,10 +97,11 @@ function create() {
 <template>
    <form v-show="!isEmptyObject(state.query)" @submit.prevent="onSubmit">
       <v-row dense>
-			<v-col cols="3">
-            
-         </v-col>
-         <v-col cols="3">
+			<v-col cols="6">
+            <CommonPickerPeriod ref="period_picker" 
+            :roc="state.datePicker.roc" :labels="state.datePicker.labels"
+            :dates="state.datePicker.dates"  :values="state.datePicker.values"  
+            />
          </v-col>
          <v-col cols="3">
 

@@ -70,7 +70,7 @@ function select() {
   <v-list-item :prepend-icon="item.meta.icon" :active="state.parent_active" >
       <template v-slot:title>
          <a href="#" @click.prevent="select" style="color: white;" class="text-decoration-none">
-         {{ getTitle(item) }}
+         {{ getTitle(item) }}  
          </a>
       </template>
       <template v-if="subMenuItems.length" v-slot:append>

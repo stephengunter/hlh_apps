@@ -6,9 +6,10 @@ export const API_URL = import.meta.env.VITE_APP_API_URL
 export const CLIENT_URL = import.meta.env.VITE_APP_CLIENT_URL
 export const SITE_TITLE = import.meta.env.VITE_APP_TITLE
 export const IDENTITY_API = import.meta.env.VITE_APP_IDENTITY_API
+export const IDENTITY_API_URL = import.meta.env.VITE_APP_IDENTITY_API_URL
 export const DOC3_API = import.meta.env.VITE_APP_DOC3_API
 export const OIDC = {
-   authority: IDENTITY_API,
+   authority: IDENTITY_API_URL,
    client_id: 'doc3-web',
    redirect_uri: `${CLIENT_URL}/signin-callback`,
    post_logout_redirect_uri: `${CLIENT_URL}`,

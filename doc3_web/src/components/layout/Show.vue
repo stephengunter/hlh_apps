@@ -127,7 +127,7 @@ function onCancel() {
                   </v-col>
                </v-row>
             </div>
-            <ModifyRecordTable v-if="state.key === ENTITY_TYPES.MODIFY_RECORD" />
+            <!-- <ModifyRecordTable v-if="state.key === ENTITY_TYPES.MODIFY_RECORD" /> -->
             <div v-if="state.key === PREVIEW_IMAGE">
                <v-row dense>
                   <v-col cols="12">
