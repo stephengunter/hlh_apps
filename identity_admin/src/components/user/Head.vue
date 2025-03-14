@@ -40,10 +40,6 @@ const props = defineProps({
       type: Array,
       default: () => []
    },
-	root_hlh: {
-      type: Object,
-      default: null
-   },
 	show_down: {
       type: Boolean,
       default: false
@@ -52,32 +48,16 @@ const props = defineProps({
 const initialState = {
 	query: {
 	},
-	form: {
-		title: '選擇部門',
-		active: false
-	},
-	department_options: [{ value: 0, title: 'All' }]
+	department: null
 }
 const state = reactive(deepClone(initialState))
 
-const tree = ref(null)
+const department_selector = ref(null)
 
 const active_options = activeOptions
 const updown_title = computed(() => {
 	if(state.query.active) return '下架'
 	return '上架'
-})
-const department_options = computed(() => {
-	let options = [{ value: 0, title: 'All' }]
-	let id = state.query.department
-	if(id) {
-		let department = props.departments.find(x => x.id === id)
-		options.splice(0, 0, {
-			value: id,
-			title: department.title
-		})
-	}
-	return options
 })
 const role_options = computed(() => {
 	let options = props.roles.map(role => ({ value: role.name, title: role.title }))
@@ -103,8 +83,15 @@ function init() {
 
 	state.query.active = isTrue(state.query.active)
 	state.query.department = tryParseInt(state.query.department)
+	
 	state.query.page = tryParseInt(state.query.page)
 	state.query.pageSize = tryParseInt(state.query.pageSize)
+
+	state.department = props.departments.find(x => x.id === state.query.department)
+	nextTick(() => {
+		department_selector.value.init()
+	})	
+	
    emit('submit', state.query)
 }
 function setQuery(model) {
@@ -118,23 +105,15 @@ function setPageOption(option) {
 	if(option.hasOwnProperty('size')) state.query.pageSize = option.size
 	onSubmit()
 }
-function selectDepartment() {
-	state.form.title = '選擇部門'
-	state.form.active = true
-}
-function setDepartment(id) {
-	if(id === props.root_hlh.id) state.query.department = 0
-	else state.query.department = id
+function setDepartment(depatment) {
+	if(depatment) state.query.department = depatment.id
+	else state.query.department = 0
 	
 	onQueryChanged()
-	onCancel()
 }
 function getLabel(key) {
 	if(isEmptyObject(props.labels)) return ''
    return getValue(props.labels, key)
-}
-function onCancel() {
-	state.form = deepClone(initialState.form)
 }
 function onRoleChanged() {	
 	onSubmit()
@@ -149,6 +128,7 @@ function onKeywordChanged(val) {
 	onSubmit()
 }
 function onSubmit() {
+	
 	if(query_match_route.value) emit('submit', state.query)
 	else router.push({ path: route.path, query: { ...state.query } })	
 }
@@ -177,9 +157,10 @@ function onDown() {
 				</v-radio-group>
 			</v-col>
          <v-col cols="2">
-				<v-select density="compact" :label="getLabel('department')" readonly
-				:items="department_options" v-model="state.query.department"
-				@click.prevent="selectDepartment"
+				<DepartmentSelector ref="department_selector" :clearable="true"
+				:keyword="state.department?.title ?? ''"
+				:list="departments"
+				@selected="setDepartment"
 				/>
 			</v-col>
 			<v-col cols="2">
@@ -209,18 +190,5 @@ function onDown() {
 			</v-col>
 		</v-row>
 	</form>
-	<v-dialog persistent v-model="state.form.active" :width="WIDTH.M + 50">
-		<v-card :max-width="WIDTH.M">
-			<CommonCardTitle :title="state.form.title" 
-			@cancel="onCancel"
-			/>
-			<v-card-text>
-				<DepartmentTree ref="tree"
-				:root="root_hlh"
-				@select="setDepartment"
-				/>
-			</v-card-text>
-		</v-card>
-	</v-dialog>
 </div>		
 </template>

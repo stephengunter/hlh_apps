@@ -134,7 +134,6 @@ const mutations = {
    [SET_USERS_INDEX_MODEL](state, model) {
       state.query = model.request
       state.labels = model.labels
-      state.rootDepartment = model.rootDepartment
    },
    [SET_USERS](state, model) {
       state.pagedList = model
