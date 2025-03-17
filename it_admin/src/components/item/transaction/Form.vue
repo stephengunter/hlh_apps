@@ -64,14 +64,13 @@ const department_selector = ref(null)
 
 const canRemove = computed(() => {
 	if(!props.id) return false
-	return true
+	if(props.model.hasOwnProperty('canRemove')) return props.model.canRemove
+	return false
 })
 
 onBeforeMount(init)
 
 function init() {
-	console.log('props.model', props.model)
-	console.log('itemId', props.model.itemId)
 	setValues(props.model, state.form)	
 
 	state.out = props.model.in ? 0 : 1

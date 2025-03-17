@@ -39,6 +39,8 @@ const query = computed(() => store.state.items.query)
 const labels = computed(() => store.state.items.labels)
 const transactionLabels = computed(() => store.state.items.transactionLabels)
 const item_options = computed(() => store.state.items.item_options)
+
+const lastClosed = computed(() => store.state.items.lastClosed)
 const list = computed(() => store.state.items.list)
 const users = computed(() => store.getters.users)
 const departments = computed(() => store.getters.departments)
@@ -163,36 +165,37 @@ function addTran(id) {
 	})
 	.catch(error => onErrors(error))
 }
-// function confirmRemove() {
-// 	let confirm = {
-// 		type: ERRORS, 
-// 		title: '確定要刪除?', 
-// 		text: '', 
-// 		ok:'確定', 
-// 		cancel: '取消', 
-// 		on_ok: remove, 
-// 		on_cancel: null, 
-// 		max_width: 0 
-// 	}
-// 	showConfirm(confirm)
-// }
-// function remove() {
-// 	let id = state.form.id
-// 	store.dispatch(REMOVE_ITEM, id)
-// 	.then(() => {
-// 		hideConfirm()
-// 		onCancel()
-// 		onSuccess()
+function confirmRemove() {
+	let confirm = {
+		type: ERRORS, 
+		title: '確定要刪除?', 
+		text: '', 
+		ok:'確定', 
+		cancel: '取消', 
+		on_ok: remove, 
+		on_cancel: null, 
+		max_width: 0 
+	}
+	showConfirm(confirm)
+}
+function remove() {
+	let id = state.form.id
+	store.dispatch(REMOVE_ITEM, id)
+	.then(() => {
+		hideConfirm()
+		onCancel()
+		onSuccess()
 
-// 		fetchData()
-// 	})
-// 	.catch(error => onSubmitError(error))
-// }
+		fetchData()
+	})
+	.catch(error => onSubmitError(error))
+}
 </script>
 
 <template>
 	<div>
-		<ItemHead ref="head" :query="query" :labels="labels" 
+		<ItemHead ref="head" :last_close="lastClosed"
+		:query="query" :labels="labels" 
 		@submit="fetchData" @create="onCreate"
 		/>
 		<v-row dense>
@@ -218,7 +221,7 @@ function addTran(id) {
 					<ItemForm v-else :id="state.form.id" 
 					:model="state.form.model" :item="state.form.item" 
 					:labels="labels" 
-					@submit="onSubmit"
+					@submit="onSubmit" @remove="confirmRemove"
 					/>
 				</v-card-text>
 			</v-card>

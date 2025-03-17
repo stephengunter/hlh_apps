@@ -24,6 +24,7 @@ export const SET_USERS = 'setUsers'
 export const SET_DEPARTMENTS = 'setDepartments'
 
 //Items
+export const SET_ITEMS_ADMIN_MODEL = 'setItemsAdminModel'
 export const SET_ITEMS_INDEX_MODEL = 'setItemsIndexModel'
 export const SET_ITEMS_LIST = 'setItemsList'
 

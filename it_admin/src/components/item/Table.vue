@@ -35,7 +35,7 @@ function addTran(id) {
 </script>
 
 <template>
-	<v-table hover>
+	<v-table v-if="active" hover>
 		<thead>
 			<tr>
 				<th style="width: 7%;"
@@ -72,6 +72,42 @@ function addTran(id) {
 				<td>
 					{{ item.saveStock }}
 				</td>
+				<td>
+					{{ item.ps }}
+				</td>
+				<td>
+					<CommonButtonDefault tooltip="新增交易"
+					icon="mdi-window-open" color="success" size="x-small"
+					@click="addTran(item.id)" 
+   				/>
+				</td>
+			</tr>
+		</tbody>
+  </v-table>
+  <v-table v-else hover>
+		<thead>
+			<tr>
+				<th style="width: 7%;"
+				>
+				</th>
+            <th style="width: 25%;" v-text="getLabel('name')">
+				</th>
+				<th style="width: 25%;" v-text="getLabel('ps')">					
+				</th>
+				<th>					
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr v-for="item in list" :key="item.id">
+				<td>
+					<CommonButtonEdit size="x-small"
+					@click="edit(item.id)" 
+					/>
+				</td>
+				<td>
+					<a href="#" @click.prevent="select(item.id)" v-text="item.name"></a>
+            </td>
 				<td>
 					{{ item.ps }}
 				</td>

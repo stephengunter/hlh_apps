@@ -50,7 +50,8 @@ const v$ = useVuelidate(rules, state.form)
 
 const canRemove = computed(() => {
 	if(!props.id) return false
-	return true
+	if(props.model.hasOwnProperty('canRemove')) return props.model.canRemove
+	return false
 })
 
 onBeforeMount(init)
@@ -121,7 +122,7 @@ function onInputChanged(){
 		</v-row>
 		<v-row>
 			<v-col cols="12">
-				<v-btn v-if="false"  class="float-left" color="error"
+				<v-btn v-if="canRemove"  class="float-left" color="error"
 				@click.prevent="onRemove" 
 				>
 					{{ ACTION_TITLES.REMOVE }}

@@ -22,6 +22,10 @@ const props = defineProps({
       type: Object,
       default: null
    },
+   last_close: {
+      type: Object,
+      default: null
+   },
 	type_options: {
       type: Array,
       default: () => []
@@ -95,10 +99,10 @@ function create() {
 					/>
 				</v-radio-group>
          </v-col>
-         <v-col cols="3">
+         <v-col cols="3" class="mt-1">
+            <h3 v-if="state.query.active && !isEmptyObject(last_close)">前次結算：{{ last_close.date }}</h3>
          </v-col>
          <v-col cols="3">
-
          </v-col>
          <v-col cols="3">
             <CommonButtonCreate class_name="float-right" 

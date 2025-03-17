@@ -3,7 +3,8 @@ import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } fr
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { ROUTE_NAMES, ENTITY_TYPES, WIDTH, ACTION_TYPES, WARNING, ERRORS } from '@/consts'
-import { INIT_ITEM_TRANSACTIONS, FETCH_ITEM_TRANSACTIONS, EDIT_ITEM_TRANSACTION, UPDATE_ITEM_TRANSACTION
+import { INIT_ITEM_TRANSACTIONS, FETCH_ITEM_TRANSACTIONS, CREATE_ITEM_TRANSACTION, STORE_ITEM_TRANSACTION, 
+	EDIT_ITEM_TRANSACTION, UPDATE_ITEM_TRANSACTION, REMOVE_ITEM_TRANSACTION
 } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { isEmptyObject, deepClone , downloadFile, showConfirm, hideConfirm,
@@ -66,16 +67,30 @@ function fetchData(query) {
 function onCancel() {
 	state.form = deepClone(initialState.form)
 }
+function onCreate(query) {
+	const item = query.item
+	state.form.id = 0
+	store.commit(CLEAR_ERRORS)
+	store.dispatch(CREATE_ITEM_TRANSACTION, item)
+	.then(model => {
+		state.form.title = `${ACTION_TYPES.CREATE.title}${ITEM_TRANSACTION.title}`
+		state.form.model = deepClone(model)
+		state.form.actions = []
+
+		state.form.action = STORE_ITEM_TRANSACTION
+		state.form.width = WIDTH.L
+		state.form.active = true
+	})
+	.catch(error => onErrors(error))
+}
 
 function edit(id) {
 	state.form.id = id
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(EDIT_ITEM_TRANSACTION, id)
 	.then(model => {
-		state.item_options = model.itemOptions.slice(0)
-		state.form.title = `${ACTION_TYPES.EDIT.title}${ITEM_TRANSACTION.title}`,
-		state.form.id = id
-		state.form.model = deepClone(model.form)
+		state.form.title = `${ACTION_TYPES.EDIT.title}${ITEM_TRANSACTION.title}`
+		state.form.model = deepClone(model)
 		state.form.actions = []
 
 		state.form.action = UPDATE_ITEM_TRANSACTION
@@ -85,7 +100,8 @@ function edit(id) {
 	.catch(error => onErrors(error))
 }
 function onSubmit(form) {
-	updateTransaction(form)
+	if(state.form.action === STORE_ITEM_TRANSACTION) storeTransaction(form)
+	else if(state.form.action === UPDATE_ITEM_TRANSACTION) updateTransaction(form)
 }
 function storeTransaction(form) {
 	setValues(form, state.form.model)
@@ -159,7 +175,7 @@ function confirmRemove() {
 }
 function remove() {
 	let id = state.form.id
-	store.dispatch(REMOVE_ITEM, id)
+	store.dispatch(REMOVE_ITEM_TRANSACTION, id)
 	.then(() => {
 		hideConfirm()
 		onCancel()
@@ -176,7 +192,7 @@ function remove() {
 		<ItemTransactionHead ref="head" :query="query" :labels="labels" 
 		:year_options="year_options" :month_options="month_options"
 		:item_options="item_options"
-		@submit="fetchData"
+		@submit="fetchData" @create="onCreate"
 		/>
 		<v-row dense>
 			<v-col cols="12">

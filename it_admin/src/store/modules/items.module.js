@@ -3,7 +3,7 @@ import Service from '@/services/items.service'
 import { INIT_ITEMS, FETCH_ITEMS, CREATE_ITEM, STORE_ITEM, EDIT_ITEM, UPDATE_ITEM, 
    REMOVE_ITEM
 } from '@/store/actions.type'
-import { SET_LOADING, SET_ITEMS_INDEX_MODEL, SET_ITEMS_LIST } from '@/store/mutations.type'
+import { SET_LOADING, SET_ITEMS_ADMIN_MODEL, SET_ITEMS_INDEX_MODEL, SET_ITEMS_LIST } from '@/store/mutations.type'
 import { deepClone } from '@/utils'
 import { ROUTE_NAMES } from '@/consts'
 
@@ -15,6 +15,7 @@ const initialState = {
    transactionLabels: {
    },
    item_options: [],
+   lastClosed: null,
    list: []
 }
 
@@ -31,7 +32,7 @@ const actions = {
       return new Promise((resolve, reject) => {
          Service.init()
             .then(model => {
-               context.commit(SET_ITEMS_INDEX_MODEL, model)               
+               context.commit(SET_ITEMS_ADMIN_MODEL, model)               
                resolve()
             })
             .catch(error => reject(error))
@@ -42,8 +43,8 @@ const actions = {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.fetch(query)
-         .then(list => {
-            context.commit(SET_ITEMS_LIST, list)
+         .then(model => {
+            context.commit(SET_ITEMS_INDEX_MODEL, model)
             resolve()
          })
          .catch(error => reject(error))
@@ -102,11 +103,15 @@ const actions = {
 }
 
 const mutations = {
-   [SET_ITEMS_INDEX_MODEL](state, model) {
+   [SET_ITEMS_ADMIN_MODEL](state, model) {
       state.query = model.request
       state.labels = model.labels
       state.transactionLabels = model.transactionLabels
       state.item_options = model.itemOptions
+   },
+   [SET_ITEMS_INDEX_MODEL](state, model) {
+      state.list = model.items
+      state.lastClosed = model.lastClosed
    },
    [SET_ITEMS_LIST](state, list) {
       state.list = list
