@@ -2,7 +2,7 @@ import { ROUTE_TYPES, ROUTE_NAMES, MENUS, ENTITY_TYPES } from '@/consts'
 import { isNullOrEmpty, upperFirstLetter, pluralization } from '@/utils'
 import Page from '@/models/page'
 
-const PROP = ENTITY_TYPES.PROP
+const DEVICE = ENTITY_TYPES.DEVICE
 const ITEM = ENTITY_TYPES.ITEM
 const ITEM_REPORT = ENTITY_TYPES.ITEM_REPORT
 const ITEM_TRANSACTION = ENTITY_TYPES.ITEM_TRANSACTION
@@ -53,13 +53,23 @@ new Page({
    menus: [MENUS.MAIN],
    alias: '/'
 }),
+// new Page({
+//    name: ROUTE_NAMES.PROPS,
+//    path: `/${ROUTE_NAMES.PROPS}`,
+//    view: `${ROUTE_NAMES.PROPS}/Index`,
+//    icon: 'mdi-server', 
+//    title: `${PROP.title}管理`,
+//    menus: [MENUS.MAIN]
+// }),
+
 new Page({
-   name: ROUTE_NAMES.PROPS,
-   path: `/${ROUTE_NAMES.PROPS}`,
-   view: `${ROUTE_NAMES.PROPS}/Index`,
-   icon: 'mdi-server', 
-   title: `${PROP.title}管理`,
-   menus: [MENUS.MAIN]
+   name: ROUTE_NAMES.DEVICES,
+   path: `/${ROUTE_NAMES.DEVICES}`,
+   view: `${ROUTE_NAMES.DEVICES}/Index`,
+   icon: 'mdi-server',
+   title: `${DEVICE.title}管理`,
+   menus: [MENUS.MAIN],
+   parent: ''
 }),
 new Page({
    name: ROUTE_NAMES.ITEMS,
@@ -70,17 +80,26 @@ new Page({
    menus: [MENUS.MAIN],
    parent: ''
 }),
+// new Page({
+//    name: ROUTE_NAMES.ITEM_REPORTS,
+//    path: `/${ROUTE_NAMES.ITEMS}/reports`,
+//    view: `${ROUTE_NAMES.ITEMS}/Reports`,
+//    icon: 'mdi-google-spreadsheet', 
+//    title: `${ITEM_REPORT.title}`,
+//    menus: [MENUS.MAIN],
+//    parent: ROUTE_NAMES.ITEMS
+// }),
+// new Page({
+//    name: ROUTE_NAMES.ITEM_TRANSACTIONS,
+//    path: `/${ROUTE_NAMES.ITEMS}/transactions`,
+//    view: `${ROUTE_NAMES.ITEMS}/Transactions`,
+//    icon: 'mdi-text-box-check', 
+//    title: `${ITEM_TRANSACTION.title}`,
+//    menus: [MENUS.MAIN],
+//    parent: ROUTE_NAMES.ITEMS
+// }),
 
-//Groups ITEMS
-new Page({
-   name: ROUTE_NAMES.PROP_DETAILS,
-   path: `/${ROUTE_NAMES.PROPS}/:id`,
-   view: `${ROUTE_NAMES.PROPS}/Details`,
-   icon: '', 
-   title: `${PROP.title}管理`,
-   menus: [],
-   parent: ROUTE_NAMES.PROPS
-}),
+
 //Groups ITEMS
 new Page({
    name: ROUTE_NAMES.ITEM_REPORTS,

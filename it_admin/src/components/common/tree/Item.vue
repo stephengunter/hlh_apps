@@ -43,7 +43,8 @@ const initialState = {
 }
 const state = reactive(deepClone(initialState))
 
-const subItems = computed(() => props.model.subItems ? orderByDesc(props.model.subItems) : [] )
+//const subItems = computed(() => props.model.subItems ? orderByDesc(props.model.subItems) : [] )
+const subItems = computed(() => props.model.subItems ? props.model.subItems : [] )
 
 watch(() => props.active_ids, (val) => {
    init()

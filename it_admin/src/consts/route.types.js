@@ -10,6 +10,7 @@ export const ROUTE_NAMES = {
    SIGN_IN_CALLBACK: 'signin-callback',
    PROPS: 'props',
    PROP_DETAILS: 'prop-details',
+   DEVICES: 'devices',
    ITEMS: 'items',
    ITEM_REPORTS: 'item-reports',
    ITEM_TRANSACTIONS: 'item-transactions',

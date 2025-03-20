@@ -7,6 +7,14 @@ export const ENTITY_TYPES = {
       name: 'profiles',
       title: '個人資料'
    },
+   DEVICE: {
+      name: 'device',
+      title: '設備'
+   },
+   DEVICE_TRANSACTION: {
+      name: 'device-transaction',
+      title: '交易紀錄'
+   },
    ITEM: {
       name: 'item',
       title: '耗材'

@@ -23,6 +23,11 @@ export const SET_USERS = 'setUsers'
 //Departments
 export const SET_DEPARTMENTS = 'setDepartments'
 
+//Devices
+export const SET_DEVICES_ADMIN_MODEL = 'setDevicesAdminModel'
+export const SET_DEVICES_INDEX_MODEL = 'setDevicesIndexModel'
+export const SET_DEVICES_LIST = 'setDevicesList'
+
 //Items
 export const SET_ITEMS_ADMIN_MODEL = 'setItemsAdminModel'
 export const SET_ITEMS_INDEX_MODEL = 'setItemsIndexModel'

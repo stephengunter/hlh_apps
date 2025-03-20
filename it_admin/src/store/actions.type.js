@@ -20,6 +20,15 @@ export const FETCH_DEPARTMENTS = 'fetchDepartments'
 //Users
 export const FETCH_USERS = 'fetchUsers'
 
+//Devices
+export const INIT_DEVICES = 'initDevices'
+export const FETCH_DEVICES = 'fetchDevices'
+export const CREATE_DEVICE = 'createDevice'
+export const STORE_DEVICE = 'storeDevice'
+export const EDIT_DEVICE = 'editDevice'
+export const UPDATE_DEVICE = 'updateDevice'
+export const REMOVE_DEVICE = 'removeDevice'
+
 //Items
 export const INIT_ITEMS = 'initItems'
 export const FETCH_ITEMS = 'fetchItems'
