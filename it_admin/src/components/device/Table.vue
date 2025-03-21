@@ -36,13 +36,24 @@ const initialState = {
 }
 const state = reactive(deepClone(initialState))
 
-const headers = computed(() => {
-   return [{
+const headers = computed(() => [{
       title: '',
       align: 'center',
       width: '8%',
       sortable: false,
       key: 'check',
+   },{
+      title: 'CategoryId',
+      align: 'start',
+      width: '10%',
+      sortable: false,
+      key: 'categoryId',
+   },{
+      title: 'kind',
+      align: 'start',
+      width: '10%',
+      sortable: false,
+      key: 'kind',
    },{
       title: getLabel('title'),
       align: 'start',
@@ -67,14 +78,14 @@ const headers = computed(() => {
       width: '10%',
       sortable: false,
       key: 'room',
-   }],{
+   },{
       title: getLabel('ps'),
       align: 'start',
       width: '10%',
       sortable: false,
       key: 'ps',
-   }
-}) 
+   }]
+)
 
 const list = computed(() => isEmptyObject(props.model) ? [] : props.model.viewList)
 
@@ -112,9 +123,8 @@ function departmentTitle(profiles) {
 }
 
 </script>
-
-
 <template>
+   <div> 
    <v-data-table-server v-if="!isEmptyObject(props.model)"
    v-model:items-per-page="model.pageSize"
    :headers="headers"
@@ -128,4 +138,5 @@ function departmentTitle(profiles) {
          />
       </template>
    </v-data-table-server>
+</div>
 </template>

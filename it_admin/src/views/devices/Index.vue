@@ -77,7 +77,13 @@ function init() {
 function fetchData(query) {
 	console.log(query)
 	if(!query) query = head.value.getQuery()
-	if(!query.category) state.category = null
+	if(query.category) {
+		if(!state.category) {
+			const category = categories.value.find(x => x.id === query.category)
+			state.category = category
+		}
+	}else state.category = null
+	
 	state.active = query.active
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(FETCH_DEVICES, query)
@@ -145,6 +151,7 @@ function onSubmit(form) {
 
 <template>
 	<div>
+		{{ labels }}
 		<DeviceHead ref="head"
 		:query="query" :labels="labels" :root_category="root_category"
 		:category="state.category"

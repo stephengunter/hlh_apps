@@ -7,6 +7,10 @@ export const ENTITY_TYPES = {
       name: 'profiles',
       title: '個人資料'
    },
+   PROPERTY: {
+      name: 'property',
+      title: '財產'
+   },
    DEVICE: {
       name: 'device',
       title: '設備'
@@ -27,8 +31,4 @@ export const ENTITY_TYPES = {
       name: 'item-report',
       title: '每月報表'
    },
-   PROP: {
-      name: 'prop',
-      title: '資產'
-   }
 }

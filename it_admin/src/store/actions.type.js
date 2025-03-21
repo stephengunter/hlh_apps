@@ -29,6 +29,15 @@ export const EDIT_DEVICE = 'editDevice'
 export const UPDATE_DEVICE = 'updateDevice'
 export const REMOVE_DEVICE = 'removeDevice'
 
+//Properties
+export const INIT_PROPERTIES = 'initProperties'
+export const FETCH_PROPERTIES = 'fetchProperties'
+export const CREATE_PROPERTY = 'createProperty'
+export const STORE_PROPERTY = 'storeProperty'
+export const EDIT_PROPERTY = 'editProperty'
+export const UPDATE_PROPERTY = 'updateProperty'
+export const REMOVE_PROPERTY = 'removeProperty'
+
 //Items
 export const INIT_ITEMS = 'initItems'
 export const FETCH_ITEMS = 'fetchItems'

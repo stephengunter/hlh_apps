@@ -2,6 +2,7 @@ import { ROUTE_TYPES, ROUTE_NAMES, MENUS, ENTITY_TYPES } from '@/consts'
 import { isNullOrEmpty, upperFirstLetter, pluralization } from '@/utils'
 import Page from '@/models/page'
 
+const PROPERTY = ENTITY_TYPES.PROPERTY
 const DEVICE = ENTITY_TYPES.DEVICE
 const ITEM = ENTITY_TYPES.ITEM
 const ITEM_REPORT = ENTITY_TYPES.ITEM_REPORT
@@ -63,10 +64,19 @@ new Page({
 // }),
 
 new Page({
+   name: ROUTE_NAMES.PROPERTIES,
+   path: `/${ROUTE_NAMES.PROPERTIES}`,
+   view: `${ROUTE_NAMES.PROPERTIES}/Index`,
+   icon: 'mdi-propane-tank',
+   title: `${PROPERTY.title}管理`,
+   menus: [MENUS.MAIN],
+   parent: ''
+}),
+new Page({
    name: ROUTE_NAMES.DEVICES,
    path: `/${ROUTE_NAMES.DEVICES}`,
    view: `${ROUTE_NAMES.DEVICES}/Index`,
-   icon: 'mdi-server',
+   icon: 'mdi-laptop',
    title: `${DEVICE.title}管理`,
    menus: [MENUS.MAIN],
    parent: ''

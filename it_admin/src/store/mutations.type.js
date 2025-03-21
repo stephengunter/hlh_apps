@@ -28,6 +28,12 @@ export const SET_DEVICES_ADMIN_MODEL = 'setDevicesAdminModel'
 export const SET_DEVICES_INDEX_MODEL = 'setDevicesIndexModel'
 export const SET_DEVICES_LIST = 'setDevicesList'
 
+
+//Properties
+export const SET_PROPERTIES_ADMIN_MODEL = 'setPropertiesAdminModel'
+export const SET_PROPERTIES_INDEX_MODEL = 'setPropertiesIndexModel'
+export const SET_PROPERTIES_LIST = 'setPropertiesList'
+
 //Items
 export const SET_ITEMS_ADMIN_MODEL = 'setItemsAdminModel'
 export const SET_ITEMS_INDEX_MODEL = 'setItemsIndexModel'
