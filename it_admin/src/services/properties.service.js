@@ -6,4 +6,10 @@ const init = () => BaseService.fetch(`${source}/init`)
 
 const fetch = (query) => BaseService.fetch(source, query)
 
-export default { init, fetch }
+const upload = (model) => BaseService.post(`${source}/upload`, model)
+
+const imports = (model) => BaseService.post(`${source}/imports`, model)
+
+const reports = (model) => BaseService.blob('post', `${source}/reports`, model)
+
+export default { init, fetch, upload, imports, reports }

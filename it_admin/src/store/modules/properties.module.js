@@ -1,6 +1,6 @@
 import Errors from '@/common/errors'
 import Service from '@/services/properties.service'
-import { INIT_PROPERTIES, FETCH_PROPERTIES
+import { INIT_PROPERTIES, FETCH_PROPERTIES, REPORT_PROPERTIES, UPLOAD_PROPERTIES, IMPORT_PROPERTIES
 } from '@/store/actions.type'
 import { SET_LOADING, SET_PROPERTIES_ADMIN_MODEL, SET_PROPERTIES_INDEX_MODEL, SET_PROPERTIES_LIST } from '@/store/mutations.type'
 import { deepClone } from '@/utils'
@@ -11,9 +11,9 @@ const initialState = {
    },
    labels: {
    },
-   transactionLabels: {
-   },
+   type_options: [],
    pagedList: null,
+   groupViews: [],
    locations: [],
    categories: [],  
    list: []
@@ -50,6 +50,41 @@ const actions = {
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })
+   },
+   [UPLOAD_PROPERTIES](context, model) {
+      const formData = new FormData()
+      for (const key in model) {
+         if (key === 'file' && model[key]) {
+            formData.append(key, model[key], model[key].name);
+         } else if (model[key] != null) {
+            formData.append(key, model[key])
+         }
+      }
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         Service.upload(formData)
+         .then(data => resolve(data))
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
+   [IMPORT_PROPERTIES](context, model) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         Service.imports(model)
+         .then(data => resolve(data))
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
+   [REPORT_PROPERTIES](context, model) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         Service.reports(model)
+         .then(data => resolve(data))
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })
    }
 }
 
@@ -57,11 +92,13 @@ const mutations = {
    [SET_PROPERTIES_ADMIN_MODEL](state, model) {
       state.query = model.request
       state.labels = model.labels
+      state.type_options = model.typeOptions
       state.locations = model.locations
       state.categories = model.categories
    },
    [SET_PROPERTIES_INDEX_MODEL](state, model) {
-      state.pagedList = model
+      state.pagedList = model.pagedList
+      state.groupViews = model.groupViews
    },
    [SET_PROPERTIES_LIST](state, list) {
       state.list = list

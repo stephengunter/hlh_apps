@@ -20,6 +20,10 @@ const props = defineProps({
 		type: Boolean,
 		default: false
 	},
+   can_check: {
+      type: Boolean,
+      default: false
+   },
    can_remove: {
       type: Boolean,
       default: false
@@ -42,7 +46,7 @@ const props = defineProps({
    }
 })
 
-const emit = defineEmits(['select', 'check', 'options_changed'])
+const emit = defineEmits(['select', 'check', 'remove', 'options_changed'])
 defineExpose({
    getCheckIds, setCheckIds
 })
@@ -59,6 +63,12 @@ const headers = computed(() => {
       width: '3%',
       sortable: false,
       key: 'check',
+   },{
+      title: '',
+      align: 'center',
+      width: '3%',
+      sortable: false,
+      key: 'remove',
    },{
       title: getLabel('propertyType'),
       align: 'start',
@@ -100,7 +110,7 @@ const headers = computed(() => {
       align: 'start',
       width: '5%',
       sortable: false,
-      key: 'downDate',
+      key: 'downDateText',
    },{
       title: getLabel('userName'),
       align: 'start',
@@ -114,6 +124,18 @@ const headers = computed(() => {
       sortable: false,
       key: 'location',
    },{
+      title: getLabel('getDate'),
+      align: 'start',
+      width: '8%',
+      sortable: false,
+      key: 'getDateText',
+   },{
+      title: '',
+      align: 'start',
+      width: '5%',
+      sortable: false,
+      key: 'isDown',
+   },{
       title: getLabel('ps'),
       align: 'start',
       width: '10%',
@@ -121,20 +143,32 @@ const headers = computed(() => {
       key: 'ps',
    }]
 
-   const deprecatedKeys = ['propertyTypeText', 'category', 'title', 'numberText',
-      'downDate', 'ps'
+   const notdeprecatedKeys = ['propertyTypeText', 'category', 'type', 'brandName', 'title', 'numberText',
+      'getDateText', 'location', 'userName', 'isDown', 'ps'
    ]
-   if(props.deprecated) {
-      return items.filter(x => deprecatedKeys.includes(x.key)) 
+   const deprecatedKeys = ['propertyTypeText', 'category', 'brandName', 'type', 'title', 'numberText',
+      'downDateText', 'ps'
+   ]
+
+   let results = props.deprecated ? items.filter(x => deprecatedKeys.includes(x.key)) : items.filter(x => notdeprecatedKeys.includes(x.key))
+
+   if(props.can_check) {
+      results.unshift(items.find(x => x.key === 'check'))
    } 
-
-
-   return items
+   if(props.can_remove) {
+      results.unshift(items.find(x => x.key === 'remove'))
+      console.log(results)
+   } 
+   return results
 })
 
 
 
-const list = computed(() => isEmptyObject(props.model) ? [] : props.model.viewList)
+const list = computed(() => {
+   if(isEmptyObject(props.model)) return []
+   if(props.model.hasOwnProperty('viewList')) return props.model.viewList
+   return props.model.list
+})
 
 function getLabel(key) {
 	if(isEmptyObject(props.labels)) return ''
@@ -213,6 +247,11 @@ function locationTitle(item) {
       :loading="props.loading"
       :items="list"
       >
+         <template v-slot:item.remove="{ item }">
+            <v-btn color="error" icon="mdi-delete" variant="text" 
+            @click.prevent="() => emit('remove', item)" 
+            />
+         </template>
          <template v-slot:item.category="{ item }">
             {{ categoryTitle(item) }}
          </template>
@@ -224,6 +263,9 @@ function locationTitle(item) {
          </template>
          <template v-slot:item.location="{ item }">
             {{ locationTitle(item) }}
+         </template>
+         <template v-slot:item.isDown="{ item }">
+            <v-chip v-if="item.isDown" variant="flat" >已下架</v-chip>
          </template>
          <template v-slot:bottom="{ item }">
             <CommonTablePager  :model="model"

@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { ROUTE_NAMES, ENTITY_TYPES, WIDTH, ACTION_TYPES, WARNING, ERRORS } from '@/consts'
 import { INIT_DEVICES, FETCH_DEVICES, CREATE_DEVICE, STORE_DEVICE, EDIT_DEVICE, UPDATE_DEVICE, 
-	REMOVE_DEVICE
+	REMOVE_DEVICE, IMPORT_DEVICES
 } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { isEmptyObject, deepClone , downloadFile, showConfirm, hideConfirm,
@@ -32,6 +32,7 @@ const initialState = {
 		action: '',
 		width: WIDTH.L
 	},
+	fired: false,
 	category: null,
 	category_tree: {
 		title: '',
@@ -44,6 +45,7 @@ const tree = ref(null)
 const state = reactive(deepClone(initialState))
 const query = computed(() => store.state.devices.query)
 const labels = computed(() => store.state.devices.labels)
+const locations = computed(() => store.state.devices.locations)
 const categories = computed(() => store.state.devices.categories)
 const root_category = computed(() => store.state.devices.rootCategory)
 const category_ids = computed(() => {
@@ -75,7 +77,6 @@ function init() {
 	//tree.value.init()
 }
 function fetchData(query) {
-	console.log(query)
 	if(!query) query = head.value.getQuery()
 	if(query.category) {
 		if(!state.category) {
@@ -83,8 +84,7 @@ function fetchData(query) {
 			state.category = category
 		}
 	}else state.category = null
-	
-	state.active = query.active
+	state.fired = query.fired
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(FETCH_DEVICES, query)
 	.catch(error => onErrors(error))
@@ -147,6 +147,19 @@ function onSubmit(form) {
 	else if(state.form.action === STORE_DEVICE) storeItem(form)
 	else if(state.form.action === STORE_DEVICE_TRANSACTION) storeTransaction(form)	
 }
+function imports() {
+   store.dispatch(IMPORT_DEVICES)
+	.then(() => {
+		onSuccess()
+		fetchData()
+	})
+	.catch(error => onSubmitError(error))
+}
+function onSubmitError(error) {
+	let data = resolveErrorData(error)
+	if(data && data.errors) store.commit(SET_ERRORS, data.errors)
+	else onErrors(error)
+}
 </script>
 
 <template>
@@ -155,14 +168,15 @@ function onSubmit(form) {
 		<DeviceHead ref="head"
 		:query="query" :labels="labels" :root_category="root_category"
 		:category="state.category"
-		@selectCategory="selectCategory"
+		@selectCategory="selectCategory" @imports="imports"
 		@submit="fetchData" @create="onCreate"
 		/>
 		
 		<v-row dense>
 			<v-col cols="12">
-				<DeviceTable :labels="labels" 
-				:model="pagedList" 
+				<DeviceTable :labels="labels" :fired="state.fired"
+				:locations="locations" :users="users"
+				:model="pagedList" :categories="categories"
 				@options_changed="onOptionChanged"
 				/>
 			</v-col>

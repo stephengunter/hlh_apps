@@ -8,7 +8,7 @@ import { isEmptyObject, deepClone , copyFromQuery, areObjectsEqual,
 } from '@/utils'
 
 const name = 'DeviceHead'
-const emit = defineEmits(['select-category', 'set-category', 'submit', 'create'])
+const emit = defineEmits(['select-category', 'set-category', 'submit', 'create', 'imports'])
 defineExpose({
    init, setQuery, getQuery, setCategory, setPageOption
 })
@@ -21,6 +21,10 @@ const props = defineProps({
    category: {
       type: Object,
       default: null
+   },
+   locations: {
+      type: Array,
+      default: () => []
    },
 	labels: {
       type: Object,
@@ -35,7 +39,7 @@ const initialState = {
 	query: {
 	},
    category_name: '',
-   type_selected: null
+   location_name: ''
 }
 const state = reactive(deepClone(initialState))
 const tree = ref(null)
@@ -43,13 +47,20 @@ const tree = ref(null)
 const fired_options = [{
    value: true, title: '已報廢'
 },{
-   value: false, title: '已下架'
+   value: false, title: '正常'
 }]
 
+const can_import = computed(() => {
+   return true
+})
 const query_match_route = computed(() => {
 	if(route.query) {
 		return areObjectsEqual(state.query, route.query, true)
 	} return false
+})
+const has_location = computed(() => {
+   if(state.location_name) return true
+   return false
 })
 
 watch(route, init)
@@ -64,12 +75,22 @@ function init() {
 		router.push({ path: route.path, query: { ...props.query } })
       return
 	}
-   //console.log(tree.value)
-	//tree.value.init()
+   const submit = false
 	state.query = { ...route.query }
    state.query.fired = isTrue(state.query.fired)
    state.query.category = tryParseIntOrNull(state.query.category)
-   emit('submit', state.query)
+
+   state.query.location = tryParseIntOrNull(state.query.location)
+   if(state.query.location) {
+      const location = props.locations.find(x => x.id === state.query.location)
+      setLocation(location, submit)
+   }else {
+      setLocation(null, submit)
+   }
+
+   state.query.page = tryParseInt(state.query.page)
+   state.query.pageSize = tryParseInt(state.query.pageSize)
+   onSubmit()
 }
 function setQuery(model) {
    setValues(model, state.query)
@@ -82,11 +103,17 @@ function setPageOption(option) {
 	if(option.hasOwnProperty('size')) state.query.pageSize = option.size
 	onSubmit()
 }
-function onFiredSelected() {
-   onSubmit()
-}
-function onActiveSelected(val) {
-   onSubmit()
+
+function setLocation(location, submit = true) {
+	if(location) {
+		state.location_name = location.title
+		state.query.location = location.id
+	}
+	else {
+		state.location_name = ''
+		state.query.location = null
+	}
+   if(submit) onSubmit()
 }
 function selectCategory() {
    emit('select-category', true)
@@ -114,6 +141,9 @@ function onSubmit() {
 function create() {
    emit('create', state.query)
 }
+function imports() {
+   emit('imports', state.query)
+}
 
 </script>
 
@@ -121,22 +151,32 @@ function create() {
 <template>
    <form v-show="!isEmptyObject(state.query)" @submit.prevent="onSubmit">
       <v-row dense>
-			<v-col cols="3">
+         <v-col cols="1" >
+            <v-select density="compact" variant="outlined" label="狀態" 
+				:items="fired_options" v-model="state.query.fired"
+				@update:modelValue="onSubmit"
+				/>
+         </v-col>
+			<v-col cols="2">
             <v-text-field label="設備分類" readonly clearable  
 				density="compact" variant="outlined" 
             :model-value="state.category_name"
             @click:control="selectCategory" @click:clear="() => setCategory(null)"
 				/>
          </v-col>
-         <v-col cols="3">
+         <v-col cols="2">
+            <LocationSelector density="compact" variant="outlined"
+				:clearable="has_location"
+				:keyword="state.location_name"
+				:list="locations"
+				@selected="setLocation"
+				/>
          </v-col>
          <v-col cols="3">
-            <v-switch color="primary" label="已報廢" hide-details 
-            v-model="state.query.fired"
-            @update:modelValue="onFiredSelected"
-            />
-         </v-col>
-         <v-col cols="3">
+            <CommonButtonDefault icon="mdi-upload" class_name="float-right ml-1" 
+				color="warning" tooltip="匯入舊資料" :disabled="!can_import"
+				@click="imports"
+				/>
             <CommonButtonCreate class_name="float-right" 
 				tooltip="新增"
 				@create="create"

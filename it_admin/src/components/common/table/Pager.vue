@@ -16,6 +16,10 @@ const props = defineProps({
       type: Boolean,
       default: true
    },
+   can_size: {
+      type: Boolean,
+      default: true
+   },
    row_options: {
       type: Array,
       default: () => [10,25,50]
@@ -31,7 +35,7 @@ const state = reactive(deepClone(initialState))
 watch(() => props.model, (currentValue, oldValue) => {
    init()
 },{
-   deep:true
+   deep: true
 })
 
 
@@ -64,7 +68,8 @@ function onPageSizeChanged(size) {
 <template>
    <v-row dense v-if="can_page">
       <v-col cols="2">
-         <v-select class="float-right mt-1" style="width: 100px;"  density="compact"
+         <v-select v-if="can_size"
+         class="float-right mt-1" style="width: 100px;"  density="compact"
          label="Rows"
          :items="row_options"
          v-model="state.size"   

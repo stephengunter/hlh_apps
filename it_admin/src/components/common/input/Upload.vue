@@ -7,6 +7,10 @@ const props = defineProps({
       type: Boolean,
       default: false
    },
+   show_files: {
+      type: Boolean,
+      default: true
+   },
    button_label: {
       type: String,
       default: '上傳檔案'
@@ -30,7 +34,7 @@ const props = defineProps({
 })
 
 defineExpose({
-   launch, getFiles
+   launch, getFiles, reset
 })
 const emit = defineEmits(['file-added', 'file-removed'])
 const inputUpload = ref(null)
@@ -56,6 +60,11 @@ function getFiles() {
 }
 function launch() {
    inputUpload.value.click()
+}
+function reset() {
+   state.files = []
+   state.thumbnails = []
+   inputUpload.value = ''
 }
 
 function onFileChange(e) {
@@ -160,11 +169,13 @@ function isImage(type) {
       :multiple="multiple" :accept="accept" 
       @change="onFileChange" 
       > 
-      <v-chip size="small" class="ma-2" v-for="file in state.files"
-      closable :key="file.name"  
-      @click:close="removeFile(file.name)"
-      >
-      {{ file.name }}
-      </v-chip>
+      <div v-if="show_files">
+         <v-chip size="small" class="ma-2" v-for="file in state.files"
+         closable :key="file.name"  
+         @click:close="removeFile(file.name)"
+         >
+         {{ file.name }}
+         </v-chip>
+      </div>
    </div>
 </template>

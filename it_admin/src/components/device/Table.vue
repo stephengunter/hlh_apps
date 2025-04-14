@@ -12,6 +12,10 @@ const props = defineProps({
       type: Object,
       default: null
    },
+   deprecated: {
+      type: Boolean,
+      default: false
+   },
    loading: {
 		type: Boolean,
 		default: false
@@ -23,6 +27,18 @@ const props = defineProps({
    can_edit: {
       type: Boolean,
       default: true
+   },
+   users: {
+      type: Array,
+      default: () => []
+   },
+   categories: {
+      type: Array,
+      default: () => []
+   },
+   locations: {
+      type: Array,
+      default: () => []
    }
 })
 
@@ -36,48 +52,79 @@ const initialState = {
 }
 const state = reactive(deepClone(initialState))
 
-const headers = computed(() => [{
+const headers = computed(() => {
+   let items = [{
       title: '',
       align: 'center',
-      width: '8%',
+      width: '3%',
       sortable: false,
       key: 'check',
    },{
-      title: 'CategoryId',
+      title: getLabel('propertyType'),
       align: 'start',
-      width: '10%',
+      width: '5%',
       sortable: false,
-      key: 'categoryId',
+      key: 'propertyTypeText',
    },{
-      title: 'kind',
+      title: '分類',
       align: 'start',
-      width: '10%',
+      width: '5%',
       sortable: false,
-      key: 'kind',
+      key: 'category',
    },{
       title: getLabel('title'),
       align: 'start',
-      width: '15%',
+      width: '10%',
       sortable: false,
       key: 'title',
    },{
-      title: getLabel('no'),
-      align: 'start',
-      width: '15%',
-      sortable: false,
-      key: 'no',
-   },{
-      title: getLabel('propNum'),
-      align: 'start',
-      width: '15%',
-      sortable: false,
-      key: 'propNum',
-   },{
-      title: getLabel('room'),
+      title: getLabel('number'),
       align: 'start',
       width: '10%',
       sortable: false,
-      key: 'room',
+      key: 'numberText',
+   },{
+      title: getLabel('brand'),
+      align: 'start',
+      width: '5%',
+      sortable: false,
+      key: 'brandName',
+   },{
+      title: getLabel('type'),
+      align: 'start',
+      width: '8%',
+      sortable: false,
+      key: 'type',
+   },{
+      title: getLabel('downDate'),
+      align: 'start',
+      width: '5%',
+      sortable: false,
+      key: 'downDateText',
+   },{
+      title: getLabel('userName'),
+      align: 'start',
+      width: '5%',
+      sortable: false,
+      key: 'userName',
+   },{
+      title: getLabel('location'),
+      align: 'start',
+      width: '8%',
+      sortable: false,
+      key: 'location',
+   },{
+      title: getLabel('getDate'),
+      align: 'start',
+      width: '8%',
+      sortable: false,
+      key: 'getDateText',
+   },{
+      title: '',
+      align: 'start',
+      width: '5%',
+      sortable: false,
+      key: 'isDown',
    },{
       title: getLabel('ps'),
       align: 'start',
@@ -85,7 +132,20 @@ const headers = computed(() => [{
       sortable: false,
       key: 'ps',
    }]
-)
+
+   const notdeprecatedKeys = ['propertyTypeText', 'category', 'type', 'brandName', 'title', 'numberText',
+      'getDateText', 'location', 'userName', 'isDown', 'ps'
+   ]
+   const deprecatedKeys = ['propertyTypeText', 'category', 'brandName', 'type', 'title', 'numberText',
+      'downDateText', 'ps'
+   ]
+   if(props.deprecated) {
+      return items.filter(x => deprecatedKeys.includes(x.key)) 
+   } 
+   return items.filter(x => notdeprecatedKeys.includes(x.key))
+})
+
+
 
 const list = computed(() => isEmptyObject(props.model) ? [] : props.model.viewList)
 
@@ -115,28 +175,78 @@ function onPageSizeChanged(size) {
       size 
    })
 }
-function departmentTitle(profiles) {
-   if(!profiles.departmentId) return ''
-   let department = props.departments.find(x => x.id === profiles.departmentId)
-   if(department) return department.title
+function userTitle(item) {
+   const user = props.users.find(x => x.id === item.userId)   
+   if(user && user.profiles.name) return user.profiles.name
+   return item.userName
+}
+function categoryTitle(item) {
+   const category = props.categories.find(x => x.id === item.categoryId)   
+   if(category) return category.title
    return ''
+}
+function locationTitle(item) {
+   const location = props.locations.find(x => x.id === item.locationId)   
+   if(location) return location.title
+   return item.locationName
 }
 
 </script>
 <template>
-   <div> 
-   <v-data-table-server v-if="!isEmptyObject(props.model)"
-   v-model:items-per-page="model.pageSize"
-   :headers="headers"
-   :items-length="model.totalItems"
-   :loading="props.loading"
-   :items="list"
-   >
-      <template v-slot:bottom="{ item }">
-         <CommonTablePager  :model="model"
-         @page_changed="onPageChanged" @size_changed="onPageSizeChanged"
-         />
-      </template>
-   </v-data-table-server>
-</div>
+   <div v-if="!isEmptyObject(props.model)"> 
+      {{ labels }}
+      <v-data-table-server v-if="deprecated"
+      v-model:items-per-page="model.pageSize"
+      :headers="headers"
+      :items-length="model.totalItems"
+      :loading="props.loading"
+      :items="list"
+      >
+         <template v-slot:item.category="{ item }">
+            {{ categoryTitle(item) }}
+         </template>
+         <template v-slot:item.title="{ item }">
+            {{ item.titleNameText }}
+         </template>
+         <template v-slot:item.userName="{ item }">
+            {{ userTitle(item) }}
+         </template>
+         <template v-slot:item.location="{ item }">
+            {{ locationTitle(item) }}
+         </template>
+         <template v-slot:bottom="{ item }">
+            <CommonTablePager  :model="model"
+            @page_changed="onPageChanged" @size_changed="onPageSizeChanged"
+            />
+         </template>
+      </v-data-table-server>
+      <v-data-table-server v-else
+      v-model:items-per-page="model.pageSize"
+      :headers="headers"
+      :items-length="model.totalItems"
+      :loading="props.loading"
+      :items="list"
+      >
+         <template v-slot:item.category="{ item }">
+            {{ categoryTitle(item) }}
+         </template>
+         <template v-slot:item.title="{ item }">
+            {{ item.titleNameText }}
+         </template>
+         <template v-slot:item.userName="{ item }">
+            {{ userTitle(item) }}
+         </template>
+         <template v-slot:item.location="{ item }">
+            {{ locationTitle(item) }}
+         </template>
+         <template v-slot:item.isDown="{ item }">
+            <v-chip v-if="item.isDown" variant="flat" >已下架</v-chip>
+         </template>
+         <template v-slot:bottom="{ item }">
+            <CommonTablePager  :model="model"
+            @page_changed="onPageChanged" @size_changed="onPageSizeChanged"
+            />
+         </template>
+      </v-data-table-server>
+   </div>
 </template>
