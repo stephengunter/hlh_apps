@@ -4,6 +4,10 @@ import { reactive, onBeforeMount, computed, watch } from 'vue'
 import { deepClone } from '@/utils'
 const name = 'CategorySelector'
 const props = defineProps({
+   type: {
+      type: String,
+      default: 'Property'
+   },
    label: {
       type: String,
       default: '分類'
@@ -28,6 +32,10 @@ const props = defineProps({
       type: Boolean,
       default: false
    },
+   can_edit: {
+      type: Boolean,
+      default: false
+   },
 	multiple: {
       type: Boolean,
       default: false
@@ -37,12 +45,12 @@ const props = defineProps({
 		default: ''
 	}
 })
-const emit = defineEmits(['selected'])
+const emit = defineEmits(['selected', 'edit'])
 defineExpose({
    init
 })
 const initialState = {
-   val: '' 
+   val: ''
 }
 const state = reactive(deepClone(initialState))
 watch(() => props.keyword, init ,{
@@ -67,15 +75,27 @@ function onSelected() {
 	}
 	else emit('selected', null)
 }
+
+function edit() {
+	emit('edit')
+}
 </script>
 
 <template>
    <v-autocomplete :density="density" :variant="variant"
 	:clearable="clearable" :multiple="multiple"
    :error-messages="errorMessages"
-	v-model="state.val"
-	:items="items"
+	v-model="state.val" :disabled="state.active"
+	:items="items" 
 	:label="label"
 	@update:modelValue="onSelected"
-	/>
+	>
+      <template v-if="can_edit" v-slot:append>
+         <CommonButtonDefault   tooltip="編輯分類" :icon_only="true" 
+         icon="mdi-pencil" color=""
+         @click="edit"
+         />
+         
+        </template>
+   </v-autocomplete>
 </template>

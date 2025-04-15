@@ -2,9 +2,10 @@
 import { ref, reactive, computed, watch, onBeforeMount, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import Errors from '@/common/errors'
-import { FILE_TYPES } from '@/consts'
-import { isEmptyObject, deepClone , copyFromQuery, areObjectsEqual, 
+import { EDIT_PROPERTY_CATEGORY, REMOVE_PROPERTY_CATEGORY } from '@/store/actions.type'
+import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
+import { FILE_TYPES, WIDTH, ACTION_TYPES } from '@/consts'
+import { isEmptyObject, deepClone , copyFromQuery, areObjectsEqual, onErrors,
 	setValues, badRequest, tryParseInt, getValue, isTrue, tryParseIntOrNull
 } from '@/utils'
 const name = 'PropertyHead'
@@ -62,7 +63,17 @@ const initialState = {
    location_name: '',
    upload: {
       accept_types: ['.xls', '.xlsx', 'application/vnd.ms-excel', FILE_TYPES.EXCEL ]
-   }
+   },
+   form: {
+		id: 0,
+      model: null,
+      can_remove: false,
+		title: '',
+		active: false,
+		labels: null,
+		action: '',
+		width: WIDTH.L
+	}
 }
 const state = reactive(deepClone(initialState))
 const file_upload = ref(null)
@@ -84,8 +95,9 @@ const category_list = computed(() => {
    return []
 })
 const has_category = computed(() => {
-   if(state.category_name) return true
-   return false
+   return state.query.category > 0
+   // if(state.category_name) return true
+   // return false
 })
 const has_location = computed(() => {
    if(state.location_name) return true
@@ -113,20 +125,11 @@ function init() {
    state.query.deprecated = isTrue(state.query.deprecated)
    state.query.down = tryParseInt(state.query.down)
    state.query.type = tryParseInt(state.query.type)
+
    state.query.category = tryParseInt(state.query.category)
    const category = category_list.value.find(x => x.id === state.query.category)
    setCategory(category, submit)
-   // console.log('query', state.query)
-   // if(state.query.category && state.query.category > 0) {
-   //    const category = props.categories.find(x => x.id === state.query.category)
-   //    console.log('state.query.category', state.query.category)
-   //    setCategory(category, submit)
-   // }else if(state.query.category && state.query.category < 0) {
-   //   console.log('state.query.category', state.query.category)
-   //    setCategory(null, submit)
-   // }else {
-   //    setCategory(null, submit)
-   // }
+
    state.query.location = tryParseIntOrNull(state.query.location)
    if(state.query.location) {
       const location = props.locations.find(x => x.id === state.query.location)
@@ -160,15 +163,10 @@ function onFileAdded(files) {
 function setCategory(category, submit = true) {
    state.category_name = category.title
 	state.query.category = category.id
-	// if(category) {
-	// 	state.category_name = category.title
-	// 	state.query.category = category.id
-	// }
-	// else {
-	// 	state.category_name = ''
-	// 	state.query.category = null
-	// }
-   if(submit) onSubmit()
+   if(submit) {
+      state.query.page = 1
+      onSubmit()
+   }
 }
 function onCategoryGroupSelected(category) {
    if(category) {
@@ -176,6 +174,32 @@ function onCategoryGroupSelected(category) {
    }else {
       setCategory({ id: -1, title: 'null'})
    }
+}
+function editCategory() {
+   state.form.id = state.query.category
+	store.commit(CLEAR_ERRORS)
+	store.dispatch(EDIT_PROPERTY_CATEGORY, state.form.id)
+	.then(model => {
+		state.form.title = `${ACTION_TYPES.EDIT.title}財產分類`,
+      state.form.can_remove = model.canRemove
+		state.form.model = deepClone(model.form)
+		state.form.width = WIDTH.M
+		state.form.active = true
+	})
+	.catch(error => onErrors(error))
+}
+function onCancel() {
+	state.form = deepClone(initialState.form)
+}
+function removeCategory() {
+   let id = state.form.id
+	store.dispatch(REMOVE_PROPERTY_CATEGORY, id)
+	.then(() => {
+      onCancel()
+      
+		setCategory({ id: 0, title: '全部'})
+	})
+	.catch(error => onSubmitError(error))
 }
 function setLocation(location, submit = true) {
 	if(location) {
@@ -208,6 +232,7 @@ function report() {
 <div>
    <form v-show="!isEmptyObject(state.query)" @submit.prevent="onSubmit">
       <v-row dense>
+         
          <v-col cols="1" >
             <v-select density="compact" variant="outlined" label="狀態" 
 				:items="deprecated_options" v-model="state.query.deprecated"
@@ -227,11 +252,12 @@ function report() {
 				/>
          </v-col>
 			<v-col cols="2">
-            <CategorySelector density="compact" variant="outlined"
-				:clearable="false"
+            <CategorySelector type="Property"
+            density="compact" variant="outlined"
+				:clearable="false" :can_edit="has_category"
 				:keyword="state.category_name"
 				:list="category_list"
-				@selected="setCategory"
+				@selected="setCategory" @edit="editCategory"
 				/>
          </v-col>
          <v-col cols="2">
@@ -259,6 +285,10 @@ function report() {
 				color="warning" tooltip="輸出報表" :disabled="!can_report"
 				@click="report"
 				/>
+            <CommonButtonDefault icon="mdi-pencil" class_name="float-right mr-1" 
+				color="info" tooltip="編輯財產分類"  :disabled="!has_category"
+				@click="editCategory"
+				/>
          </v-col>
       </v-row>
    </form>
@@ -266,5 +296,18 @@ function report() {
    :categories="categories"
 	@select="onCategoryGroupSelected"
    />
+   <v-dialog persistent v-model="state.form.active" :width="state.form.width + 50">
+      <v-card v-if="state.form.active" :max-width="state.form.width">
+         <CommonCardTitle :title="state.form.title"
+         @cancel="onCancel"  
+         />
+         <v-card-text>
+            <CategoryForm :id="state.form.id" :model="state.form.model"
+            :labels="labels" :can_remove="state.form.can_remove"
+            @remove="removeCategory"
+            />
+         </v-card-text>
+      </v-card>
+   </v-dialog>
 </div>   
 </template>

@@ -3,14 +3,13 @@ import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } fr
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { ROUTE_NAMES, ENTITY_TYPES, WIDTH, ACTION_TYPES, ACTION_TITLES, ERRORS } from '@/consts'
-import { INIT_PROPERTIES, FETCH_PROPERTIES, UPLOAD_PROPERTIES, IMPORT_PROPERTIES, REPORT_PROPERTIES
-} from '@/store/actions.type'
+import { INIT_PROPERTIES, FETCH_PROPERTIES, UPLOAD_PROPERTIES, IMPORT_PROPERTIES, REPORT_PROPERTIES,
+	REMOVE_PROPERTY} from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { isEmptyObject, deepClone , downloadFile, showConfirm, hideConfirm,
 	onErrors, onSuccess, setValues, is400, now,
 	resolveErrorData
 } from '@/utils'
-import PagedList from '@/models/pagedList'
 
 
 const name = 'PropertiesIndexView'
@@ -28,6 +27,7 @@ const initialState = {
 		action: '',
 		width: WIDTH.L
 	},
+	remove: 0,
 	deprecated: false,
 	category: null,
 	category_tree: {
@@ -91,12 +91,38 @@ function onUpload() {
 	state.form.action = UPLOAD_PROPERTIES
 	state.form.active = true
 }
+function confirmRemove(item) {
+	state.remove = item.id
+	let confirm = {
+		type: ERRORS, 
+		title: '確定要刪除?', 
+		text: '', 
+		ok:'確定', 
+		cancel: '取消', 
+		on_ok: remove, 
+		on_cancel: null, 
+		max_width: 0 
+	}
+	showConfirm(confirm)
+}
 function onRemove(item) {
+	console.log('onRemove', item)
 	// if(state.form.action === IMPORT_PROPERTIES) {
 	// 	const index = state.form.model.allItems.findIndex(x => x.uid === item.uid)
 	// 	state.form.model.allItems.splice(index, 1)
 	// }
 	
+}
+function remove() {
+	let id = state.remove
+	store.dispatch(REMOVE_PROPERTY, id)
+	.then(() => {
+		hideConfirm()
+		onSuccess()
+
+		fetchData()
+	})
+	.catch(error => onSubmitError(error))
 }
 function importProps(list) {
 	store.dispatch(IMPORT_PROPERTIES, { list })
@@ -129,7 +155,7 @@ function onOptionChanged(option) {
 				<PropertyTable :labels="labels" :deprecated="state.deprecated"
 				:locations="locations" :users="users" :can_remove="true"
 				:model="pagedList" :categories="categories"
-				@remove="onRemove"
+				@remove="confirmRemove"
 				@options_changed="onOptionChanged"
 				/>
 			</v-col>
@@ -144,40 +170,6 @@ function onOptionChanged(option) {
 					:labels="labels" :type_options="type_options"
 					@submit="importProps"
 					/>
-					<!-- <v-row dense v-if="state.form.action === UPLOAD_PROPERTIES">
-						<v-col cols="12">
-							<PropertyUploadForm
-							:labels="labels" :type_options="type_options"
-							@submit="upload"
-							/>
-						</v-col>
-					</v-row>
-					<v-row dense v-if="state.form.action === IMPORT_PROPERTIES">
-						<v-col cols="12">
-							<v-chip v-for="(category, index) in state.form.categories"  class="ml-1 mb-1" 
-							:variant="category.selected ? 'tonal' : 'outlined'"
-							:key="index" :color="category.selected ? 'info' : ''"
-							@click="selectCategory(index)"
-							>
-								{{ category.name }}
-							</v-chip>
-						</v-col>
-						<v-col cols="12">
-							<PropertySourceTable
-							:model="state.form.model" :labels="labels" :can_remove="true"
-							@remove="onRemove"
-							/>
-						</v-col>
-					</v-row>
-					<v-row v-if="state.form.action === IMPORT_PROPERTIES">
-						<v-col cols="12">
-							<v-btn color="success" class="float-right"
-							@click.prevent="importProps"
-							>
-							{{ ACTION_TITLES.SAVE }}
-							</v-btn>
-						</v-col>
-					</v-row> -->
 				</v-card-text>
 			</v-card>
 		</v-dialog>

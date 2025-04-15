@@ -136,6 +136,12 @@ const headers = computed(() => {
       sortable: false,
       key: 'isDown',
    },{
+      title: getLabel('deviceCode'),
+      align: 'start',
+      width: '8%',
+      sortable: false,
+      key: 'deviceCode',
+   },{
       title: getLabel('ps'),
       align: 'start',
       width: '10%',
@@ -144,10 +150,10 @@ const headers = computed(() => {
    }]
 
    const notdeprecatedKeys = ['propertyTypeText', 'category', 'type', 'brandName', 'title', 'numberText',
-      'getDateText', 'location', 'userName', 'isDown', 'ps'
+      'getDateText', 'location', 'userName', 'isDown', 'deviceCode', 'ps'
    ]
    const deprecatedKeys = ['propertyTypeText', 'category', 'brandName', 'type', 'title', 'numberText',
-      'downDateText', 'ps'
+      'downDateText', 'deviceCode', 'ps'
    ]
 
    let results = props.deprecated ? items.filter(x => deprecatedKeys.includes(x.key)) : items.filter(x => notdeprecatedKeys.includes(x.key))
@@ -157,7 +163,6 @@ const headers = computed(() => {
    } 
    if(props.can_remove) {
       results.unshift(items.find(x => x.key === 'remove'))
-      console.log(results)
    } 
    return results
 })

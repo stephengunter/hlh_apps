@@ -2,6 +2,7 @@ import { createStore } from 'vuex'
 
 import app from './modules/app.module'
 import auth from './modules/auth.module'
+import categories from './modules/categories.module'
 import users from './modules/users.module'
 import departments from './modules/departments.module'
 import cryptoes from './modules/cryptoes.module'
@@ -16,6 +17,7 @@ const store = createStore({
    modules: {
       app,
       auth,
+      categories,
       users,
       departments,
       cryptoes,

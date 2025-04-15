@@ -1,7 +1,7 @@
 import Errors from '@/common/errors'
 import Service from '@/services/properties.service'
-import { INIT_PROPERTIES, FETCH_PROPERTIES, REPORT_PROPERTIES, UPLOAD_PROPERTIES, IMPORT_PROPERTIES
-} from '@/store/actions.type'
+import { INIT_PROPERTIES, FETCH_PROPERTIES, REPORT_PROPERTIES, UPLOAD_PROPERTIES, IMPORT_PROPERTIES,
+   REMOVE_PROPERTY, EDIT_PROPERTY_CATEGORY, REMOVE_PROPERTY_CATEGORY } from '@/store/actions.type'
 import { SET_LOADING, SET_PROPERTIES_ADMIN_MODEL, SET_PROPERTIES_INDEX_MODEL, SET_PROPERTIES_LIST } from '@/store/mutations.type'
 import { deepClone } from '@/utils'
 import { ROUTE_NAMES } from '@/consts'
@@ -82,6 +82,35 @@ const actions = {
       return new Promise((resolve, reject) => {
          Service.reports(model)
          .then(data => resolve(data))
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
+   [REMOVE_PROPERTY](context, id) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         Service.remove(id)
+         .then(() => resolve())
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
+   [EDIT_PROPERTY_CATEGORY](context, id) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         Service.editCategory(id)
+         .then(model => {
+            resolve(model)
+         })
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
+   [REMOVE_PROPERTY_CATEGORY](context, id) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         Service.removeCategory(id)
+         .then(() => resolve())
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })

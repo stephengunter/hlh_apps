@@ -12,4 +12,10 @@ const imports = (model) => BaseService.post(`${source}/imports`, model)
 
 const reports = (model) => BaseService.blob('post', `${source}/reports`, model)
 
-export default { init, fetch, upload, imports, reports }
+const remove = (id) => BaseService.remove(`${source}/${id}`)
+
+const editCategory = (id) => BaseService.fetch(`${source}/editCategory/${id}`)
+
+const removeCategory = (id) => BaseService.remove(`${source}/removeCategory/${id}`)
+
+export default { init, fetch, upload, imports, reports, remove, editCategory, removeCategory }

@@ -20,6 +20,15 @@ export const FETCH_DEPARTMENTS = 'fetchDepartments'
 //Users
 export const FETCH_USERS = 'fetchUsers'
 
+
+//Categories
+export const FETCH_CATEGORIES = 'fetchCategories'
+export const CREATE_CATEGORY = 'createCategory'
+export const STORE_CATEGORY = 'storeCategory'
+export const EDIT_CATEGORY = 'editCategory'
+export const UPDATE_CATEGORY = 'updateCategory'
+export const REMOVE_CATEGORY = 'removeCategory'
+
 //Devices
 export const INIT_DEVICES = 'initDevices'
 export const FETCH_DEVICES = 'fetchDevices'
@@ -41,6 +50,8 @@ export const REMOVE_PROPERTY = 'removeProperty'
 export const UPLOAD_PROPERTIES = 'uploadProperties'
 export const IMPORT_PROPERTIES = 'importProperties'
 export const REPORT_PROPERTIES = 'reportProperties'
+export const EDIT_PROPERTY_CATEGORY = 'editPropertyCategory'
+export const REMOVE_PROPERTY_CATEGORY = 'removePropertyCategory'
 
 //Items
 export const INIT_ITEMS = 'initItems'
