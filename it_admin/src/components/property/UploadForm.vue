@@ -66,6 +66,10 @@ function upload(form) {
 	})
 	.catch(error => onErrors(error))
 }
+function categoryInfo(category) {
+	const items = state.model.allItems.filter(x => x.categoryName === category.name).filter(x => !x.removed)
+	return `${category.name} : ${items.length}`
+}
 function selectCategory(index) {
 	let category = state.categories[index]	
 	category.selected = !category.selected
@@ -138,7 +142,7 @@ function onPageOptionChanged(option) {
 				:key="index" :color="category.selected ? 'info' : ''"
 				@click="selectCategory(index)"
 				>
-					{{ category.name }}
+					{{ categoryInfo(category) }}
 				</v-chip>
 			</v-col>
 			<v-col cols="12">

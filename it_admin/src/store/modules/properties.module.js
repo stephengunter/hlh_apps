@@ -1,6 +1,7 @@
 import Errors from '@/common/errors'
 import Service from '@/services/properties.service'
-import { INIT_PROPERTIES, FETCH_PROPERTIES, REPORT_PROPERTIES, UPLOAD_PROPERTIES, IMPORT_PROPERTIES,
+import { INIT_PROPERTIES, FETCH_PROPERTIES, EDIT_PROPERTY, UPDATE_PROPERTY,
+   REPORT_PROPERTIES, UPLOAD_PROPERTIES, IMPORT_PROPERTIES,
    REMOVE_PROPERTY, EDIT_PROPERTY_CATEGORY, REMOVE_PROPERTY_CATEGORY } from '@/store/actions.type'
 import { SET_LOADING, SET_PROPERTIES_ADMIN_MODEL, SET_PROPERTIES_INDEX_MODEL, SET_PROPERTIES_LIST } from '@/store/mutations.type'
 import { deepClone } from '@/utils'
@@ -12,6 +13,7 @@ const initialState = {
    labels: {
    },
    type_options: [],
+   device_options: [],
    pagedList: null,
    groupViews: [],
    locations: [],
@@ -47,6 +49,26 @@ const actions = {
             context.commit(SET_PROPERTIES_INDEX_MODEL, model)
             resolve()
          })
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
+   [EDIT_PROPERTY](context, id) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         Service.edit(id)
+         .then(model => {
+            resolve(model)
+         })
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
+   [UPDATE_PROPERTY](context, { id, model }) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         Service.update({ id, model })
+         .then(() => resolve())
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })
@@ -122,6 +144,7 @@ const mutations = {
       state.query = model.request
       state.labels = model.labels
       state.type_options = model.typeOptions
+      state.device_options = model.deviceOptions
       state.locations = model.locations
       state.categories = model.categories
    },

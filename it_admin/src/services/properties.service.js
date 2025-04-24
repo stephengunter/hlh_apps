@@ -6,6 +6,10 @@ const init = () => BaseService.fetch(`${source}/init`)
 
 const fetch = (query) => BaseService.fetch(source, query)
 
+const edit = (id) => BaseService.fetch(`${source}/edit/${id}`)
+
+const update = ({ id, model }) => BaseService.put(`${source}/${id}`, model)
+
 const upload = (model) => BaseService.post(`${source}/upload`, model)
 
 const imports = (model) => BaseService.post(`${source}/imports`, model)
@@ -18,4 +22,4 @@ const editCategory = (id) => BaseService.fetch(`${source}/editCategory/${id}`)
 
 const removeCategory = (id) => BaseService.remove(`${source}/removeCategory/${id}`)
 
-export default { init, fetch, upload, imports, reports, remove, editCategory, removeCategory }
+export default { init, fetch, edit, update, upload, imports, reports, remove, editCategory, removeCategory }

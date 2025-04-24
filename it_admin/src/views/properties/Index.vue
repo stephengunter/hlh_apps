@@ -3,7 +3,8 @@ import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } fr
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { ROUTE_NAMES, ENTITY_TYPES, WIDTH, ACTION_TYPES, ACTION_TITLES, ERRORS } from '@/consts'
-import { INIT_PROPERTIES, FETCH_PROPERTIES, UPLOAD_PROPERTIES, IMPORT_PROPERTIES, REPORT_PROPERTIES,
+import { INIT_PROPERTIES, FETCH_PROPERTIES, UPLOAD_PROPERTIES, IMPORT_PROPERTIES, 
+	EDIT_PROPERTY, UPDATE_PROPERTY, REPORT_PROPERTIES,
 	REMOVE_PROPERTY} from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
 import { isEmptyObject, deepClone , downloadFile, showConfirm, hideConfirm,
@@ -22,6 +23,7 @@ const initialState = {
 	form: {
 		id: '',
 		title: '',
+		model: null,
 		active: false,
 		labels: null,
 		action: '',
@@ -41,6 +43,7 @@ const state = reactive(deepClone(initialState))
 const query = computed(() => store.state.properties.query)
 const labels = computed(() => store.state.properties.labels)
 const type_options = computed(() => store.state.properties.type_options)
+const device_options = computed(() => store.state.properties.device_options)
 const groupViews = computed(() => store.state.properties.groupViews)
 const categories = computed(() => store.state.properties.categories)
 const locations = computed(() => store.state.properties.locations)
@@ -71,6 +74,36 @@ function fetchData(query) {
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(FETCH_PROPERTIES, query)
 	.catch(error => onErrors(error))
+}
+
+function edit(item) {
+	let id = item.id
+	store.dispatch(EDIT_PROPERTY, id)
+	.then(model => {
+		state.form.id = id
+		state.form.model = model.property
+		state.form.form = model.form
+		state.form.title = `編輯資訊財產`
+		state.form.width = WIDTH.L
+		state.form.action = UPDATE_PROPERTY
+		state.form.active = true
+		console.log(model)
+		// hideConfirm()
+		// onSuccess()
+
+		// fetchData()
+	})
+	.catch(error => onSubmitError(error))
+}
+function onUpdate(form) {
+	const id = state.form.id
+	store.dispatch(UPDATE_PROPERTY, { id, model: form })
+	.then(() => {
+		cancelForm()
+		onSuccess()
+		fetchData()
+	})
+	.catch(error => onSubmitError(error))
 }
 function cancelForm() {
 	state.form = deepClone(initialState.form)
@@ -145,7 +178,7 @@ function onOptionChanged(option) {
 
 <template>
 	<div>
-		<PropertyHead ref="head" :type_options="type_options"
+		<PropertyHead ref="head" :type_options="type_options" :device_options="device_options"
 		:query="query" :labels="labels" :groupViews="groupViews"
 		:categories="categories" :locations="locations" 
 		@submit="fetchData" @report="report" @upload="onUpload"
@@ -153,9 +186,9 @@ function onOptionChanged(option) {
 		<v-row dense>
 			<v-col cols="12">
 				<PropertyTable :labels="labels" :deprecated="state.deprecated"
-				:locations="locations" :users="users" :can_remove="true"
+				:locations="locations" :users="users" :can_edit="true" :can_remove="false"
 				:model="pagedList" :categories="categories"
-				@remove="confirmRemove"
+				@remove="confirmRemove" @edit="edit"
 				@options_changed="onOptionChanged"
 				/>
 			</v-col>
@@ -166,7 +199,12 @@ function onOptionChanged(option) {
 				@cancel="cancelForm"  
 				/>
 				<v-card-text>
-					<PropertyUploadForm 
+					<PropertyForm v-if="state.form.action === UPDATE_PROPERTY"
+					:id="state.form.id" :model="state.form.model" :labels="labels" 
+					:categories="categories" :locations="locations"
+					@submit="onUpdate"
+					/>
+					<PropertyUploadForm v-if="state.form.action === UPLOAD_PROPERTIES"
 					:labels="labels" :type_options="type_options"
 					@submit="importProps"
 					/>

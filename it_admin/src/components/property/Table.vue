@@ -46,7 +46,7 @@ const props = defineProps({
    }
 })
 
-const emit = defineEmits(['select', 'check', 'remove', 'options_changed'])
+const emit = defineEmits(['select', 'edit', 'remove', 'options_changed'])
 defineExpose({
    getCheckIds, setCheckIds
 })
@@ -62,13 +62,7 @@ const headers = computed(() => {
       align: 'center',
       width: '3%',
       sortable: false,
-      key: 'check',
-   },{
-      title: '',
-      align: 'center',
-      width: '3%',
-      sortable: false,
-      key: 'remove',
+      key: 'action',
    },{
       title: getLabel('propertyType'),
       align: 'start',
@@ -92,7 +86,7 @@ const headers = computed(() => {
       align: 'start',
       width: '10%',
       sortable: false,
-      key: 'numberText',
+      key: 'numberStickText',
    },{
       title: getLabel('brand'),
       align: 'start',
@@ -149,21 +143,21 @@ const headers = computed(() => {
       key: 'ps',
    }]
 
-   const notdeprecatedKeys = ['propertyTypeText', 'category', 'type', 'brandName', 'title', 'numberText',
+   const notdeprecatedKeys = ['action', 'propertyTypeText', 'category', 'type', 'brandName', 'title', 'numberStickText',
       'getDateText', 'location', 'userName', 'isDown', 'deviceCode', 'ps'
    ]
-   const deprecatedKeys = ['propertyTypeText', 'category', 'brandName', 'type', 'title', 'numberText',
+   const deprecatedKeys = ['action', 'propertyTypeText', 'category', 'brandName', 'type', 'title', 'numberStickText',
       'downDateText', 'deviceCode', 'ps'
    ]
 
    let results = props.deprecated ? items.filter(x => deprecatedKeys.includes(x.key)) : items.filter(x => notdeprecatedKeys.includes(x.key))
 
-   if(props.can_check) {
-      results.unshift(items.find(x => x.key === 'check'))
-   } 
-   if(props.can_remove) {
-      results.unshift(items.find(x => x.key === 'remove'))
-   } 
+   // if(props.can_check) {
+   //    results.unshift(items.find(x => x.key === 'check'))
+   // } 
+   // if(props.can_remove) {
+   //    results.unshift(items.find(x => x.key === 'remove'))
+   // } 
    return results
 })
 
@@ -227,6 +221,14 @@ function locationTitle(item) {
       :loading="props.loading"
       :items="list"
       >
+         <template v-slot:item.action="{ item }">
+            <v-btn v-if="props.can_edit" color="info" icon="mdi-pencil" variant="text" 
+            @click.prevent="() => emit('edit', item)" 
+            />
+            <v-btn v-if="props.can_remove" color="error" icon="mdi-delete" variant="text" 
+            @click.prevent="() => emit('remove', item)" 
+            />
+         </template>
          <template v-slot:item.category="{ item }">
             {{ categoryTitle(item) }}
          </template>
@@ -252,8 +254,13 @@ function locationTitle(item) {
       :loading="props.loading"
       :items="list"
       >
-         <template v-slot:item.remove="{ item }">
-            <v-btn color="error" icon="mdi-delete" variant="text" 
+         <template v-slot:item.action="{ item }">
+            <v-btn v-if="props.can_edit" color="info" icon="mdi-pencil" variant="text" 
+            size="small"
+            @click.prevent="() => emit('edit', item)" 
+            />
+            <v-btn v-if="props.can_remove" color="error" icon="mdi-delete" variant="text" 
+            size="small"
             @click.prevent="() => emit('remove', item)" 
             />
          </template>

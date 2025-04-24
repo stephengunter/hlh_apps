@@ -23,6 +23,10 @@ const props = defineProps({
       type: Array,
       default: () => []
    },
+   device_options: {
+      type: Array,
+      default: () => []
+   },
    categories: {
       type: Array,
       default: () => []
@@ -125,6 +129,7 @@ function init() {
    state.query.deprecated = isTrue(state.query.deprecated)
    state.query.down = tryParseInt(state.query.down)
    state.query.type = tryParseInt(state.query.type)
+   state.query.device = tryParseInt(state.query.device)
 
    state.query.category = tryParseInt(state.query.category)
    const category = category_list.value.find(x => x.id === state.query.category)
@@ -232,7 +237,6 @@ function report() {
 <div>
    <form v-show="!isEmptyObject(state.query)" @submit.prevent="onSubmit">
       <v-row dense>
-         
          <v-col cols="1" >
             <v-select density="compact" variant="outlined" label="狀態" 
 				:items="deprecated_options" v-model="state.query.deprecated"
@@ -248,6 +252,12 @@ function report() {
          <v-col cols="1">
             <v-select density="compact" variant="outlined" :label="getLabel('propertyType')" 
 				:items="type_options" v-model="state.query.type"
+				@update:modelValue="onSubmit"
+				/>
+         </v-col>
+         <v-col cols="1">
+            <v-select density="compact" variant="outlined" :label="getLabel('itDevice')" 
+				:items="device_options" v-model="state.query.device"
 				@update:modelValue="onSubmit"
 				/>
          </v-col>
@@ -269,7 +279,7 @@ function report() {
 				/>
          </v-col>
          
-         <v-col cols="2">
+         <v-col cols="1">
             
          </v-col>
          <v-col cols="3">
@@ -284,10 +294,6 @@ function report() {
             <CommonButtonDefault icon="mdi-file-document" class_name="float-right" 
 				color="warning" tooltip="輸出報表" :disabled="!can_report"
 				@click="report"
-				/>
-            <CommonButtonDefault icon="mdi-pencil" class_name="float-right mr-1" 
-				color="info" tooltip="編輯財產分類"  :disabled="!has_category"
-				@click="editCategory"
 				/>
          </v-col>
       </v-row>
