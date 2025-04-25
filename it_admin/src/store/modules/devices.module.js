@@ -12,9 +12,8 @@ const initialState = {
    },
    labels: {
    },
-   transactionLabels: {
-   },
    pagedList: null,
+   groupViews: [],
    locations: [],
    categories: [],  
    rootCategory: null,
@@ -102,10 +101,18 @@ const actions = {
          .finally(() => context.commit(SET_LOADING, false))
       })
    },
-   [IMPORT_DEVICES](context) {
+   [IMPORT_DEVICES](context, model) {
+      const formData = new FormData()
+      for (const key in model) {
+         if (key === 'file' && model[key]) {
+            formData.append(key, model[key], model[key].name);
+         } else if (model[key] != null) {
+            formData.append(key, model[key])
+         }
+      }
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         Service.imports()
+         Service.imports(formData)
          .then(data => resolve(data))
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
@@ -122,7 +129,8 @@ const mutations = {
       state.rootCategory = model.rootCategory
    },
    [SET_DEVICES_INDEX_MODEL](state, model) {
-      state.pagedList = model
+      state.pagedList = model.pagedList
+      state.groupViews = model.groupViews
    },
    [SET_DEVICES_LIST](state, list) {
       state.list = list

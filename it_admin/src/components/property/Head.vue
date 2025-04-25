@@ -80,7 +80,6 @@ const initialState = {
 	}
 }
 const state = reactive(deepClone(initialState))
-const file_upload = ref(null)
 
 const query_match_route = computed(() => {
 	if(route.query) {
@@ -100,8 +99,6 @@ const category_list = computed(() => {
 })
 const has_category = computed(() => {
    return state.query.category > 0
-   // if(state.category_name) return true
-   // return false
 })
 const has_location = computed(() => {
    if(state.location_name) return true
@@ -160,10 +157,6 @@ function setPageOption(option) {
 }
 function upload() {
    emit('upload')
-}
-function onFileAdded(files) {
-   if(files.length) emit('upload', files[0])
-   file_upload.value.reset()
 }
 function setCategory(category, submit = true) {
    state.category_name = category.title
@@ -287,10 +280,6 @@ function report() {
 				color="info" tooltip="上傳財產" :disabled="can_report"
 				@click="upload"
 				/>
-            <CommonInputUpload ref="file_upload" :show_button="false" :show_files="false"
-            :multiple="false" :is_media="false" :allow_types="state.upload.accept_types"
-				@file-added="onFileAdded"
-            />
             <CommonButtonDefault icon="mdi-file-document" class_name="float-right" 
 				color="warning" tooltip="輸出報表" :disabled="!can_report"
 				@click="report"

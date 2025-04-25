@@ -32,19 +32,13 @@ const initialState = {
 		action: '',
 		width: WIDTH.L
 	},
-	fired: false,
-	category: null,
-	category_tree: {
-		title: '',
-      active: false,
-		width: WIDTH.L
-   },
+	fired: false
 }
 const head = ref(null)
-const tree = ref(null)
 const state = reactive(deepClone(initialState))
 const query = computed(() => store.state.devices.query)
 const labels = computed(() => store.state.devices.labels)
+const groupViews = computed(() => store.state.devices.groupViews)
 const locations = computed(() => store.state.devices.locations)
 const categories = computed(() => store.state.devices.categories)
 const root_category = computed(() => store.state.devices.rootCategory)
@@ -78,37 +72,10 @@ function init() {
 }
 function fetchData(query) {
 	if(!query) query = head.value.getQuery()
-	if(query.category) {
-		if(!state.category) {
-			const category = categories.value.find(x => x.id === query.category)
-			state.category = category
-		}
-	}else state.category = null
 	state.fired = query.fired
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(FETCH_DEVICES, query)
 	.catch(error => onErrors(error))
-}
-function selectCategory(val) {
-	if(val) {
-		state.category_tree.active = true
-	}else {
-		state.category_tree = deepClone(initialState.category_tree)
-	}
-	
-}
-function initCategoryTree() {
-   tree.value.init()
-}
-function onCategorySelected(category) {
-	if(category) {
-		head.value.setCategory({ id: category.id, title: category.title })
-		state.category = deepClone(category)
-	}else {
-		head.value.setCategory(null)
-		state.category = null
-	}
-	selectCategory(false)
 }
 function onOptionChanged(option) {
 	head.value.setPageOption(option)
@@ -147,8 +114,9 @@ function onSubmit(form) {
 	else if(state.form.action === STORE_DEVICE) storeItem(form)
 	else if(state.form.action === STORE_DEVICE_TRANSACTION) storeTransaction(form)	
 }
-function imports() {
-   store.dispatch(IMPORT_DEVICES)
+function imports(file) {
+	const model = { file }
+   store.dispatch(IMPORT_DEVICES, model)
 	.then(() => {
 		onSuccess()
 		fetchData()
@@ -164,11 +132,10 @@ function onSubmitError(error) {
 
 <template>
 	<div>
-		{{ labels }}
-		<DeviceHead ref="head"
+		<DeviceHead ref="head" :categories="categories" :locations="locations"
 		:query="query" :labels="labels" :root_category="root_category"
-		:category="state.category"
-		@selectCategory="selectCategory" @imports="imports"
+		:groupViews="groupViews"
+		@upload="imports"
 		@submit="fetchData" @create="onCreate"
 		/>
 		
@@ -182,7 +149,7 @@ function onSubmitError(error) {
 			</v-col>
 		</v-row>
 		
-		<v-dialog persistent v-model="state.category_tree.active" :width="state.category_tree.width + 50">
+		<!-- <v-dialog persistent v-model="state.category_tree.active" :width="state.category_tree.width + 50">
 			<v-card v-if="state.category_tree.active" :max-width="state.category_tree.width">
 				<CommonCardTitle :title="state.category_tree.title"
 				@cancel="() => selectCategory(false)"  
@@ -196,6 +163,6 @@ function onSubmitError(error) {
                />
 				</v-card-text>
 			</v-card>
-		</v-dialog>
+		</v-dialog> -->
 	</div>
 </template>

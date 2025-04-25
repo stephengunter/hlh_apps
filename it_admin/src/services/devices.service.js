@@ -16,6 +16,6 @@ const update = ({ id, model }) => BaseService.put(`${source}/${id}`, model)
 
 const remove = (id) => BaseService.remove(`${source}/${id}`)
 
-const imports = () => BaseService.post(`${source}/imports`)
+const imports = (model) => BaseService.post(`${source}/imports`, model)
 
 export default { init, fetch, create, store, edit, update, remove, imports }

@@ -12,7 +12,7 @@ const props = defineProps({
       type: Object,
       default: null
    },
-   deprecated: {
+   fired: {
       type: Boolean,
       default: false
    },
@@ -60,11 +60,11 @@ const headers = computed(() => {
       sortable: false,
       key: 'check',
    },{
-      title: getLabel('propertyType'),
+      title: getLabel('no'),
       align: 'start',
       width: '5%',
       sortable: false,
-      key: 'propertyTypeText',
+      key: 'no',
    },{
       title: '分類',
       align: 'start',
@@ -78,11 +78,11 @@ const headers = computed(() => {
       sortable: false,
       key: 'title',
    },{
-      title: getLabel('number'),
+      title: getLabel('propNum'),
       align: 'start',
       width: '10%',
       sortable: false,
-      key: 'numberText',
+      key: 'propNumText',
    },{
       title: getLabel('brand'),
       align: 'start',
@@ -133,21 +133,23 @@ const headers = computed(() => {
       key: 'ps',
    }]
 
-   const notdeprecatedKeys = ['propertyTypeText', 'category', 'type', 'brandName', 'title', 'numberText',
+   const notfiredKeys = ['no', 'category', 'type', 'brandName', 'propNumText',
       'getDateText', 'location', 'userName', 'isDown', 'ps'
    ]
-   const deprecatedKeys = ['propertyTypeText', 'category', 'brandName', 'type', 'title', 'numberText',
+   const firedKeys = ['no', 'category', 'brandName', 'type', 'propNumText',
       'downDateText', 'ps'
    ]
-   if(props.deprecated) {
-      return items.filter(x => deprecatedKeys.includes(x.key)) 
+   if(props.fired) {
+      return items.filter(x => firedKeys.includes(x.key)) 
    } 
-   return items.filter(x => notdeprecatedKeys.includes(x.key))
+   return items.filter(x => notfiredKeys.includes(x.key))
 })
 
-
-
-const list = computed(() => isEmptyObject(props.model) ? [] : props.model.viewList)
+const list = computed(() => {
+   if(isEmptyObject(props.model)) return []
+   if(props.model.hasOwnProperty('viewList')) return props.model.viewList
+   return props.model.list
+})
 
 function getLabel(key) {
 	if(isEmptyObject(props.labels)) return ''
@@ -194,14 +196,21 @@ function locationTitle(item) {
 </script>
 <template>
    <div v-if="!isEmptyObject(props.model)"> 
-      {{ labels }}
-      <v-data-table-server v-if="deprecated"
+      <v-data-table-server v-if="fired"
       v-model:items-per-page="model.pageSize"
       :headers="headers"
       :items-length="model.totalItems"
       :loading="props.loading"
       :items="list"
       >
+         <template v-slot:item.action="{ item }">
+            <v-btn v-if="props.can_edit" color="info" icon="mdi-pencil" variant="text" 
+            @click.prevent="() => emit('edit', item)" 
+            />
+            <v-btn v-if="props.can_remove" color="error" icon="mdi-delete" variant="text" 
+            @click.prevent="() => emit('remove', item)" 
+            />
+         </template>
          <template v-slot:item.category="{ item }">
             {{ categoryTitle(item) }}
          </template>
@@ -227,12 +236,22 @@ function locationTitle(item) {
       :loading="props.loading"
       :items="list"
       >
+         <template v-slot:item.action="{ item }">
+            <v-btn v-if="props.can_edit" color="info" icon="mdi-pencil" variant="text" 
+            size="small"
+            @click.prevent="() => emit('edit', item)" 
+            />
+            <v-btn v-if="props.can_remove" color="error" icon="mdi-delete" variant="text" 
+            size="small"
+            @click.prevent="() => emit('remove', item)" 
+            />
+         </template>
          <template v-slot:item.category="{ item }">
             {{ categoryTitle(item) }}
          </template>
-         <template v-slot:item.title="{ item }">
+         <!-- <template v-slot:item.title="{ item }">
             {{ item.titleNameText }}
-         </template>
+         </template> -->
          <template v-slot:item.userName="{ item }">
             {{ userTitle(item) }}
          </template>
