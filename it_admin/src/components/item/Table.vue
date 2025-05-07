@@ -43,11 +43,15 @@ function addTran(id) {
 				</th>
             <th style="width: 25%;" v-text="getLabel('name')">
 				</th>
-            <th style="width: 10%;">	
+				<th style="text-align: center;width: 15%;">	
+					最近180天出貨量
+
+				</th>
+            <th style="text-align: center;width: 10%;">	
 					庫存
 
 				</th>
-				<th style="width: 10%;">
+				<th style="text-align: center;width: 10%;">
 					安全庫存			
 				</th>
 				<th style="width: 25%;" v-text="getLabel('ps')">					
@@ -66,10 +70,13 @@ function addTran(id) {
 				<td>
 					<a href="#" @click.prevent="select(item.id)" v-text="item.name"></a>
             </td>
-				<td :style="item.stock < item.saveStock ? 'color: red;' : ''">
+				<td style="text-align: center;">
+					{{ item.outCount }}
+				</td>
+				<td :style="item.stock < item.saveStock ? 'text-align: center;color: red;' : 'text-align: center;'">
 					{{ item.stock }}
 				</td>
-				<td>
+				<td style="text-align: center;">
 					{{ item.saveStock }}
 				</td>
 				<td>

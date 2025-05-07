@@ -40,16 +40,14 @@ const labels = computed(() => store.state.items.labels)
 const transactionLabels = computed(() => store.state.items.transactionLabels)
 const item_options = computed(() => store.state.items.item_options)
 
-const lastClosed = computed(() => store.state.items.lastClosed)
+const lastReport = computed(() => store.state.items.lastReport)
 const list = computed(() => store.state.items.list)
 const users = computed(() => store.getters.users)
 const departments = computed(() => store.getters.departments)
 
 
 onBeforeMount(() => {
-	if(!isEmptyObject(labels.value)) {
-		nextTick(init)
-	}
+	if(head.value) init()
 	else {
 		store.dispatch(INIT_ITEMS)
 		.then(() => {
@@ -194,7 +192,7 @@ function remove() {
 
 <template>
 	<div>
-		<ItemHead ref="head" :last_close="lastClosed"
+		<ItemHead ref="head" :last_close="lastReport"
 		:query="query" :labels="labels" 
 		@submit="fetchData" @create="onCreate"
 		/>

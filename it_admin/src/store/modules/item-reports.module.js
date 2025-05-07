@@ -54,9 +54,7 @@ const actions = {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
          Service.create()
-         .then(model => {
-            resolve(model.form)
-         })
+         .then(model => resolve(model))
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
       })

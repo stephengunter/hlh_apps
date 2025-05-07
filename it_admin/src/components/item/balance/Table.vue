@@ -18,10 +18,6 @@ const props = defineProps({
 		default: null
 	}
 })
-const emit = defineEmits(['details'])
-function details(id) {
-	emit('details', id)
-}
 function getLabel(key) {
 	if(isEmptyObject(props.labels)) return ''
    return getValue(props.labels, key)
@@ -30,16 +26,21 @@ function getLabel(key) {
 </script>
 
 <template>
+	<div>{{ props.labels }}
 	<v-table v-if="props.month">
 		<thead>
 			<tr>
             <th style="width: 25%;" v-text="getLabel('item')">					
 				</th>
-            <th style="width: 25%;" v-text="getLabel('quantityChanged')">
+				<th style="text-align: center;width: 15%;">前期庫存					
 				</th>
-				<th style="width: 25%;" v-text="getLabel('stock')">
+            <th style="text-align: center;width: 15%;">本期入庫
 				</th>
-				<th style="width: 25%;" v-text="getLabel('ps')">	
+				<th style="text-align: center;width: 15%;">本期出庫
+				</th>
+				<th style="text-align: center;width: 15%;">期末庫存
+				</th>
+				<th v-text="getLabel('ps')">	
 								
 				</th>
 			</tr>
@@ -49,10 +50,16 @@ function getLabel(key) {
 				<td>
 					{{ model.item.name }}
             </td>
-				<td>
-					{{ model.quantityChanged }}
+				<td style="text-align: center;">
+					{{ model.lastStock }}
+            </td>
+				<td style="text-align: center;">
+					{{ model.inQty }}
 				</td>
-				<td>
+				<td style="text-align: center;">
+					{{ model.outQty }}
+				</td>
+				<td style="text-align: center;">
 					{{ model.stock }}
 				</td>
 				<td>
@@ -87,4 +94,5 @@ function getLabel(key) {
 			</tr>
 		</tbody>
   </v-table>
+</div>
 </template>

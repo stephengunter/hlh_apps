@@ -86,7 +86,7 @@ function edit(id) {
 					{{ model.item.name }}
             </td>
 				<td :style="model.in ? 'color: green' : ''"  >
-					{{ model.in ? '入庫' : '出庫' }}
+					{{ model.in ? '進貨' : '出貨' }}
 				</td>
             <td>
 					{{ model.in ? model.inQuantity : model.outQuantity }}

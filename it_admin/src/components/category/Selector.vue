@@ -95,7 +95,6 @@ function edit() {
          icon="mdi-pencil" color=""
          @click="edit"
          />
-         
         </template>
    </v-autocomplete>
 </template>

@@ -17,6 +17,7 @@ const initialState = {
    item_options: [],
    year_options: [],
    month_options: [],
+   inout_options: [],
    list: []
 }
 
@@ -109,7 +110,10 @@ const mutations = {
       state.labels = model.labels
       state.year_options = model.yearOptions
       state.item_options = model.itemOptions
-      let month_options = []
+      state.inout_options = model.inOutOptions
+      let month_options = [{
+         value: 0, title: '全部'
+      }]
       for(let i = 1; i <= 12; i++) {
          month_options.push({ value: i, title: `${i}月` })
       }

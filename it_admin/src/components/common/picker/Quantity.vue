@@ -38,21 +38,18 @@ function init() {
 }
 function decreaseQuantity() {
    state.val = (state.val - props.step)
-   search()
+   emit('changed', state.val)
 }
 function increaseQuantity() {
    state.val = (state.val + props.step)
-   search()
-}
-function search() {
-   emit('search', state.val)
+   emit('changed', state.val)
 }
 </script>
 
 <template>
    <v-row dense >
-      <v-col cols="3" class="pt-3 pl-3 ">
-         <span v-text="label" class="float-right"></span>
+      <v-col cols="3" class="pt-3 pl-3">
+         <span style="font-size: 0.8rem;" v-text="label" class="float-right"></span>
       </v-col>
       <v-col cols="3">
          <v-btn style="margin-top: 6px;" class="float-right" icon size="xx-small"
@@ -66,7 +63,7 @@ function search() {
          v-model="state.val"
          type="number"
          density="compact"
-         hide-details
+         hide-details readonly
          variant="outlined"
          class="text-center"
          />

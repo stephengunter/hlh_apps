@@ -59,8 +59,6 @@ const initialState = {
 	out: 1
 }
 const state = reactive(deepClone(initialState))
-const APP = ENTITY_TYPES.APP
-const department_selector = ref(null)
 
 const canRemove = computed(() => {
 	if(!props.id) return false
@@ -97,7 +95,6 @@ function getLabel(key) {
 }
 
 function setDate(date) {
-	console.log('setDate', date)
 	if(date) {
 		state.date = date
 		state.form.date = date.text
@@ -110,7 +107,6 @@ function setDate(date) {
 }
 function checkDate() {
 	const key = 'date'
-	console.log(state.form[key])
 	if(state.form[key]) {
 		state.errors.clear(key)
 	}else {
@@ -118,10 +114,18 @@ function checkDate() {
 	}
 }
 function onInOutChanged(val) {
+	
 	if(val) { //out
 		
+	}else {
+		setDepartment(null)
+		setUser(null)
 	} 
 	console.log('onInOutChanged', val)
+	checkErrors()
+}
+function setQty(val) {
+	state.form.quantity = val
 }
 function setItem(item) {
 	if(item) {
@@ -136,13 +140,11 @@ function setItem(item) {
 }
 function checkItem() {
 	const key = 'itemId'
-	console.log('itemId', state.form[key])
 	if(state.form[key]) {
 		state.errors.clear(key)
 	}else {
 		state.errors.set(key, [`${VALIDATE_MESSAGES.REQUIRED(getLabel('item'))}`])
 	}
-	console.log('checkItem', state.form[key])
 }
 function setDepartment(depatment) {
 	if(depatment) {
@@ -156,6 +158,7 @@ function setDepartment(depatment) {
 	checkDepartment()
 }
 function setUser(user) {
+	console.log('setUser', user)
 	if(user) {
 		state.user = user.profiles.name
 		state.form.userId = user.id
@@ -250,11 +253,14 @@ function onInputChanged(){
         		</v-btn-toggle>
 			</v-col>
 			<v-col cols="4">
-				<CommonPickerQuantity density="compact" variant="outlined" label="數量" />
+				<CommonPickerQuantity density="compact" variant="outlined" 
+				label="數量" :qty="state.form.saveStock" :min="0"
+				@changed="setQty"
+				/>
 			</v-col>
 		</v-row>
 		<v-row dense>
-			<v-col cols="3">
+			<v-col cols="3">{{ state.user }}
 				<UserSelector density="compact" variant="outlined"
 				:clearable="true"
 				:error_message="state.errors.get('userId')"
@@ -263,7 +269,7 @@ function onInputChanged(){
 				@selected="setUser"
 				/>
 			</v-col>
-			<v-col cols="3">
+			<v-col cols="3"> {{ state.department }}
 				<DepartmentSelector density="compact" variant="outlined"
 				:clearable="true"
 				:error_message="state.errors.get('departmentId')"

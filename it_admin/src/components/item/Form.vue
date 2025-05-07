@@ -28,6 +28,7 @@ const initialState = {
    form: {
 		name: '',
 		code: '',
+		saveStock: 0,
 		ps: '',
 		active: false
    }
@@ -62,6 +63,9 @@ function init() {
 function getLabel(key) {
 	if(isEmptyObject(props.labels)) return ''
    return getValue(props.labels, key)
+}
+function setSaveStock(val) {
+	state.form.saveStock = val
 }
 function onSubmit() {
 	v$.value.$validate().then(valid => {
@@ -99,8 +103,10 @@ function onInputChanged(){
 				/>
 			</v-col>
 			<v-col cols="4">
-				
-				
+				<CommonPickerQuantity density="compact" variant="outlined" 
+				label="安全庫存量" :qty="state.form.saveStock" :min="0"
+				@changed="setSaveStock"
+				/>
 			</v-col>
 			<v-col cols="2">
 				<v-switch 

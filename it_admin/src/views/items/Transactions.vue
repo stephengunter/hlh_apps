@@ -37,6 +37,7 @@ const query = computed(() => store.state.item_transactions.query)
 const labels = computed(() => store.state.item_transactions.labels)
 const year_options = computed(() => store.state.item_transactions.year_options)
 const month_options = computed(() => store.state.item_transactions.month_options)
+const inout_options = computed(() => store.state.item_transactions.inout_options)
 const item_options = computed(() => store.state.item_transactions.item_options)
 const list = computed(() => store.state.item_transactions.list)
 const users = computed(() => store.getters.users)
@@ -44,9 +45,7 @@ const departments = computed(() => store.getters.departments)
 
 
 onBeforeMount(() => {
-	if(!isEmptyObject(labels.value)) {
-		nextTick(init)
-	}
+	if(head.value) init()
 	else {
 		store.dispatch(INIT_ITEM_TRANSACTIONS)
 		.then(() => {
@@ -191,7 +190,7 @@ function remove() {
 	<div>
 		<ItemTransactionHead ref="head" :query="query" :labels="labels" 
 		:year_options="year_options" :month_options="month_options"
-		:item_options="item_options"
+		:inout_options="inout_options" :item_options="item_options"
 		@submit="fetchData" @create="onCreate"
 		/>
 		<v-row dense>

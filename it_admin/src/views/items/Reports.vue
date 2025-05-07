@@ -2,7 +2,7 @@
 import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { ROUTE_NAMES, ENTITY_TYPES, WIDTH, ACTION_TYPES, WARNING, ERRORS } from '@/consts'
+import { ROUTE_NAMES, ENTITY_TYPES, WIDTH, ACTION_TYPES, ERRORS, ACTION_TITLES } from '@/consts'
 import { INIT_ITEM_REPORTS, FETCH_ITEM_REPORTS, CREATE_ITEM_REPORT, STORE_ITEM_REPORT, EDIT_ITEM_REPORT, UPDATE_ITEM_REPORT, 
 	REMOVE_ITEM_REPORT, ITEM_REPORT_DETAILS 
 } from '@/store/actions.type'
@@ -17,16 +17,25 @@ const name = 'ItemReprtsView'
 const store = useStore()
 const route = useRoute()
 const router = useRouter()
-const ITEM_REPORT_REPORT = ENTITY_TYPES.ITEM_REPORT_REPORT
+const ITEM_REPORT = ENTITY_TYPES.ITEM_REPORT
 const initialState = {
 	report: {
 		id: '',
 		title: '',
 		active: false,
-		model: {
-		},
+		model: null,
+		forms: [],
 		action: '',
-		width: WIDTH.L
+		width: WIDTH.M
+	},
+	form: {
+		id: '',
+		title: '',
+		active: false,
+		model: null,
+		list: [],
+		action: '',
+		width: WIDTH.M
 	}
 }
 const state = reactive(deepClone(initialState))
@@ -39,7 +48,7 @@ const list = computed(() => store.state.item_reports.list)
 const head = ref(null)
 
 onBeforeMount(() => {
-	if(!isEmptyObject(query.value)) init()
+	if(head.value) init()
 	else {
 		store.dispatch(INIT_ITEM_REPORTS)
 		.then(() => {
@@ -49,10 +58,12 @@ onBeforeMount(() => {
 	}
 })
 function init() {
+	//if(head.value)
 	head.value.init()
 }
 function fetchData(query) {
 	if(!query) query = head.value.getQuery()
+
 	store.commit(CLEAR_ERRORS)
 	store.dispatch(FETCH_ITEM_REPORTS, query)
 	.catch(error => onErrors(error))
@@ -60,14 +71,18 @@ function fetchData(query) {
 function onCreate(query) {
 	state.report.title = `${ACTION_TYPES.CREATE.title}${ITEM_REPORT.title}`
 	store.dispatch(CREATE_ITEM_REPORT)
-	.then(model => {
-		state.report.model = deepClone(model)
-		state.report.model.type = query.type
-		state.report.action = STORE_ITEM_REPORT
-		state.report.width = WIDTH.L
-		state.report.active = true
+	.then(forms => {
+		state.form.title = '新增報表'
+		state.form.list = forms.slice(0)
+		state.form.action = STORE_ITEM_REPORT
+		state.form.width = WIDTH.M
+		state.form.active = true
 	})
 	.catch(error => onErrors(error))
+}
+
+function onCancelCreate() {
+	state.form = deepClone(initialState.form)
 }
 function onCancel() {
 	state.report = deepClone(initialState.report)
@@ -80,15 +95,13 @@ function details(id) {
 		state.report.model = deepClone(model)
 		if(model.month) {
 			state.report.title = `${model.year}年${model.month}月 耗材報表`
-			state.report.title += `日期 ${model.date}`
+			state.report.title += `  (${model.date})`
 		}else {
 			state.report.title = `${model.year - 1}年度 耗材結存帳`
 			state.report.title += ` (${model.date})`
 		}
 		
-		
 		state.report.actions = []
-
 		//state.report.action = UPDATE_ITEM_REPORT
 		state.report.width = WIDTH.L
 		state.report.active = true
@@ -96,62 +109,25 @@ function details(id) {
 	.catch(error => onErrors(error))
 }
 function onSubmit(form) {
-	if(state.report.id) updateItem(form)
-	else storeItem(form)
-	
-}
-function storeItem(form) {
-	setValues(form, state.report.model)
-	store.dispatch(state.report.action, state.report.model)
-	.then(() => {
-		onCancel()
-		onSuccess()
-		fetchData()
-	})
-	.catch(error => onSubmitError(error))
-}
-function updateItem(form) {
-	let model = state.report.model
-	let id = state.report.id
-	setValues(form, model)
-	store.dispatch(state.report.action, { id, model })
-	.then(() => {
-		onCancel()
-		onSuccess()
-		fetchData()
-	})
-	.catch(error => onSubmitError(error))
-}
-function onSubmitError(error) {
-	let data = resolveErrorData(error)
-	if(data && data.errors) store.commit(SET_ERRORS, data.errors)
-	else onErrors(error)
-}
-function confirmResetClientSecret(id) {
-	state.reset_pw.id = id
-	let confirm = {
-		type: WARNING, 
-		title: '確定要重設密碼?', 
-		text: '', 
-		ok:'確定', 
-		cancel: '取消', 
-		on_ok: resetClientSecret, 
-		on_cancel: null, 
-		max_width: 0 
-	}
-	showConfirm(confirm)
-}
-function resetClientSecret() {
-	let id = state.reset_pw.id
-	store.dispatch(RESET_ITEM_REPORT_CLIENT_SECRET, id)
-	.then(() => {
-		hideConfirm()
-		onCancel()
+	store.commit(CLEAR_ERRORS)
+	state.form.model = deepClone(form)
+	store.dispatch(STORE_ITEM_REPORT, form)
+	.then(id => {
+		onCancelCreate()
 		onSuccess()
 
 		fetchData()
 	})
 	.catch(error => onSubmitError(error))
+}
+
+function onSubmitError(error) {
+	let data = resolveErrorData(error)
+	if(isEmptyObject(data)) onErrors(error)
+	else store.commit(SET_ERRORS, data)
+}
+function onRemove() {
+	console.log('onRemove')
 }
 function confirmRemove() {
 	let confirm = {
@@ -199,11 +175,46 @@ function remove() {
 				<CommonCardTitle :title="state.report.title"
 				@cancel="onCancel"  
 				/>
-				<v-card-text v-if="state.report.active">
-					<ItemBalanceTable 
-					:labels="balanceSheetLabels"
-					:list="state.report.model.itemBalanceSheets"
-					/>
+				<v-card-text>
+					<v-row dense>
+						<v-col cols="12">
+							<ItemBalanceTable :month="state.report.model.month"
+							:labels="balanceSheetLabels"
+							:list="state.report.model.itemBalanceSheets"
+							/>
+						</v-col>
+					</v-row>
+					<v-row dense>
+						<v-col cols="12">
+							<v-btn v-if="state.report.model.canDelete"  class="float-right" color="error"
+							@click.prevent="confirmRemove" 
+							>
+								{{ ACTION_TITLES.REMOVE }}
+							</v-btn>
+						</v-col>
+					</v-row>
+				</v-card-text>
+			</v-card>
+		</v-dialog>
+		<v-dialog persistent v-model="state.form.active" :width="state.form.width + 50">
+			<v-card v-if="state.form.active" :max-width="state.form.width">
+				<CommonCardTitle :title="state.form.title"
+				@cancel="onCancelCreate"  
+				/>
+				<v-card-text>
+					<v-row dense>
+						<v-col cols="12">
+							<ItemReportForm 
+							:list="state.form.list"
+							@submit="onSubmit"
+							/>
+						</v-col>
+					</v-row>
+					<v-row dense>
+						<v-col cols="12">
+							<CommonErrorsList />
+						</v-col> 
+					</v-row>
 				</v-card-text>
 			</v-card>
 		</v-dialog>

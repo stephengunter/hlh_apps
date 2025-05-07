@@ -15,7 +15,7 @@ const initialState = {
    transactionLabels: {
    },
    item_options: [],
-   lastClosed: null,
+   lastReport: null,
    list: []
 }
 
@@ -111,7 +111,7 @@ const mutations = {
    },
    [SET_ITEMS_INDEX_MODEL](state, model) {
       state.list = model.items
-      state.lastClosed = model.lastClosed
+      state.lastReport = model.lastReport
    },
    [SET_ITEMS_LIST](state, list) {
       state.list = list

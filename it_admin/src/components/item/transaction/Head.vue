@@ -33,6 +33,10 @@ const props = defineProps({
    item_options: {
       type: Array,
       default: () => []
+   },
+   inout_options: {
+      type: Array,
+      default: () => []
    }
 })
 const store = useStore()
@@ -62,6 +66,7 @@ function init() {
 	state.query = { ...route.query }
    state.query.year = tryParseInt(state.query.year)
 	state.query.month = tryParseInt(state.query.month)
+	state.query.inOut = tryParseInt(state.query.inOut)
 	state.query.item = tryParseInt(state.query.item)
    
    if(state.query.item) {
@@ -115,13 +120,19 @@ function create() {
 			<v-col cols="2">
             <v-select density="compact" variant="outlined" :label="getLabel('year')" 
 				:items="year_options" v-model="state.query.year"
-				@update:modelValue="onYearSelected"
+				@update:modelValue="onSubmit"
 				/>
          </v-col>
          <v-col cols="2">
             <v-select density="compact" variant="outlined" :label="getLabel('month')" 
 				:items="month_options" v-model="state.query.month"
-				@update:modelValue="onYearSelected"
+				@update:modelValue="onSubmit"
+				/>
+         </v-col>
+         <v-col cols="2">
+            <v-select density="compact" variant="outlined" label="交易別" 
+				:items="inout_options" v-model="state.query.inOut"
+				@update:modelValue="onSubmit"
 				/>
          </v-col>
          <v-col cols="4">
@@ -132,7 +143,7 @@ function create() {
 				@selected="setItem"
 				/>
          </v-col>
-         <v-col cols="4">
+         <v-col cols="2">
             <CommonButtonCreate class_name="float-right" 
 				tooltip="新增"
 				@create="create"
