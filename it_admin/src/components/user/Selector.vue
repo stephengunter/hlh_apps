@@ -37,6 +37,9 @@ const emit = defineEmits(['selected'])
 defineExpose({
    init
 })
+watch(() => props.keyword, init ,{
+   deep: false
+})
 const initialState = {
    val: '' 
 }

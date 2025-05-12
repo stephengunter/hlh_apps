@@ -254,7 +254,7 @@ function onInputChanged(){
 			</v-col>
 			<v-col cols="4">
 				<CommonPickerQuantity density="compact" variant="outlined" 
-				label="數量" :qty="state.form.saveStock" :min="0"
+				label="數量" :qty="state.form.quantity" :min="1"
 				@changed="setQty"
 				/>
 			</v-col>
