@@ -7,10 +7,12 @@ const init = () => BaseService.fetch(`${source}/init`)
 
 const fetch = (params) => BaseService.fetch(source, params)
 
+const download = () => BaseService.blob('post', `${source}/download`)
+
 const upload = (model) => BaseService.post(`${source}/upload`, model)
 
 const store = (model) => BaseService.post(source, model)
 
 const reports = (model) => BaseService.post(`${source}/reports`, model)
 
-export default { init, fetch, upload, store, reports }
+export default { init, fetch, download, upload, store, reports }

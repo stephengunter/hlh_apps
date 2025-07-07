@@ -39,6 +39,9 @@ export const downloadFromBlobUrl = (blobUrl, name) => {
    a.download = name
    document.body.appendChild(a)
    a.click()
+
+   document.body.removeChild(a)
+   window.URL.revokeObjectURL(blobUrl) // optional: cleanup
 }
 
 export const isPreviewable = (file) => {

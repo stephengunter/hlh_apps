@@ -2,8 +2,8 @@
 import { ref, reactive, computed, watch, onBeforeMount, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { ACTION_TYPES, ENTITY_TYPES, WIDTH } from '@/consts'
-import { INIT_KEYINS_BRANCHES, FETCH_KEYINS_BRANCHES, UPLOAD_KEYINS_BRANCHES, 
+import { ACTION_TYPES, ENTITY_TYPES, WIDTH, FILE_TYPES } from '@/consts'
+import { INIT_KEYINS_BRANCHES, FETCH_KEYINS_BRANCHES, DOWNLOAD_KEYINS_BRANCHES_TEMPLATE, UPLOAD_KEYINS_BRANCHES, 
 	STORE_KEYINS_BRANCHES, EXPORT_KEYINS_BRANCHES_REPORT 
 } from '@/store/actions.type'
 import { SET_ERRORS, CLEAR_ERRORS } from '@/store/mutations.type'
@@ -155,6 +155,14 @@ function submit() {
 	})
 	.catch(error => onErrors(error))
 }
+function onDownload() {
+	store.dispatch(DOWNLOAD_KEYINS_BRANCHES_TEMPLATE)
+	.then(data => {
+		const blob = new Blob([data])
+		downloadFile(blob, `法院成績範本.xlsx`)
+	})
+	.catch(error => onErrors(error))
+}
 function onCancel() {
 	state.form = deepClone(initialState.form)
 }
@@ -164,7 +172,8 @@ function onCancel() {
 <div>
 	<KeyinBranchHead ref="head" :labels="labels" :query="query" :can_report="state.can_report"
 	:branches="branches" :year_options="year_options" :month_options="month_options"
-	@submit="fetchData" @upload="onUpload" @report="onReport"
+	@submit="fetchData" @download="onDownload"
+	@upload="onUpload" @report="onReport"
 	/>
 	<v-row dense>
 		<v-col cols="12">

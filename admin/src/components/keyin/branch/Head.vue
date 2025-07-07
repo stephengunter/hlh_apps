@@ -9,7 +9,7 @@ import { isEmptyObject, deepClone , activeOptions, areObjectsEqual, reviewedOpti
 } from '@/utils'
 
 const name = 'KeyinBranchHead'
-const emit = defineEmits(['submit', 'upload', 'report'])
+const emit = defineEmits(['submit', 'download', 'upload', 'report'])
 defineExpose({
    init, setQuery, getQuery, setPageOption
 })
@@ -93,6 +93,9 @@ function onReport() {
 function onUpload() {
 	emit('upload', state.query)
 }
+function download() {
+	emit('download', state.query)
+}
 
 </script>
 
@@ -116,10 +119,11 @@ function onUpload() {
 				
 			</v-col>
 			<v-col cols="3">
+				
 				<v-tooltip text="上傳">
 					<template v-slot:activator="{ props }">
 						<v-btn class="float-right ml-1"
-						icon="mdi-upload" v-bind="props" size="small" color="info"
+						icon="mdi-upload" v-bind="props" size="small" color="success"
 						@click.prevent="onUpload"
 						/>
 					</template>
@@ -129,6 +133,14 @@ function onUpload() {
 						<v-btn class="float-right" 
 						icon="mdi-file-document" v-bind="props" size="small" color="warning"
 						@click.prevent="onReport"
+						/>
+					</template>
+				</v-tooltip>
+				<v-tooltip text="下載範本Excel檔">
+					<template v-slot:activator="{ props }">
+						<v-btn class="float-right mr-1"
+						icon="mdi-download" v-bind="props" size="small" color="info"
+						@click.prevent="download"
 						/>
 					</template>
 				</v-tooltip>

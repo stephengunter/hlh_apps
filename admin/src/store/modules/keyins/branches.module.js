@@ -1,7 +1,8 @@
-import KeyinsBrancheService from '@/services/keyins/bracnches.service'
+import Service from '@/services/keyins/bracnches.service'
 import { resolveErrorData, deepClone } from '@/utils'
 import {
-   INIT_KEYINS_BRANCHES, FETCH_KEYINS_BRANCHES, UPLOAD_KEYINS_BRANCHES, STORE_KEYINS_BRANCHES,
+   INIT_KEYINS_BRANCHES, FETCH_KEYINS_BRANCHES, DOWNLOAD_KEYINS_BRANCHES_TEMPLATE, 
+   UPLOAD_KEYINS_BRANCHES, STORE_KEYINS_BRANCHES,
    EXPORT_KEYINS_BRANCHES_REPORT
 } from '@/store/actions.type'
 
@@ -31,7 +32,7 @@ const actions = {
    [INIT_KEYINS_BRANCHES](context) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         KeyinsBrancheService.init()
+         Service.init()
             .then(model => {
                context.commit(SET_KEYINS_BRANCHES_INDEX_MODEL, model)
                resolve()
@@ -43,13 +44,22 @@ const actions = {
    [FETCH_KEYINS_BRANCHES](context, query) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         KeyinsBrancheService.fetch(query)
+         Service.fetch(query)
             .then(list => {
                context.commit(SET_KEYINS_BRANCHES, list)
                resolve(list)
             })
             .catch(error => reject(error))
             .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
+   [DOWNLOAD_KEYINS_BRANCHES_TEMPLATE](context) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         Service.download()
+         .then(data => resolve(data))
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
       })
    },
    [UPLOAD_KEYINS_BRANCHES](context, model) {
@@ -64,7 +74,7 @@ const actions = {
 
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         KeyinsBrancheService.upload(formData)
+         Service.upload(formData)
          .then(data => resolve(data))
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
@@ -73,7 +83,7 @@ const actions = {
    [STORE_KEYINS_BRANCHES](context, model) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         KeyinsBrancheService.store(model)
+         Service.store(model)
          .then(data => resolve(data))
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))
@@ -82,7 +92,7 @@ const actions = {
    [EXPORT_KEYINS_BRANCHES_REPORT](context, model) {
       context.commit(SET_LOADING, true)
       return new Promise((resolve, reject) => {
-         KeyinsBrancheService.reports(model)
+         Service.reports(model)
          .then(data => resolve(data))
          .catch(error => reject(error))
          .finally(() => context.commit(SET_LOADING, false))

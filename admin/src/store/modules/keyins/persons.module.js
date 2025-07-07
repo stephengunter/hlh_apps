@@ -1,7 +1,8 @@
 import Service from '@/services/keyins/persons.service'
 import { resolveErrorData, deepClone } from '@/utils'
 import {
-   INIT_KEYINS_PERSONS, FETCH_KEYINS_PERSONS, UPLOAD_KEYINS_PERSONS, STORE_KEYINS_PERSONS, EXPORT_KEYINS_PERSONS_REPORT
+   INIT_KEYINS_PERSONS, FETCH_KEYINS_PERSONS, DOWNLOAD_KEYINS_PERSONS_TEMPLATE,
+   UPLOAD_KEYINS_PERSONS, STORE_KEYINS_PERSONS, EXPORT_KEYINS_PERSONS_REPORT
 } from '@/store/actions.type'
 
 import { SET_KEYINS_PERSONS_INDEX_MODEL, SET_KEYINS_PERSONS, SET_LOADING } from '@/store/mutations.type'
@@ -49,6 +50,15 @@ const actions = {
             })
             .catch(error => reject(error))
             .finally(() => context.commit(SET_LOADING, false))
+      })
+   },
+   [DOWNLOAD_KEYINS_PERSONS_TEMPLATE](context) {
+      context.commit(SET_LOADING, true)
+      return new Promise((resolve, reject) => {
+         Service.download()
+         .then(data => resolve(data))
+         .catch(error => reject(error))
+         .finally(() => context.commit(SET_LOADING, false))
       })
    },
    [UPLOAD_KEYINS_PERSONS](context, model) {
