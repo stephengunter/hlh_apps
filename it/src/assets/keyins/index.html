@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+	<meta charset="UTF-8">
+	<title>聽打成績</title>
+	<style>
+		body {
+			font-family: "Microsoft JhengHei", sans-serif;
+			margin: 40px auto;
+			width: 800px;
+			background: #f8f8f8;
+		}
+
+		h1 {
+			text-align: center;
+			margin-bottom: 20px;
+		}
+
+		.form-row {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 10px;
+			margin-bottom: 20px;
+		}
+
+		.form-select {
+			flex: 1;
+			padding: 8px;
+			border: 1px solid #aaa;
+			border-radius: 5px;
+			font-size: 14px;
+			background: white;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			background: white;
+			margin-top: 20px;
+			box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+		}
+
+		th,
+		td {
+			border: 1px solid #ccc;
+			padding: 6px;
+			text-align: center;
+		}
+
+		thead {
+			background: #444;
+			color: white;
+		}
+
+		tr.bg-highlight {
+			background-color: #ffeb3b;
+		}
+
+		.hidden {
+			display: none;
+		}
+
+		.loading {
+			text-align: center;
+			font-size: 16px;
+			color: #666;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>聽打成績</h1>
+
+	<div id="app">
+		<div class="form-row">
+			<select id="typeSelect" class="form-select">
+				<option value="persons">個人成績</option>
+				<!-- <option value="branches">法院成績</option> -->
+			</select>
+			<select id="yearSelect" class="form-select"></select>
+			<select id="monthSelect" class="form-select"></select>
+		</div>
+
+		<div id="loading" class="loading hidden">載入中...</div>
+
+		<table id="personTable" class="hidden">
+			<thead>
+				<tr>
+					<th>股別</th>
+					<th>姓名</th>
+					<th>成績(字/分)</th>
+					<th>正確率(%)</th>
+					<th>進步率(%)</th>
+					<th>備註</th>
+				</tr>
+			</thead>
+			<tbody id="personTableBody"></tbody>
+		</table>
+
+		<table id="branchTable" class="hidden" style="display: none;">
+			<thead>
+				<tr>
+					<th>名次</th>
+					<th>法院</th>
+					<th>成績(字/分)</th>
+					<th>缺考率</th>
+					<th>進步率(%)</th>
+				</tr>
+			</thead>
+			<tbody id="branchTableBody"></tbody>
+		</table>
+	</div>
+
+	<script>
+		const source = "https://api.hlhjudicial.tw/open/keyins";
+		const state = {
+			type: "persons",
+			query: { year: 0, month: 0 },
+			years: [],
+			months: [],
+			person_list: [],
+			branch_list: []
+		};
+
+		// Elements
+		const typeSelect = document.getElementById("typeSelect");
+		const yearSelect = document.getElementById("yearSelect");
+		const monthSelect = document.getElementById("monthSelect");
+		const loadingEl = document.getElementById("loading");
+		const personTable = document.getElementById("personTable");
+		const personTableBody = document.getElementById("personTableBody");
+		const branchTable = document.getElementById("branchTable");
+		const branchTableBody = document.getElementById("branchTableBody");
+
+		function setLoading(isLoading) {
+			loadingEl.classList.toggle("hidden", !isLoading);
+			personTable.classList.toggle("hidden", isLoading);
+			branchTable.classList.toggle("hidden", isLoading);
+		}
+
+		function populateSelect(select, items, suffix = "") {
+			select.innerHTML = items.map(v => `<option value="${v}">${v}${suffix}</option>`).join("");
+		}
+
+		async function init() {
+			setLoading(true);
+			try {
+				const res = await fetch(`${source}/${state.type}/init`);
+				const data = await res.json();
+
+				state.query.year = data.request.year;
+				state.query.month = data.request.month;
+				state.years = data.years;
+				state.months = Array.from({ length: 12 }, (_, i) => i + 1);
+
+				populateSelect(yearSelect, state.years, "年");
+				populateSelect(monthSelect, state.months, "月");
+
+				yearSelect.value = state.query.year;
+				monthSelect.value = state.query.month;
+
+				await fetchData();
+			} catch (err) {
+				console.error("Init error:", err);
+			} finally {
+				setLoading(false);
+			}
+		}
+
+		async function fetchData() {
+			setLoading(true);
+			try {
+				const params = new URLSearchParams(state.query).toString();
+				const url = `${source}/${state.type}?${params}`;
+				const res = await fetch(url);
+				const data = await res.json();
+
+				if (state.type === "persons") {
+					state.person_list = data;
+					renderPersonTable();
+				} else {
+					state.branch_list = data;
+					renderBranchTable();
+				}
+			} catch (err) {
+				console.error("Fetch error:", err);
+			} finally {
+				setLoading(false);
+			}
+		}
+
+		function renderPersonTable() {
+			personTableBody.innerHTML = state.person_list.map(item => `
+        <tr>
+          <td>${item.unit}</td>
+          <td>${item.person.name}</td>
+          <td>${item.score}</td>
+          <td>${item.correctRate}</td>
+          <td>${parseInt(item.diff) ? item.diff : ""}</td>
+			 <td>${item.person.allPass ? '(免測)' : ''}</td>
+        </tr>
+      `).join("");
+			personTable.classList.remove("hidden");
+			branchTable.classList.add("hidden");
+		}
+
+		function renderBranchTable() {
+			branchTableBody.innerHTML = state.branch_list.map(item => `
+        <tr class="${item.branch.key === "HLH" ? "bg-highlight" : ""}">
+          <td>${item.rank}</td>
+          <td>${item.branch.title}</td>
+          <td>${item.score}</td>
+          <td>${item.absentRate}</td>
+          <td>${item.diff}</td>
+        </tr>
+      `).join("");
+			branchTable.classList.remove("hidden");
+			personTable.classList.add("hidden");
+		}
+
+		// Event bindings
+		typeSelect.addEventListener("change", () => {
+			state.type = typeSelect.value;
+			fetchData();
+		});
+
+		yearSelect.addEventListener("change", () => {
+			state.query.year = parseInt(yearSelect.value);
+			fetchData();
+		});
+
+		monthSelect.addEventListener("change", () => {
+			state.query.month = parseInt(monthSelect.value);
+			fetchData();
+		});
+
+		init();
+	</script>
+</body>
+
+</html>
